@@ -134,14 +134,19 @@ const datePage = async (page, browser) => {
     // Check the month
     await page.waitForTimeout(200);
     await page.click(departGraph.monthSelector);
-    console.log("Select Month")
+    console.log("Select Month");
     await page.waitForTimeout(1000);
     // console.log("Selecting");
-    await page.keyboard.type(`${monthNames[departPickMonth]} ${departPickYear}`);
+    await page.keyboard.type(
+      `${monthNames[departPickMonth]} ${departPickYear}`
+    );
     await page.keyboard.press("Enter");
     // console.log("selected");
     // Check Day
     await page.waitForTimeout(200);
+    await page.waitForSelector(
+      `#app-root > div > div > div:nth-child(1) > div > div:nth-child(3) > div.month-view__card > div.month-view__tabbed-panels > div:nth-child(2) > div > div:nth-child(2) > div > div.month-view-charts.clearfix > div > div:nth-child(1) > div.month-view-chart-area > div > div > div.chart-area > div > button:nth-child(${departPickDay}) > div.radio-wrapper > label > input`
+    );
     await page.click(
       `#app-root > div > div > div:nth-child(1) > div > div:nth-child(3) > div.month-view__card > div.month-view__tabbed-panels > div:nth-child(2) > div > div:nth-child(2) > div > div.month-view-charts.clearfix > div > div:nth-child(1) > div.month-view-chart-area > div > div > div.chart-area > div > button:nth-child(${departPickDay}) > div.radio-wrapper > label > input`
     );
@@ -152,7 +157,7 @@ const datePage = async (page, browser) => {
       departArriveDifference;
       addReturnDay++
     ) {
-      console.log("Firing second loop")
+      console.log("Firing second loop");
       // Test Calculation
       const daysToAdd =
         userFlight.dates.minimalHoliday + addDepartDay + addReturnDay;
@@ -171,10 +176,15 @@ const datePage = async (page, browser) => {
       await page.click(returnGraph.monthSelector);
       await page.waitForTimeout(200);
       // console.log("Selecting");
-      await page.keyboard.type(`${monthNames[returnDateWithMonth]} ${returnDateWithYear}`);
+      await page.keyboard.type(
+        `${monthNames[returnDateWithMonth]} ${returnDateWithYear}`
+      );
       await page.keyboard.press("Enter");
       // console.log("let's have a look");
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(200);
+      await page.waitForSelector(
+        `#app-root > div > div > div:nth-child(1) > div > div:nth-child(3) > div.month-view__card > div.month-view__tabbed-panels > div:nth-child(2) > div > div:nth-child(2) > div > div.month-view-charts.clearfix > div > div:nth-child(3) > div.month-view-chart-area > div > div > div.chart-area > div > button:nth-child(${returnDateWithDate}) > div.radio-wrapper > label > input`
+      );
       await page.click(
         `#app-root > div > div > div:nth-child(1) > div > div:nth-child(3) > div.month-view__card > div.month-view__tabbed-panels > div:nth-child(2) > div > div:nth-child(2) > div > div.month-view-charts.clearfix > div > div:nth-child(3) > div.month-view-chart-area > div > div > div.chart-area > div > button:nth-child(${returnDateWithDate}) > div.radio-wrapper > label > input`
       );
@@ -209,12 +219,11 @@ const datePage = async (page, browser) => {
       }
     }
   }
-  console.log("Saving information")
+  console.log("Saving information");
   console.log(flightScannerObject);
   userFlight.scanDate.push(flightScannerObject);
   await userFlight.save();
-  console.log("Saved")
-
+  console.log("Saved");
 };
 
 module.exports = datePage;

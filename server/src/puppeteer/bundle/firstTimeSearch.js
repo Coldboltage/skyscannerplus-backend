@@ -38,12 +38,12 @@ const main = async () => {
     },
     flights: {
       departure: "Dublin",
-      arrival: "Tokyo (Any)",
+      arrival: "Milan (Any)",
     },
     dates: {
-      departureDate: "2022-07-14",
-      returnDate: "2022-07-28",
-      minimalHoliday: 7,
+      departureDate: "2022-06-01",
+      returnDate: "2022-06-28",
+      minimalHoliday: 3,
     },
   });
 

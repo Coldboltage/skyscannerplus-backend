@@ -23,6 +23,7 @@ const processPage = async (page, returnDateInMili) => {
   // });
 
   console.log("refreshing page");
+  await page.reload({ waitUntil: ["networkidle0", "domcontentloaded"] });
   await page.waitForSelector("#app-root > div.FlightsDayView_row__NjQyZ > div > div.FlightsDayView_container__ZjgwY > div.FlightsDayView_results__YjlmM > div:nth-child(1) > div.ResultsSummary_container__ZWE4O > div.ResultsSummary_innerContainer__ZjFhZ > div.ResultsSummary_summaryContainer__NmI1Y > span", {timeout: 300000})
   await page.keyboard.press('Enter')
   await page.waitForTimeout(1000)
@@ -30,29 +31,60 @@ const processPage = async (page, returnDateInMili) => {
   console.log("Page loaded apprently")
   console.log("Reading Page");
 
+  // Cheapest Flights
   await page.click(
     "#app-root > div.FlightsDayView_row__NjQyZ > div > div.FlightsDayView_container__ZjgwY > div.FlightsDayView_results__YjlmM > div:nth-child(1) > div.FqsTabs_fqsTabsWithSparkle__ZDAyO > button:nth-child(2)",
     { clickCount: 2 }
   );
+
   await page.waitForTimeout(1500);
-  const html = await page.content();
-  const $ = cheerio.load(html);
+  const cheapestHTML = await page.content();
+  let $ = cheerio.load(cheapestHTML);
 
   $(`[data-testid]`).remove()
   $(`#app-root > div.FlightsDayView_row__NjQyZ > div > div.FlightsDayView_container__ZjgwY > div.FlightsDayView_results__YjlmM > div:nth-child(1) > div.FlightsResults_dayViewItems__ZDFlO > div:nth-child(1)`).remove()
   $("#app-root > div.FlightsDayView_row__NjQyZ > div > div.FlightsDayView_container__ZjgwY > div.FlightsDayView_results__YjlmM > div:nth-child(1) > div.FlightsResults_dayViewItems__ZDFlO > div.ItineraryInlinePlusWrapper_container__YjM3Y").remove()
 
-  const cost = $(
+  const cheapestCost = $(
     "#app-root > div.FlightsDayView_row__NjQyZ > div > div.FlightsDayView_container__ZjgwY > div.FlightsDayView_results__YjlmM > div:nth-child(1) > div.FlightsResults_dayViewItems__ZDFlO > div:nth-child(1) > div > div.FlightsTicket_container__NWJkY > a > div > div.BpkTicket_bpk-ticket__paper__N2IwN.BpkTicket_bpk-ticket__stub__MGVjZ.Ticket_stub__NGYxN.BpkTicket_bpk-ticket__stub--padded__MzZmN.BpkTicket_bpk-ticket__stub--horizontal__Y2IzN.BpkTicket_bpk-ticket__paper--with-notches__NDVkM > div > div > div > span"
   )
     .text()
     .substring(1)
     .replace(",", "")
 
-  const departureDepartTime = $(
+  const cheapestDepartureDepartTime = $(
     "#app-root > div.FlightsDayView_row__NjQyZ > div > div.FlightsDayView_container__ZjgwY > div.FlightsDayView_results__YjlmM > div:nth-child(1) > div.FlightsResults_dayViewItems__ZDFlO > div:nth-child(1) > div > div.FlightsTicket_container__NWJkY > a > div > div.BpkTicket_bpk-ticket__paper__N2IwN.BpkTicket_bpk-ticket__main__NmI5Z.BpkTicket_bpk-ticket__main--padded__YTMwZ.BpkTicket_bpk-ticket__main--horizontal__ZTY5N.BpkTicket_bpk-ticket__paper--with-notches__NDVkM > div > div.UpperTicketBody_container__NDcwM > div.UpperTicketBody_legsContainer__ZjcyZ > div:nth-child(1) > div.LegInfo_legInfo__ZGMzY > div.LegInfo_routePartialDepart__NzEwY > span.BpkText_bpk-text__YWQwM.BpkText_bpk-text--lg__ODFjM.LegInfo_routePartialTime__OTFkN > div > span"
   ).text();
-  const departureArrivalTime = $(
+  const cheapestDepartureArrivalTime = $(
+    "#app-root > div.FlightsDayView_row__NjQyZ > div > div.FlightsDayView_container__ZjgwY > div.FlightsDayView_results__YjlmM > div:nth-child(1) > div.FlightsResults_dayViewItems__ZDFlO > div:nth-child(1) > div > div.FlightsTicket_container__NWJkY > a > div > div.BpkTicket_bpk-ticket__paper__N2IwN.BpkTicket_bpk-ticket__main__NmI5Z.BpkTicket_bpk-ticket__main--padded__YTMwZ.BpkTicket_bpk-ticket__main--horizontal__ZTY5N.BpkTicket_bpk-ticket__paper--with-notches__NDVkM > div > div.UpperTicketBody_container__NDcwM > div.UpperTicketBody_legsContainer__ZjcyZ > div:nth-child(1) > div.LegInfo_legInfo__ZGMzY > div.LegInfo_routePartialArrive__Y2U1N > span.BpkText_bpk-text__YWQwM.BpkText_bpk-text--lg__ODFjM.LegInfo_routePartialTime__OTFkN > div > span.BpkText_bpk-text__YWQwM.BpkText_bpk-text--subheading__ODU3O"
+  ).text();
+
+  // Best
+  await page.waitForTimeout(1000)
+  await page.click(
+    "#app-root > div.FlightsDayView_row__NjQyZ > div > div.FlightsDayView_container__ZjgwY > div.FlightsDayView_results__YjlmM > div:nth-child(1) > div.FqsTabs_fqsTabsWithSparkle__ZDAyO > button:nth-child(1)",
+    { clickCount: 2 }
+  );
+
+  await page.waitForTimeout(1500);
+  const bestHTML = await page.content();
+  $ = cheerio.load(bestHTML);
+
+  $(`[data-testid]`).remove()
+  $(`#app-root > div.FlightsDayView_row__NjQyZ > div > div.FlightsDayView_container__ZjgwY > div.FlightsDayView_results__YjlmM > div:nth-child(1) > div.FlightsResults_dayViewItems__ZDFlO > div:nth-child(1)`).remove()
+  $("#app-root > div.FlightsDayView_row__NjQyZ > div > div.FlightsDayView_container__ZjgwY > div.FlightsDayView_results__YjlmM > div:nth-child(1) > div.FlightsResults_dayViewItems__ZDFlO > div.ItineraryInlinePlusWrapper_container__YjM3Y").remove()
+
+  const bestCost = $(
+    "#app-root > div.FlightsDayView_row__NjQyZ > div > div.FlightsDayView_container__ZjgwY > div.FlightsDayView_results__YjlmM > div:nth-child(1) > div.FlightsResults_dayViewItems__ZDFlO > div:nth-child(1) > div > div.FlightsTicket_container__NWJkY > a > div > div.BpkTicket_bpk-ticket__paper__N2IwN.BpkTicket_bpk-ticket__stub__MGVjZ.Ticket_stub__NGYxN.BpkTicket_bpk-ticket__stub--padded__MzZmN.BpkTicket_bpk-ticket__stub--horizontal__Y2IzN.BpkTicket_bpk-ticket__paper--with-notches__NDVkM > div > div > div > span"
+  )
+    .text()
+    .substring(1)
+    .replace(",", "")
+
+  const bestDepartureDepartTime = $(
+    "#app-root > div.FlightsDayView_row__NjQyZ > div > div.FlightsDayView_container__ZjgwY > div.FlightsDayView_results__YjlmM > div:nth-child(1) > div.FlightsResults_dayViewItems__ZDFlO > div:nth-child(1) > div > div.FlightsTicket_container__NWJkY > a > div > div.BpkTicket_bpk-ticket__paper__N2IwN.BpkTicket_bpk-ticket__main__NmI5Z.BpkTicket_bpk-ticket__main--padded__YTMwZ.BpkTicket_bpk-ticket__main--horizontal__ZTY5N.BpkTicket_bpk-ticket__paper--with-notches__NDVkM > div > div.UpperTicketBody_container__NDcwM > div.UpperTicketBody_legsContainer__ZjcyZ > div:nth-child(1) > div.LegInfo_legInfo__ZGMzY > div.LegInfo_routePartialDepart__NzEwY > span.BpkText_bpk-text__YWQwM.BpkText_bpk-text--lg__ODFjM.LegInfo_routePartialTime__OTFkN > div > span"
+  ).text();
+  const bestDepartureArrivalTime = $(
     "#app-root > div.FlightsDayView_row__NjQyZ > div > div.FlightsDayView_container__ZjgwY > div.FlightsDayView_results__YjlmM > div:nth-child(1) > div.FlightsResults_dayViewItems__ZDFlO > div:nth-child(1) > div > div.FlightsTicket_container__NWJkY > a > div > div.BpkTicket_bpk-ticket__paper__N2IwN.BpkTicket_bpk-ticket__main__NmI5Z.BpkTicket_bpk-ticket__main--padded__YTMwZ.BpkTicket_bpk-ticket__main--horizontal__ZTY5N.BpkTicket_bpk-ticket__paper--with-notches__NDVkM > div > div.UpperTicketBody_container__NDcwM > div.UpperTicketBody_legsContainer__ZjcyZ > div:nth-child(1) > div.LegInfo_legInfo__ZGMzY > div.LegInfo_routePartialArrive__Y2U1N > span.BpkText_bpk-text__YWQwM.BpkText_bpk-text--lg__ODFjM.LegInfo_routePartialTime__OTFkN > div > span.BpkText_bpk-text__YWQwM.BpkText_bpk-text--subheading__ODU3O"
   ).text();
 
@@ -65,9 +97,14 @@ const processPage = async (page, returnDateInMili) => {
     dateString: new Date(returnDateInMili).toString(),
     url: await page.url(),
     cheapest: {
-      cost: +cost,
-      time: departureDepartTime,
-      arrival: departureArrivalTime,
+      cost: +cheapestCost,
+      time: cheapestDepartureDepartTime,
+      arrival: cheapestDepartureArrivalTime,
+    },
+    best: {
+      cost: +bestCost,
+      time: bestDepartureDepartTime,
+      arrival: bestDepartureArrivalTime,
     },
   };
 };

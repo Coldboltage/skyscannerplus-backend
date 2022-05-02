@@ -78,6 +78,18 @@ const flightSchema = new mongoose.Schema({
                   type: String,
                 },
               },
+              best: {
+                cost: {
+                  type: Number,
+                  required: true,
+                },
+                time: {
+                  type: String,
+                },
+                arrival: {
+                  type: String,
+                },
+              },
             },
           ],
         },
