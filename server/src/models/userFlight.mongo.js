@@ -40,36 +40,50 @@ const flightSchema = new mongoose.Schema({
       // This let's us know when the scan was done
       dateOfScanLoop: {
         type: String,
-        required: true
-      },
-      departureDate: {
-        type: Date,
         required: true,
       },
-      returnDate: [
+      departureDate: [
         {
           date: {
             type: Date,
             required: true,
           },
-          cheapest: {
-            cost: {
-              type: Number,
-              required: true,
-            },
-            time: {
-              type: Date,
-              required: true,
-            },
-            arrival: {
-              type: Date,
-              required: true,
-            },
+          dateString: {
+            type: String,
+            required: true
           },
+          returnDates: [
+            {
+              date: {
+                type: Date,
+                required: true,
+              },
+              dateString: {
+                type: String,
+                required: true,
+              },
+              url: {
+                type: String,
+                required: true,
+              },
+              cheapest: {
+                cost: {
+                  type: Number,
+                  required: true,
+                },
+                time: {
+                  type: String,
+                },
+                arrival: {
+                  type: String,
+                },
+              },
+            },
+          ],
         },
-      ],
+      ]
     },
   ],
 });
 
-module.exports = mongoose.model("userflight", flightSchema)
+module.exports = mongoose.model("userflight", flightSchema);

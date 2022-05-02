@@ -6,6 +6,9 @@ const puppeteer = require("puppeteer-extra");
 const StealthPlugin = require("puppeteer-extra-plugin-stealth");
 puppeteer.use(StealthPlugin());
 
+const AdblockerPlugin = require("puppeteer-extra-plugin-adblocker");
+puppeteer.use(AdblockerPlugin({blockTrackers: true}));
+
 // Database
 const FlightsDatabase = require("../../models/userFlight.mongo");
 
@@ -13,10 +16,18 @@ const FlightsDatabase = require("../../models/userFlight.mongo");
 const skyscannerHomePage = require("../individual/skyscannerHomepage.puppeteer");
 const datePage = require("../individual/datePage.puppeteer");
 
+// Test
+
+const todaysDate = new Date();
+
 const main = async () => {
   console.log("Starting Main");
   const browser = await puppeteer.launch({ headless: false });
   const page = await browser.newPage();
+
+  await page.setRequestInterception( true )
+
+
   const pages = await browser.pages();
   await pages[0].close();
   // Execute skyscannerHomePage
@@ -26,15 +37,27 @@ const main = async () => {
       email: "alanreid@hotmail.co.uk",
     },
     flights: {
-      departure: "Belfast",
-      arrival: "Oslo",
+      departure: "Dublin",
+      arrival: "Tokyo (Any)",
     },
     dates: {
-      departureDate: "2022-06-28",
-      returnDate: "2022-07-21",
-      minimalHoliday: 14,
+      departureDate: "2022-07-14",
+      returnDate: "2022-07-28",
+      minimalHoliday: 7,
     },
   });
+
+  // page.on("request", (req) => {
+  //   if (
+  //     req.resourceType() == "stylesheet" ||
+  //     req.resourceType() == "font" ||
+  //     req.resourceType() == "image"
+  //   ) {
+  //     req.abort();
+  //   } else {
+  //     req.continue();
+  //   }
+  // });
   const datePageData = await skyscannerHomePage(page);
   await datePage(datePageData, browser);
 };

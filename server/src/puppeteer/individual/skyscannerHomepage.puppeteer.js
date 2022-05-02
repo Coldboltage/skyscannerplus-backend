@@ -3,6 +3,9 @@ const skyscannerHomePage = async (page) => {
     waitUntil: "networkidle2",
   });
 
+  const FlightsDatabase = require("../../models/userFlight.mongo")
+  const UserFlight = await FlightsDatabase.findOne({"user.name" : "Alan Reid"})
+
   // Accept TOS
   await page.click("#acceptCookieButton")
 
@@ -16,9 +19,15 @@ const skyscannerHomePage = async (page) => {
   const arrivalInputCheapestMonth = "#return-fsc-datepicker-popover > div > div > div.FlightDatepicker_fsc-datepicker__monthselector-container__ZWE4Y > div > button.BpkButtonBase_bpk-button__NTM4Y.BpkButtonSecondary_bpk-button--secondary__MWI2Z.Monthselector_monthselector__wholeyear__NDU5N"
 
   // Setting up from and away
+  await page.focus(originDestination);
+  await page.waitForTimeout(100)
+  await page.keyboard.type(UserFlight.flights.departure);
+  await page.keyboard.press('Enter');
+  
+  // Setting up from and away
   await page.focus(arrivalDestination);
   await page.waitForTimeout(100)
-  await page.keyboard.type("London");
+  await page.keyboard.type(UserFlight.flights.arrival);
   await page.keyboard.press('Enter');
 
   // Clicking Cheapest month setup
