@@ -7,7 +7,20 @@ const StealthPlugin = require("puppeteer-extra-plugin-stealth");
 puppeteer.use(StealthPlugin());
 
 const AdblockerPlugin = require("puppeteer-extra-plugin-adblocker");
-puppeteer.use(AdblockerPlugin({blockTrackers: true}));
+puppeteer.use(AdblockerPlugin({ blockTrackers: true }));
+
+// const pluginProxy = require('puppeteer-extra-plugin-proxy');
+
+// puppeteer.use(
+//   pluginProxy({
+//     address: "proxy.iproyal.com",
+//     port: 12323,
+//     credentials: {
+//       username: `${process.env.PROXY_USERNAME}`,
+//       password: `${process.env.PROXY_PASSWORD}`,
+//     },
+//   })
+// );
 
 // Database
 const FlightsDatabase = require("../../models/userFlight.mongo");
@@ -17,49 +30,43 @@ const skyscannerHomePage = require("../individual/skyscannerHomepage.puppeteer")
 const datePage = require("../individual/datePage.puppeteer");
 
 // Test
-
 const todaysDate = new Date();
 
 const main = async () => {
   console.log("Starting Main");
-  const browser = await puppeteer.launch({ headless: false });
+  const browser = await puppeteer.launch({
+    headless: false,
+    args: ["--no-sandbox", "--disable-setuid-sandbox"],
+  });
   const page = await browser.newPage();
 
-  await page.setRequestInterception( true )
-
+  await page.setRequestInterception(true);
 
   const pages = await browser.pages();
   await pages[0].close();
   // Execute skyscannerHomePage
-  await FlightsDatabase.create({
+  const newUser = {
     user: {
       name: "Alan Reid",
       email: "alanreid@hotmail.co.uk",
     },
+    ref: "lcs-june-test",
     flights: {
       departure: "Dublin",
-      arrival: "Milan (Any)",
+      arrival: "Los Angeles (Any)",
     },
     dates: {
-      departureDate: "2022-06-01",
-      returnDate: "2022-06-28",
-      minimalHoliday: 3,
+      departureDate: "2022-06-21",
+      returnDate: "2022-07-14",
+      minimalHoliday: 7,
     },
-  });
+  };
 
-  // page.on("request", (req) => {
-  //   if (
-  //     req.resourceType() == "stylesheet" ||
-  //     req.resourceType() == "font" ||
-  //     req.resourceType() == "image"
-  //   ) {
-  //     req.abort();
-  //   } else {
-  //     req.continue();
-  //   }
-  // });
-  const datePageData = await skyscannerHomePage(page);
-  await datePage(datePageData, browser);
+  await FlightsDatabase.create(newUser);
+
+  const datePageData = await skyscannerHomePage(page, newUser);
+  await datePage(datePageData, browser, newUser);
+  return newUser;
 };
 
 module.exports = main;

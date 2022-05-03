@@ -1,15 +1,11 @@
 const userFlightDatabase = require("./userFlight.mongo");
 
-const cheapestFlightScannedToday = async () => {
-  const Flight = await userFlightDatabase.findOne({
-    "user.name": "Alan Reid",
-  });
-  console.log(Flight);
+const cheapestFlightScannedToday = async (newUser) => {
+  const Flight = await userFlightDatabase.findOne({ref: newUser.ref});
   const FlightArrays = Flight.scanDate.at(-1).departureDate;
 
   let cheapestObject = [];
   let bestObject = [];
-  console.log(cheapestObject);
 
   for (let departureDateArray of FlightArrays) {
     console.log("new loop");
@@ -18,7 +14,7 @@ const cheapestFlightScannedToday = async () => {
         cheapestObject.push(returnDatesArray);
       }
       if (returnDatesArray.best.cost > 0) {
-        cheapestObject.push(returnDatesArray);
+        bestObject.push(returnDatesArray);
       }
     }
   }
@@ -30,11 +26,17 @@ const cheapestFlightScannedToday = async () => {
     return a.best.cost - b.best.cost;
   });
 
-  console.log(cheapestFlightsOrder);
+
+
+  for (let i = 0; i < 10; i++) {
+    console.log(cheapestFlightsOrder[i])
+  }
   console.log("####################")
   console.log("####################")
   console.log("####################")
-  console.log(bestFlightsOrder);
+  for (let i = 0; i < 10; i++) {
+    console.log(bestFlightsOrder[i])
+  };
   return cheapestFlightsOrder;
 };
 

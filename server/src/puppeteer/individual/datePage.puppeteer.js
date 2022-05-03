@@ -20,11 +20,9 @@ const monthNames = [
   "December",
 ];
 
-const datePage = async (page, browser) => {
+const datePage = async (page, browser, newUser) => {
   console.log("Entered Date page");
-  const userFlight = await FlightsDatabase.findOne({
-    "user.name": "Alan Reid",
-  });
+  const userFlight = await FlightsDatabase.findOne({ ref: newUser.ref });
   const html = await page.content();
   const $ = cheerio.load(html);
 
@@ -73,13 +71,15 @@ const datePage = async (page, browser) => {
   // We know that when we iterate over the 2nd loop to it's end, we add one, simple
 
   // Select ChartMode
-  await page.waitForTimeout(2000);
-  await page.waitForSelector(
-    "#app-root > div > div > div:nth-child(1) > div > div:nth-child(3) > div.month-view__card > div.month-view__tabbed-panels > div:nth-child(2) > div > div.CalendarChartSwitch > button:nth-child(2) > p"
-  );
-  await page.click(
-    "#app-root > div > div > div:nth-child(1) > div > div:nth-child(3) > div.month-view__card > div.month-view__tabbed-panels > div:nth-child(2) > div > div.CalendarChartSwitch > button:nth-child(2) > p"
-  );
+  // await page.waitForTimeout(2000);
+  // console.log(await page.url());
+  // // await page.screenshot({ path: 'test.png' });
+  // await page.waitForSelector(
+  //   "#app-root > div > div > div:nth-child(1) > div > div:nth-child(3) > div.month-view__card > div.month-view__tabbed-panels > div:nth-child(2) > div > div.CalendarChartSwitch > button:nth-child(2) > p"
+  // );
+  // await page.click(
+  //   "#app-root > div > div > div:nth-child(1) > div > div:nth-child(3) > div.month-view__card > div.month-view__tabbed-panels > div:nth-child(2) > div > div.CalendarChartSwitch > button:nth-child(2) > p"
+  // );
 
   // Get Todays Date
   const todaysDate = new Date();
@@ -121,10 +121,14 @@ const datePage = async (page, browser) => {
 
     departureDateIteration.date = new Date(
       departureDate.fullDate + addDepartDay * 86400000
-    );
+    )
+    departureDateIteration.month = new Date(
+      departureDate.fullDate + addDepartDay * 86400000
+    ).getMonth()
     departureDateIteration.dateString = new Date(
       departureDate.fullDate + addDepartDay * 86400000
     ).toDateString();
+    
     departureDateIteration.year = new Date(
       departureDate.fullDate + addDepartDay * 86400000
     ).getFullYear();
@@ -133,23 +137,25 @@ const datePage = async (page, browser) => {
 
     // Check the month
     await page.waitForTimeout(200);
-    await page.click(departGraph.monthSelector);
+    // await page.waitForSelector(departGraph.monthSelector);
+    // await page.click(departGraph.monthSelector);
     console.log("Select Month");
-    await page.waitForTimeout(1000);
+    await page.waitForTimeout(200);
     // console.log("Selecting");
-    await page.keyboard.type(
-      `${monthNames[departPickMonth]} ${departPickYear}`
-    );
-    await page.keyboard.press("Enter");
+    // await page.keyboard.type(
+    //   `${monthNames[departPickMonth]} ${departPickYear}`
+    // );
+    // await page.keyboard.press("Enter");
     // console.log("selected");
     // Check Day
     await page.waitForTimeout(200);
-    await page.waitForSelector(
-      `#app-root > div > div > div:nth-child(1) > div > div:nth-child(3) > div.month-view__card > div.month-view__tabbed-panels > div:nth-child(2) > div > div:nth-child(2) > div > div.month-view-charts.clearfix > div > div:nth-child(1) > div.month-view-chart-area > div > div > div.chart-area > div > button:nth-child(${departPickDay}) > div.radio-wrapper > label > input`
-    );
-    await page.click(
-      `#app-root > div > div > div:nth-child(1) > div > div:nth-child(3) > div.month-view__card > div.month-view__tabbed-panels > div:nth-child(2) > div > div:nth-child(2) > div > div.month-view-charts.clearfix > div > div:nth-child(1) > div.month-view-chart-area > div > div > div.chart-area > div > button:nth-child(${departPickDay}) > div.radio-wrapper > label > input`
-    );
+    // await page.waitForSelector(
+    //   `#app-root > div > div > div:nth-child(1) > div > div:nth-child(3) > div.month-view__card > div.month-view__tabbed-panels > div:nth-child(2) > div > div:nth-child(2) > div > div.month-view-charts.clearfix > div > div:nth-child(1) > div.month-view-chart-area > div > div > div.chart-area > div > button:nth-child(${departPickDay}) > div.radio-wrapper > label > input`
+    // );
+    // await page.click(
+    //   `#app-root > div > div > div:nth-child(1) > div > div:nth-child(3) > div.month-view__card > div.month-view__tabbed-panels > div:nth-child(2) > div > div:nth-child(2) > div > div.month-view-charts.clearfix > div > div:nth-child(1) > div.month-view-chart-area > div > div > div.chart-area > div > button:nth-child(${departPickDay}) > div.radio-wrapper > label > input`
+    // );
+
     console.log(addDepartDay);
     for (
       let addReturnDay = 0;
@@ -172,29 +178,67 @@ const datePage = async (page, browser) => {
         `Returning: Click for ${returnDateWithDate} ${monthNames[returnDateWithMonth]}`
       );
 
-      await page.waitForTimeout(200);
-      await page.click(returnGraph.monthSelector);
-      await page.waitForTimeout(200);
+      // await page.waitForTimeout(200);
+      // await page.click(returnGraph.monthSelector);
+      // await page.waitForTimeout(200);
       // console.log("Selecting");
-      await page.keyboard.type(
-        `${monthNames[returnDateWithMonth]} ${returnDateWithYear}`
-      );
-      await page.keyboard.press("Enter");
+      // await page.keyboard.type(
+      //   `${monthNames[returnDateWithMonth]} ${returnDateWithYear}`
+      // );
+      // await page.keyboard.press("Enter");
       // console.log("let's have a look");
-      await page.waitForTimeout(200);
-      await page.waitForSelector(
-        `#app-root > div > div > div:nth-child(1) > div > div:nth-child(3) > div.month-view__card > div.month-view__tabbed-panels > div:nth-child(2) > div > div:nth-child(2) > div > div.month-view-charts.clearfix > div > div:nth-child(3) > div.month-view-chart-area > div > div > div.chart-area > div > button:nth-child(${returnDateWithDate}) > div.radio-wrapper > label > input`
+      // await page.waitForTimeout(200);
+      // await page.waitForSelector(
+      //   `#app-root > div > div > div:nth-child(1) > div > div:nth-child(3) > div.month-view__card > div.month-view__tabbed-panels > div:nth-child(2) > div > div:nth-child(2) > div > div.month-view-charts.clearfix > div > div:nth-child(3) > div.month-view-chart-area > div > div > div.chart-area > div > button:nth-child(${returnDateWithDate}) > div.radio-wrapper > label > input`
+      // );
+      // console.log("fired");
+      // await page.click(
+      //   `#app-root > div > div > div:nth-child(1) > div > div:nth-child(3) > div.month-view__card > div.month-view__tabbed-panels > div:nth-child(2) > div > div:nth-child(2) > div > div.month-view-charts.clearfix > div > div:nth-child(3) > div.month-view-chart-area > div > div > div.chart-area > div > button:nth-child(${returnDateWithDate}) > div.radio-wrapper > label > input`
+      // );
+      // await page.click(
+      //   "#app-root > div > div > div:nth-child(1) > div > div:nth-child(3) > div.month-view__card > div.month-view__ctas.month-view__ctas--variant > div.month-view__trip-summary.month-view-variant__trip-summary > div.month-view-variant__trip-summary-container > div:nth-child(2) > div > button > span"
+      // );
+      // await page.waitForTimeout(1500);
+
+      // Dunnno regex so using forEach for this.
+      const fullURL = await page.url();
+      const removeFront = fullURL.replace(
+        "https://www.skyscanner.net/transport/flights/",
+        ""
       );
-      await page.click(
-        `#app-root > div > div > div:nth-child(1) > div > div:nth-child(3) > div.month-view__card > div.month-view__tabbed-panels > div:nth-child(2) > div > div:nth-child(2) > div > div.month-view-charts.clearfix > div > div:nth-child(3) > div.month-view-chart-area > div > div > div.chart-area > div > button:nth-child(${returnDateWithDate}) > div.radio-wrapper > label > input`
-      );
-      await page.waitForTimeout(500);
-      await page.click(
-        "#app-root > div > div > div:nth-child(1) > div > div:nth-child(3) > div.month-view__card > div.month-view__ctas.month-view__ctas--variant > div.month-view__trip-summary.month-view-variant__trip-summary > div.month-view-variant__trip-summary-container > div:nth-child(2) > div > button > span"
-      );
-      await page.waitForTimeout(1000);
-      const pages = await browser.pages();
-      const flightDateCheckupPage = pages[1];
+      const firstSlash = removeFront.indexOf("/");
+      const firstCode = removeFront.slice(0, firstSlash);
+      const removeFirstSlash = removeFront.replace("/", "");
+      const removeFirstCode = removeFirstSlash.replace(firstCode, "");
+      const secondSlash = removeFirstCode.indexOf("/");
+      const secondCode = removeFirstCode.slice(0, secondSlash);
+
+      const addZeroMonth = (month) => {
+        if (month + 1 < 10) {
+          return `0${month+1}`
+        } else {
+          return `${month+1}`
+        }
+      }
+
+      const addZeroDate = (date) => {
+        if (date < 10) {
+          console.log(date)
+          console.log(`0${date}`)
+          return `0${date}`
+        } else {
+          return date
+        }
+      }
+
+
+      // Setup Info
+
+      let url = `https://www.skyscanner.net/transport/flights/${firstCode}/${secondCode}/${departureDateIteration.year - 2000}${addZeroMonth(departureDateIteration.month)}${addZeroDate(departureDateIteration.date.getDate())}/${returnDateWithYear - 2000}${addZeroMonth(returnDateWithMonth)}${addZeroDate(returnDateWithDate)}/?rtn=1&stops=direct,!twoPlusStops`;
+      console.log(url)
+
+      const flightDateCheckupPage = await browser.newPage();
+      await flightDateCheckupPage.goto(url);
       const returnInformationObject = await processPage(
         flightDateCheckupPage,
         returnDateInMili
@@ -224,6 +268,7 @@ const datePage = async (page, browser) => {
   userFlight.scanDate.push(flightScannerObject);
   await userFlight.save();
   console.log("Saved");
+  await browser.close();
 };
 
 module.exports = datePage;

@@ -11,6 +11,10 @@ const flightSchema = new mongoose.Schema({
       required: true,
     },
   },
+  ref: {
+    type: String,
+    required:true
+  },
   flights: {
     departure: {
       type: String,

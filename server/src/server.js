@@ -12,9 +12,9 @@ const FlightsDatabase = require("./models/userFlight.mongo")
 
 const main = async () => {
   await mongoConnect()
-  await firstTimeSearch()
+  const newUser = await firstTimeSearch()
   // Creating Object see if it works
-  await cheapestFlightScannedToday()
+  await cheapestFlightScannedToday(newUser)
 }
 
 main()

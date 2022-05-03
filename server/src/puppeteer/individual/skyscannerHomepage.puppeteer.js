@@ -1,10 +1,10 @@
-const skyscannerHomePage = async (page) => {
+const skyscannerHomePage = async (page, newUser) => {
   await page.goto("https://www.skyscanner.net/#/date-picker", {
     waitUntil: "networkidle2",
   });
 
   const FlightsDatabase = require("../../models/userFlight.mongo")
-  const UserFlight = await FlightsDatabase.findOne({"user.name" : "Alan Reid"})
+  const UserFlight = await FlightsDatabase.findOne({ref: newUser.ref});
 
   // Accept TOS
   await page.click("#acceptCookieButton")
@@ -14,9 +14,9 @@ const skyscannerHomePage = async (page) => {
   const arrivalDestination = "#fsc-destination-search";
   const originInput = "#depart-fsc-datepicker-button"
   const originInputWholeMonth = "#depart-fsc-datepicker-popover > div > div > div.BpkMobileScrollContainer_bpk-mobile-scroll-container__ZmY2O.bpk-horizontal-nav.BpkHorizontalNav_bpk-horizontal-nav--show-default-underline__ZWM0M.FlightDatepicker_fsc-datepicker__tab-bar__YzRlM > div > nav > div > div:nth-child(2) > button"
-  const originInputCheapestMonth = "#depart-fsc-datepicker-popover > div > div > div.FlightDatepicker_fsc-datepicker__monthselector-container__ZWE4Y > div > button.BpkButtonBase_bpk-button__NTM4Y.BpkButtonSecondary_bpk-button--secondary__MWI2Z.Monthselector_monthselector__wholeyear__NDU5N"
+  const originInputCheapestMonth = "#depart-fsc-datepicker-popover > div > div > div.FlightDatepicker_fsc-datepicker__monthselector-container__ZWE4Y > div > button:nth-child(3)"
   const arrivalInput = "#return-fsc-datepicker-button"
-  const arrivalInputCheapestMonth = "#return-fsc-datepicker-popover > div > div > div.FlightDatepicker_fsc-datepicker__monthselector-container__ZWE4Y > div > button.BpkButtonBase_bpk-button__NTM4Y.BpkButtonSecondary_bpk-button--secondary__MWI2Z.Monthselector_monthselector__wholeyear__NDU5N"
+  const arrivalInputCheapestMonth = "#return-fsc-datepicker-popover > div > div > div.FlightDatepicker_fsc-datepicker__monthselector-container__ZWE4Y > div > button:nth-child(3)"
 
   // Setting up from and away
   await page.focus(originDestination);
@@ -44,6 +44,7 @@ const skyscannerHomePage = async (page) => {
   // Submit Page
   await page.waitForTimeout(100)
   await page.click("#flights-search-controls-root > div > div > form > div:nth-child(3) > button")
+  await page.waitForTimeout(1000)
 
   // done
   return page
