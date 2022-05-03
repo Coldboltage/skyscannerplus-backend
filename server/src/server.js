@@ -1,20 +1,29 @@
-require('dotenv').config()
+require("dotenv").config();
 
 // Puppeteer Bundles / Individuals
-const firstTimeSearch = require("./puppeteer/bundle/firstTimeSearch")
-
-const {cheapestFlightScannedToday} = require("./models/userFlight.model")
-
+const firstTimeSearch = require("./puppeteer/bundle/firstTimeSearch");
+const { cheapestFlightScannedToday } = require("./models/userFlight.model");
 
 // Database things
-const {mongoConnect} = require("../services/mongo")
-const FlightsDatabase = require("./models/userFlight.mongo")
+const { mongoConnect } = require("../services/mongo");
+const FlightsDatabase = require("./models/userFlight.mongo");
+
 
 const main = async () => {
-  await mongoConnect()
-  const newUser = await firstTimeSearch()
+  await mongoConnect();
+  const newUser = await firstTimeSearch();
   // Creating Object see if it works
-  await cheapestFlightScannedToday(newUser)
-}
+  await cheapestFlightScannedToday(newUser);
+};
 
-main()
+const checkUserFlightStuff = async () => {
+  await mongoConnect();
+  const Flight = await FlightsDatabase.findOne({
+    ref: "bergen-holiday-june",
+  });
+  cheapestFlightScannedToday(Flight)
+};
+
+// main();
+checkUserFlightStuff()
+

@@ -50,14 +50,14 @@ const main = async () => {
       name: "Alan Reid",
       email: "alanreid@hotmail.co.uk",
     },
-    ref: "lcs-june-test",
+    ref: "thailand-holiday-june",
     flights: {
       departure: "Dublin",
-      arrival: "Los Angeles (Any)",
+      arrival: "Koh Samui / Samui Island (USM)",
     },
     dates: {
-      departureDate: "2022-06-21",
-      returnDate: "2022-07-14",
+      departureDate: "2022-06-07",
+      returnDate: "2022-07-07",
       minimalHoliday: 7,
     },
   };

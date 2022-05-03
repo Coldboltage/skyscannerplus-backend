@@ -33,8 +33,7 @@ const processPage = async (page, returnDateInMili) => {
       "#app-root > div.FlightsDayView_row__NjQyZ > div > div.FlightsDayView_container__ZjgwY > div.FlightsDayView_results__YjlmM > div:nth-child(1) > div.FlightsResults_dayViewItems__ZDFlO > div:nth-child(1) > div"
     )
       .html()
-      .toLowerCase()
-      .includes("from") !== true
+      .includes("deal") !== true
   ) {
     $(
       "#app-root > div.FlightsDayView_row__NjQyZ > div > div.FlightsDayView_container__ZjgwY > div.FlightsDayView_results__YjlmM > div:nth-child(1) > div.FlightsResults_dayViewItems__ZDFlO > div:nth-child(1) > div"
@@ -75,8 +74,7 @@ const processPage = async (page, returnDateInMili) => {
       "#app-root > div.FlightsDayView_row__NjQyZ > div > div.FlightsDayView_container__ZjgwY > div.FlightsDayView_results__YjlmM > div:nth-child(1) > div.FlightsResults_dayViewItems__ZDFlO > div:nth-child(1) > div"
     )
       .html()
-      .toLowerCase()
-      .includes("from") !== true
+      .includes("deal") !== true
   ) {
     $(
       "#app-root > div.FlightsDayView_row__NjQyZ > div > div.FlightsDayView_container__ZjgwY > div.FlightsDayView_results__YjlmM > div:nth-child(1) > div.FlightsResults_dayViewItems__ZDFlO > div:nth-child(1) > div"
