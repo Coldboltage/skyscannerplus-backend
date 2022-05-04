@@ -38,6 +38,10 @@ const flightSchema = new mongoose.Schema({
       type: Number,
       required: true,
     },
+    maximumHoliday: {
+      type: Number,
+      required: true,
+    },
   },
   scanDate: [
     {
