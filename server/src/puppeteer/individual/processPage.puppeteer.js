@@ -1,7 +1,6 @@
 const cheerio = require("cheerio");
 
-const processPage = async (page, returnDateInMili) => {
-
+const processPage = async (page, returnDateInMili, departureDateIteration) => {
   console.log("refreshing page");
   await page.waitForTimeout(1000);
   await page.reload({ waitUntil: "domcontentloaded", timeout: 300000 });
@@ -35,9 +34,24 @@ const processPage = async (page, returnDateInMili) => {
       .html()
       .includes("deal") !== true
   ) {
-    $(
-      "#app-root > div.FlightsDayView_row__NjQyZ > div > div.FlightsDayView_container__ZjgwY > div.FlightsDayView_results__YjlmM > div:nth-child(1) > div.FlightsResults_dayViewItems__ZDFlO > div:nth-child(1) > div"
-    ).remove();
+    if (
+      $(
+        "#app-root > div.FlightsDayView_row__NjQyZ > div > div.FlightsDayView_container__ZjgwY > div.FlightsDayView_results__YjlmM > div:nth-child(1) > div.FlightsResults_dayViewItems__ZDFlO > div:nth-child(1) > div"
+      )
+        .parent()
+        .html()
+        .includes("sponsored") === true
+    ) {
+      $(
+        "#app-root > div.FlightsDayView_row__NjQyZ > div > div.FlightsDayView_container__ZjgwY > div.FlightsDayView_results__YjlmM > div:nth-child(1) > div.FlightsResults_dayViewItems__ZDFlO > div:nth-child(1) > div"
+      )
+        .parent()
+        .remove();
+    } else {
+      $(
+        "#app-root > div.FlightsDayView_row__NjQyZ > div > div.FlightsDayView_container__ZjgwY > div.FlightsDayView_results__YjlmM > div:nth-child(1) > div.FlightsResults_dayViewItems__ZDFlO > div:nth-child(1) > div"
+      ).remove();
+    }
   }
   const cheapestCost = $(
     "#app-root > div.FlightsDayView_row__NjQyZ > div > div.FlightsDayView_container__ZjgwY > div.FlightsDayView_results__YjlmM > div:nth-child(1) > div.FlightsResults_dayViewItems__ZDFlO > div:nth-child(1) > div > div.FlightsTicket_container__NWJkY > a > div > div.BpkTicket_bpk-ticket__paper__N2IwN.BpkTicket_bpk-ticket__stub__MGVjZ.Ticket_stub__NGYxN.BpkTicket_bpk-ticket__stub--padded__MzZmN.BpkTicket_bpk-ticket__stub--horizontal__Y2IzN.BpkTicket_bpk-ticket__paper--with-notches__NDVkM > div > div > div > span"
@@ -76,9 +90,24 @@ const processPage = async (page, returnDateInMili) => {
       .html()
       .includes("deal") !== true
   ) {
-    $(
-      "#app-root > div.FlightsDayView_row__NjQyZ > div > div.FlightsDayView_container__ZjgwY > div.FlightsDayView_results__YjlmM > div:nth-child(1) > div.FlightsResults_dayViewItems__ZDFlO > div:nth-child(1) > div"
-    ).remove();
+    if (
+      $(
+        "#app-root > div.FlightsDayView_row__NjQyZ > div > div.FlightsDayView_container__ZjgwY > div.FlightsDayView_results__YjlmM > div:nth-child(1) > div.FlightsResults_dayViewItems__ZDFlO > div:nth-child(1) > div"
+      )
+        .parent()
+        .html()
+        .includes("sponsored") === true
+    ) {
+      $(
+        "#app-root > div.FlightsDayView_row__NjQyZ > div > div.FlightsDayView_container__ZjgwY > div.FlightsDayView_results__YjlmM > div:nth-child(1) > div.FlightsResults_dayViewItems__ZDFlO > div:nth-child(1) > div"
+      )
+        .parent()
+        .remove();
+    } else {
+      $(
+        "#app-root > div.FlightsDayView_row__NjQyZ > div > div.FlightsDayView_container__ZjgwY > div.FlightsDayView_results__YjlmM > div:nth-child(1) > div.FlightsResults_dayViewItems__ZDFlO > div:nth-child(1) > div"
+      ).remove();
+    }
   }
   $(
     "#app-root > div.FlightsDayView_row__NjQyZ > div > div.FlightsDayView_container__ZjgwY > div.FlightsDayView_results__YjlmM > div:nth-child(1) > div.FlightsResults_dayViewItems__ZDFlO > div.ItineraryInlinePlusWrapper_container__YjM3Y"
@@ -103,7 +132,11 @@ const processPage = async (page, returnDateInMili) => {
   await page.close();
 
   return {
-    date: new Date(returnDateInMili),
+    daysBetweenDepartureDateAndArrivalDate: Number(
+      (returnDateInMili - departureDateIteration.date) / 86400000
+    ),
+    departDate: new Date(departureDateIteration.date),
+    returnDate: new Date(returnDateInMili),
     dateString: new Date(returnDateInMili).toString(),
     url: await page.url(),
     cheapest: {

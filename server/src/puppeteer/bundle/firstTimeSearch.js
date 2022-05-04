@@ -47,17 +47,17 @@ const main = async () => {
   // Execute skyscannerHomePage
   const newUser = {
     user: {
-      name: "Alan Reid",
-      email: "alanreid@hotmail.co.uk",
+      name: "James",
+      email: "veryrandomemailaddress@lol.com",
     },
-    ref: "thailand-holiday-june",
+    ref: "james-miami",
     flights: {
-      departure: "Dublin",
-      arrival: "Koh Samui / Samui Island (USM)",
+      departure: "London (Any)",
+      arrival: "Miami International, FL (MIA)",
     },
     dates: {
-      departureDate: "2022-06-07",
-      returnDate: "2022-07-07",
+      departureDate: "2022-07-09",
+      returnDate: "2022-07-31",
       minimalHoliday: 7,
     },
   };

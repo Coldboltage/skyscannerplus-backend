@@ -58,8 +58,16 @@ const flightSchema = new mongoose.Schema({
           },
           returnDates: [
             {
-              date: {
+              departDate: {
                 type: Date,
+                required: true,
+              },
+              returnDate: {
+                type: Date,
+                required: true,
+              },
+              daysBetweenDepartureDateAndArrivalDate: {
+                type: Number,
                 required: true,
               },
               dateString: {

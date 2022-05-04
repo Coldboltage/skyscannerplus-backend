@@ -244,7 +244,8 @@ const datePage = async (page, browser, newUser) => {
       await flightDateCheckupPage.goto(url);
       const returnInformationObject = await processPage(
         flightDateCheckupPage,
-        returnDateInMili
+        returnDateInMili,
+        departureDateIteration
       );
       console.log("Info here");
       console.log(returnInformationObject);
