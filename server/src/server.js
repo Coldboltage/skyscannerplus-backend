@@ -11,13 +11,13 @@ const { mongoConnect } = require("../services/mongo");
 	await mongoConnect();
 })();
 
-const main = async (reference) => {
+const main = async (reference = false) => {
   const userFlight = await searchFlights(reference);
   // Creating Object see if it works
   await cheapestFlightScannedToday(userFlight);
   await checkMaximumHoliday(userFlight.ref)
 };
 
-main("split-holiday");
+main("james-miami");
 // checkMaximumHoliday("split-holiday")
 

@@ -50,15 +50,16 @@ const main = async (reference = false) => {
         name: "Alan Reid",
         email: "alandreid@hotmail.co.uk",
       },
-      ref: "split-holiday",
+      ref: "bangok-september",
       flights: {
         departure: "Dublin (DUB)",
-        arrival: "Split (SPU)",
+        arrival: "Bangkok (Any)",
       },
       dates: {
-        departureDate: "2022-06-07",
-        returnDate: "2022-07-07",
-        minimalHoliday: 7,
+        departureDate: "2022-09-01",
+        returnDate: "2022-09-28",
+        minimalHoliday: 14,
+        maximumHoliday: 28
       },
     };
     await FlightsDatabase.create(user);
