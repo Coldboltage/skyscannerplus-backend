@@ -39,6 +39,7 @@ const fireEvents = async (reference) => {
   const userFlight = await searchFlights(reference);
   await cheapestFlightScannedToday(userFlight);
   await checkMaximumHoliday(userFlight.ref);
+  return true
 };
 
 // main();

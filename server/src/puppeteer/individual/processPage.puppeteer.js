@@ -1,9 +1,24 @@
 const cheerio = require("cheerio");
 
 const processPage = async (page, returnDateInMili, departureDateIteration) => {
+
   console.log("refreshing page");
   await page.waitForTimeout(1000);
   await page.reload({ waitUntil: "domcontentloaded", timeout: 300000 });
+  await page.waitForTimeout(3000);
+  // Check if the page broke
+  const isPageBroken = await page.content()
+  let $ = cheerio.load(isPageBroken)
+
+  if ($("body")
+      .html()
+      .includes("wrong") === true
+  ) {
+    return false
+  } else {
+    console.log("page seems good")
+  }
+
   await page.waitForSelector(
     "#app-root > div.FlightsDayView_row__NjQyZ > div > div.FlightsDayView_container__ZjgwY > div.FlightsDayView_results__YjlmM > div:nth-child(1) > div.ResultsSummary_container__ZWE4O > div.ResultsSummary_innerContainer__ZjFhZ > div.ResultsSummary_summaryContainer__NmI1Y > span",
     { timeout: 300000 }
@@ -28,7 +43,7 @@ const processPage = async (page, returnDateInMili, departureDateIteration) => {
 
   await page.waitForTimeout(1500);
   const cheapestHTML = await page.content();
-  let $ = cheerio.load(cheapestHTML);
+  $ = cheerio.load(cheapestHTML);
 
   $(`[data-testid]`).remove();
   if (

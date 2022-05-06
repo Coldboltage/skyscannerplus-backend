@@ -21,6 +21,7 @@ const monthNames = [
 ];
 
 const datePage = async (page, browser, newUser) => {
+
   console.log("Entered Date page");
   const userFlight = await FlightsDatabase.findOne({ ref: newUser.ref });
   const html = await page.content();
@@ -121,14 +122,14 @@ const datePage = async (page, browser, newUser) => {
 
     departureDateIteration.date = new Date(
       departureDate.fullDate + addDepartDay * 86400000
-    )
+    );
     departureDateIteration.month = new Date(
       departureDate.fullDate + addDepartDay * 86400000
-    ).getMonth()
+    ).getMonth();
     departureDateIteration.dateString = new Date(
       departureDate.fullDate + addDepartDay * 86400000
     ).toDateString();
-    
+
     departureDateIteration.year = new Date(
       departureDate.fullDate + addDepartDay * 86400000
     ).getFullYear();
@@ -215,30 +216,35 @@ const datePage = async (page, browser, newUser) => {
 
       const addZeroMonth = (month) => {
         if (month + 1 < 10) {
-          return `0${month+1}`
+          return `0${month + 1}`;
         } else {
-          return `${month+1}`
+          return `${month + 1}`;
         }
-      }
+      };
 
       const addZeroDate = (date) => {
         if (date < 10) {
-          console.log(date)
-          console.log(`0${date}`)
-          return `0${date}`
+          console.log(date);
+          console.log(`0${date}`);
+          return `0${date}`;
         } else {
-          return date
+          return date;
         }
-      }
-
+      };
 
       // Setup Info
 
-      let url = `https://www.skyscanner.net/transport/flights/${firstCode}/${secondCode}/${departureDateIteration.year - 2000}${addZeroMonth(departureDateIteration.month)}${addZeroDate(departureDateIteration.date.getDate())}/${returnDateWithYear - 2000}${addZeroMonth(returnDateWithMonth)}${addZeroDate(returnDateWithDate)}/?rtn=1&stops=direct,!twoPlusStops`;
+      let url = `https://www.skyscanner.net/transport/flights/${firstCode}/${secondCode}/${
+        departureDateIteration.year - 2000
+      }${addZeroMonth(departureDateIteration.month)}${addZeroDate(
+        departureDateIteration.date.getDate()
+      )}/${returnDateWithYear - 2000}${addZeroMonth(
+        returnDateWithMonth
+      )}${addZeroDate(returnDateWithDate)}/?rtn=1&stops=direct,!twoPlusStops`;
       // Test URL
       // let url = `https://www.skyscanner.net/transport/flights/${firstCode}/${secondCode}/${departureDateIteration.year - 2000}${addZeroMonth(departureDateIteration.month)}${addZeroDate(departureDateIteration.date.getDate())}/${returnDateWithYear - 2000}${addZeroMonth(returnDateWithMonth)}${addZeroDate(returnDateWithDate)}/?rtn=1&stops=direct`;
 
-      console.log(url)
+      console.log(url);
 
       const flightDateCheckupPage = await browser.newPage();
       await flightDateCheckupPage.goto(url);
@@ -256,6 +262,10 @@ const datePage = async (page, browser, newUser) => {
       //   url: await page.url(),
       //   cheapest: { cost: 13.37, time: "14:00", arrival: "19:00" },
       // };
+
+      if (returnInformationObject === false) {
+        continue
+      }
 
       departureDateIteration.returnDates.push(returnInformationObject);
 

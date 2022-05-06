@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node src/server",
-    "checker": "node src/checker",
+    "checker": "node src/checker.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

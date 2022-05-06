@@ -5,6 +5,7 @@
   "main": "dateChecker.js",
   "scripts": {
     "start-server": "npm start --prefix server",
+    "checker-pm2": "pm2 start ecosystem.config.js --watch",
     "checker": "npm run checker --prefix server",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

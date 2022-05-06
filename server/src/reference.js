@@ -28,7 +28,7 @@ const { mongoConnect } = require("../services/mongo");
 const server = http.createServer(app);
 
 // Start Server
-server.listen(process.env.PORT || 3000, () => {
+server.listen(3000, () => {
   console.log(`Listening on port ${process.env.PORT}`);
 });
 
@@ -41,14 +41,14 @@ const main = async () => {
   });
 };
 
-const fireAllJobs = async () => {
-  const allUsers = await getAllDocuments();
-  allUsers.forEach(async (user, index) => {
-    await new Promise((resolve) => setTimeout(resolve, index * 10000));
-    const reference = user.ref;
-    await fireEvents(reference);
-  });
-};
+// const fireAllJobs = async () => {
+//   const allUsers = await getAllDocuments();
+//   allUsers.forEach(async (user, index) => {
+//     await new Promise((resolve) => setTimeout(resolve, index * 10000));
+//     const reference = user.ref;
+//     await fireEvents(reference);
+//   });
+// };
 
 const fireEvents = async (reference) => {
   const userFlight = await searchFlights(reference);
@@ -57,4 +57,4 @@ const fireEvents = async (reference) => {
 };
 
 // main();
-fireAllJobs();
+fireEvents("bangok-september");

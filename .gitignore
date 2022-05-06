@@ -16,6 +16,7 @@
 *.dat
 *password*
 *.httr-oauth*
+ecosystem.config.js
  
 # Private Node Modules
 node_modules/
