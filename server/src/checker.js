@@ -1,14 +1,7 @@
-
+require("dotenv").config();
 const cron = require("node-cron");
-const { Cluster } = require("puppeteer-cluster");
-const path = require("path")
-require("dotenv").config({ path: path.join(__dirname, '.env') });
-
 // UserFlights
 
-// WEB SERVER
-const http = require("http");
-const app = require("./app");
 // Puppeteer Bundles / Individuals
 const searchFlights = require("./puppeteer/bundle/firstTimeSearch");
 const {
@@ -23,13 +16,6 @@ const { mongoConnect } = require("../services/mongo");
 (async () => {
   await mongoConnect();
 })();
-
-const server = http.createServer(app);
-
-// Start Server
-server.listen(process.env.PORT || 3000, () => {
-  console.log(`Listening on port ${process.env.PORT}`);
-});
 
 // const server = http.createServer(app)
 
@@ -55,5 +41,5 @@ const fireEvents = async (reference) => {
   await checkMaximumHoliday(userFlight.ref);
 };
 
-main();
-// fireAllJobs();
+// main();
+fireAllJobs();

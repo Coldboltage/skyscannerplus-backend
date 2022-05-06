@@ -36,9 +36,13 @@ const main = async (reference = false) => {
   console.log("Starting Main");
   const browser = await puppeteer.launch({
     headless: false,
-    args: ["--no-sandbox", "--disable-setuid-sandbox"],
+    args: ["--no-sandbox", "--disable-setuid-sandbox", '--disable-background-timer-throttling',
+    '--disable-backgrounding-occluded-windows',
+    '--disable-renderer-backgrounding'],
   });
   const page = await browser.newPage();
+
+  
   const pages = await browser.pages();
   await pages[0].close();
   // If the reference exists, add the scan in scanDate

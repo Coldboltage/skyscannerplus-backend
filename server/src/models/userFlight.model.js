@@ -1,5 +1,19 @@
 const userFlightDatabase = require("./userFlight.mongo");
 
+// Get all documents
+const getAllDocuments = async () => {
+  return await userFlightDatabase.find({})
+}
+
+const createUser = async (userObject) => {
+  const user = await userFlightDatabase.create(userObject)
+  return user._id ? true : false
+}
+
+const userTest = () => {
+  return {test: "This is a test"}
+}
+
 // All functions will fire cheapestFlightScannedToday. We can add other parameters in the future
 const cheapestFlightScannedToday = async (newUser) => {
   console.log("Started cheapestFlightScannedToday")
@@ -67,6 +81,7 @@ const checkMaximumHoliday = async (reference) => {
   const cheapestFlightsOrderMax = await maximumHoliday(cheapestFlightsOrder, userFlight.dates.maximumHoliday)
   const bestFlightsOrderMax = await maximumHoliday(bestFlightsOrder, userFlight.dates.maximumHoliday)
   consoleOutput(cheapestFlightsOrderMax,bestFlightsOrderMax)
+  return {cheapestFlightsOrderMax, bestFlightsOrderMax}
 }
 
 const consoleOutput = async (cheapestFlightsOrder, bestFlightsOrder) => {
@@ -80,6 +95,9 @@ const consoleOutput = async (cheapestFlightsOrder, bestFlightsOrder) => {
 }
 
 module.exports = {
+  createUser,
+  userTest,
+  getAllDocuments,
   cheapestFlightScannedToday,
   findUserFlight,
   maximumHoliday,

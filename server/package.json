@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node src/server",
+    "checker": "node src/checker",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
