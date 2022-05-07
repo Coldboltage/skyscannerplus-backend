@@ -22,6 +22,7 @@ const {
   changeFlightScanStatusByPID,
   changePIDToZero,
   checkAmountOfProcessesInUse,
+  getUserFlightByReference,
 } = require("./models/userFlight.model");
 
 // Database things
@@ -57,7 +58,31 @@ const fireEvents = async (reference) => {
 
 const fireAllJobs = async () => {
   const allUsers = await getAllDocuments();
-  const cpusCurrentlyBeingUsed = checkAmountOfProcessesInUse.length;
+  // for (let users of allUsers) {
+  //   const lastSearch = Date.parse(users.scanDate.at(-1).dateOfScanLoop) 
+  //   console.log(lastSearch + 43200000)
+  //   const todaysDate = new Date()
+  //   console.log(Date.parse(todaysDate))
+  // }
+  const allUsersScansNeeded = allUsers.filter(user => {
+    if (user.isBeingScanned === true) {
+      return false
+    }
+    if (!user.scanDate[0]) {
+      console.log(user.ref)
+      console.log("New scan needed")
+      return true
+    }
+    console.log("There's scanData")
+    const lastSearch = Date.parse(user.scanDate.at(-1).dateOfScanLoop) 
+    const timeWhenNewScanNeeded = lastSearch + 43200000
+    const todaysDate = new Date()
+    const todaysDateToMili = Date.parse(todaysDate)
+    return todaysDateToMili > timeWhenNewScanNeeded ? true : false
+  })
+
+  const cpusCurrentlyBeingUsed = await checkAmountOfProcessesInUse();
+  console.log(`How many CPUs in use? ${cpusCurrentlyBeingUsed}`)
 
   if (cluster.isPrimary) {
     console.log(`Primary ${process.pid} is running`);
@@ -72,19 +97,22 @@ const fireAllJobs = async () => {
     });
   } else {
     console.log(`Worker ${process.pid} started`);
-    console.log(cluster.worker.id);
+    console.log(`What is this worked ID ${cluster.worker.id}`);
     await new Promise((resolve) =>
-      setTimeout(resolve, cluster.worker.id * 10000)
+      setTimeout(resolve, process.pid)
     );
-    if (allUsers[cluster.worker.id - 1]) {
-      reference = allUsers[cluster.worker.id - 1].ref;
+    // database call
+    
+    if (allUsersScansNeeded[0]) {
+      reference = allUsersScansNeeded[0].ref;
+      allUsersScansNeeded.shift()
     } else {
       console.log("worker should die here");
       return;
     }
     console.log(reference);
     await new Promise((resolve) =>
-      setTimeout(resolve, cluster.worker.id * 10000)
+      setTimeout(resolve, cluster.worker.id * 1000)
     );
     console.log("setting flight status by reference");
     await changeFlightScanStatusByReference(reference, true);
@@ -97,10 +125,12 @@ const fireAllJobs = async () => {
 };
 
 const main = async () => {
-  cron.schedule("0 */12 * * *", async () => {
+  // cron.schedule("0 */12 * * *", async () => {
+  cron.schedule("*/2 * * * *", async () => {
+
     await fireAllJobs();
   });
 };
 
-// main();
+main();
 fireAllJobs();

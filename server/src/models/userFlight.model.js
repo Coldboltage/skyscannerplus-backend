@@ -49,7 +49,10 @@ const changePIDToZero = async (workerPID) => {
 }
 
 const checkAmountOfProcessesInUse = async () => {
-  return await userFlightDatabase.find({workerPID: {$gt: 0}})
+  const array = await userFlightDatabase.find({workerPID: {$gt: 0}})
+  const number = array.length
+  console.log(number)
+  return number
 }
 
 // All functions will fire cheapestFlightScannedToday. We can add other parameters in the future

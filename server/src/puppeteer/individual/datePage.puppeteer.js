@@ -84,6 +84,8 @@ const datePage = async (page, browser, newUser) => {
 
   // Get Todays Date
   const todaysDate = new Date();
+  const todaysDateParsed = Date.parse(todaysDate)
+  const nextScan = todaysDateParsed * 43200000
 
   // Setup Scan Date
   const flightScannerObject = {
@@ -282,6 +284,8 @@ const datePage = async (page, browser, newUser) => {
   userFlight.scanDate.push(flightScannerObject);
   userFlight.isBeingScanned = false
   userFlight.workerPID = 0
+  userFlight.scannedLast = Date.parse(todaysDate)
+  userFlight.nextScan = nextScan
   await userFlight.save();
   console.log("Saved");
 
