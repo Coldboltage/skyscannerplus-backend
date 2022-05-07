@@ -280,8 +280,11 @@ const datePage = async (page, browser, newUser) => {
   console.log("Saving information");
   console.log(flightScannerObject);
   userFlight.scanDate.push(flightScannerObject);
+  userFlight.isBeingScanned = false
+  userFlight.workerPID = 0
   await userFlight.save();
   console.log("Saved");
+
   await browser.close();
 };
 

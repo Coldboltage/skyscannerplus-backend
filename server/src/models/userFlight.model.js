@@ -14,6 +14,44 @@ const userTest = () => {
   return {test: "This is a test"}
 }
 
+const getUserFlightByReference = async (reference) => {
+  return await userFlightDatabase.findOne({ref: reference})
+}
+
+const changeFlightScanStatusByReference = async (reference, status) => {
+  const UserFlight = await getUserFlightByReference(reference)
+  UserFlight.isBeingScanned = status
+  await UserFlight.save()
+}
+
+const searchFlightByPID = async (workerPID) => {
+  return await userFlightDatabase.findOne({workerPID: workerPID})
+}
+
+const changePIDByReference = async (reference, workerPID) => {
+  const UserFlight = await getUserFlightByReference(reference)
+  UserFlight.workerPID = workerPID
+  await UserFlight.save()
+}
+
+const changeFlightScanStatusByPID = async (workerPID, status) => {
+  const UserFlight = await searchFlightByPID(workerPID)
+  UserFlight.isBeingScanned = status
+  await UserFlight.save()
+  console.log(`Flight status changed to ${status}`)
+}
+
+const changePIDToZero = async (workerPID) => {
+  const UserFlight = await searchFlightByPID(workerPID)
+  UserFlight.workerPID = 0
+  await UserFlight.save()
+  console.log(`Worker PID changed to ${0}`)
+}
+
+const checkAmountOfProcessesInUse = async () => {
+  return await userFlightDatabase.find({workerPID: {$gt: 0}})
+}
+
 // All functions will fire cheapestFlightScannedToday. We can add other parameters in the future
 const cheapestFlightScannedToday = async (newUser) => {
   console.log("Started cheapestFlightScannedToday")
@@ -97,7 +135,14 @@ const consoleOutput = async (cheapestFlightsOrder, bestFlightsOrder) => {
 module.exports = {
   createUser,
   userTest,
+  getUserFlightByReference,
+  changeFlightScanStatusByReference,
+  changePIDByReference,
+  searchFlightByPID,
+  changeFlightScanStatusByPID,
+  changePIDToZero,
   getAllDocuments,
+  checkAmountOfProcessesInUse,
   cheapestFlightScannedToday,
   findUserFlight,
   maximumHoliday,

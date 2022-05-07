@@ -50,6 +50,7 @@ const main = async (reference = false) => {
   // If the reference exists, add the scan in scanDate
   if (reference) {
     user = await FlightsDatabase.findOne({ref: reference})
+    console.log(user)
   } else {
     user = {
       user: {
@@ -67,6 +68,8 @@ const main = async (reference = false) => {
         minimalHoliday: 14,
         maximumHoliday: 28
       },
+      isBeingScanned: false,
+      workerPID: 0,
     };
     await FlightsDatabase.create(user);
   }

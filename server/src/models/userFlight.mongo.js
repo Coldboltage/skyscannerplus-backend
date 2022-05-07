@@ -13,7 +13,15 @@ const flightSchema = new mongoose.Schema({
   },
   ref: {
     type: String,
-    required:true
+    required: true,
+  },
+  isBeingScanned: {
+    type: Boolean,
+    required: true,
+  },
+  workerPID: {
+    type: Number,
+    required: true,
   },
   flights: {
     departure: {
@@ -58,7 +66,7 @@ const flightSchema = new mongoose.Schema({
           },
           dateString: {
             type: String,
-            required: true
+            required: true,
           },
           returnDates: [
             {
@@ -109,7 +117,7 @@ const flightSchema = new mongoose.Schema({
             },
           ],
         },
-      ]
+      ],
     },
   ],
 });

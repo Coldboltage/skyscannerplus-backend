@@ -6,6 +6,10 @@ const skyscannerHomePage = async (page, newUser) => {
   const FlightsDatabase = require("../../models/userFlight.mongo")
   const UserFlight = await FlightsDatabase.findOne({ref: newUser.ref});
 
+  // Document is now being scanned at this point
+  UserFlight.isBeingScanned = true
+  await UserFlight.save()
+
   // Accept TOS
   await page.click("#acceptCookieButton")
 

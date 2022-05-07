@@ -1,5 +1,4 @@
 require("dotenv").config();
-console.log(process.env) // remove this after you've confirmed it working
 const cron = require("node-cron");
 const { Cluster } = require("puppeteer-cluster");
 const path = require("path");
@@ -58,4 +57,4 @@ const fireEvents = async (reference) => {
 };
 
 // main();
-fireEvents("bangok-september");
+fireEvents("bangkok-september");

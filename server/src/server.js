@@ -1,6 +1,6 @@
-const path = require("path")
-require("dotenv").config(path.join(__dirname,"..","..", ".env"));
-console.log(path.join(__dirname,"..","..", ".env"))
+const path = require("path");
+require("dotenv").config(path.join(__dirname, "..", "..", ".env"));
+console.log(path.join(__dirname, "..", "..", ".env"));
 const cron = require("node-cron");
 const cluster = require("node:cluster");
 const numCPUs = require("node:os").cpus().length;
@@ -17,6 +17,11 @@ const {
   cheapestFlightScannedToday,
   checkMaximumHoliday,
   getAllDocuments,
+  changeFlightScanStatusByReference,
+  changePIDByReference,
+  changeFlightScanStatusByPID,
+  changePIDToZero,
+  checkAmountOfProcessesInUse,
 } = require("./models/userFlight.model");
 
 // Database things
@@ -52,15 +57,18 @@ const fireEvents = async (reference) => {
 
 const fireAllJobs = async () => {
   const allUsers = await getAllDocuments();
+  const cpusCurrentlyBeingUsed = checkAmountOfProcessesInUse.length;
 
   if (cluster.isPrimary) {
     console.log(`Primary ${process.pid} is running`);
     // Fork workers.
-    for (let i = 0; i < 3; i++) {
+    for (let i = cpusCurrentlyBeingUsed; i < 6; i++) {
       cluster.fork();
     }
-    cluster.on("exit", (worker, code, signal) => {
+    cluster.on("exit", async (worker, code, signal) => {
       console.log(`worker ${worker.process.pid} died`);
+      await changeFlightScanStatusByPID(worker.process.pid, false);
+      await changePIDToZero(worker.process.pid);
     });
   } else {
     console.log(`Worker ${process.pid} started`);
@@ -68,8 +76,21 @@ const fireAllJobs = async () => {
     await new Promise((resolve) =>
       setTimeout(resolve, cluster.worker.id * 10000)
     );
-    const reference = allUsers[cluster.worker.id - 1].ref;
+    if (allUsers[cluster.worker.id - 1]) {
+      reference = allUsers[cluster.worker.id - 1].ref;
+    } else {
+      console.log("worker should die here");
+      return;
+    }
     console.log(reference);
+    await new Promise((resolve) =>
+      setTimeout(resolve, cluster.worker.id * 10000)
+    );
+    console.log("setting flight status by reference");
+    await changeFlightScanStatusByReference(reference, true);
+    console.log("change pid by reference");
+    await changePIDByReference(reference, process.pid);
+    console.log(`${reference} - scan started`);
     await fireEvents(reference);
     console.log(`Worker ${process.pid} ended`);
   }
