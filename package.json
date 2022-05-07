@@ -13,6 +13,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@senfo/process-list": "^2.0.6",
     "cheerio": "^1.0.0-rc.10",
     "cors": "^2.8.5",
     "dotenv": "^16.0.0",

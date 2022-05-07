@@ -1,3 +1,9 @@
+const cluster = require("node:cluster");
+const http = require("node:http");
+const numCPUs = require("node:os").cpus().length;
+const process = require("node:process");
+// const { snapshot } = require("@senfo/process-list");
+
 require("dotenv").config();
 const cron = require("node-cron");
 // UserFlights
@@ -28,18 +34,37 @@ const main = async () => {
 
 const fireAllJobs = async () => {
   const allUsers = await getAllDocuments();
-  allUsers.forEach(async (user, index) => {
-    await new Promise((resolve) => setTimeout(resolve, index * 10000));
-    const reference = user.ref;
+
+  if (cluster.isPrimary) {
+    console.log(`Primary ${process.pid} is running`);
+    // const tasks = await snapshot("cpu");
+    // console.log(tasks);
+    // Fork workers.
+    for (let i = 0; i < 3; i++) {
+      cluster.fork();
+    }
+    cluster.on("exit", (worker, code, signal) => {
+      console.log(`worker ${worker.process.pid} died`);
+    });
+  } else {
+    console.log(`Worker ${process.pid} started`);
+    console.log(cluster.worker.id);
+    await new Promise((resolve) =>
+      setTimeout(resolve, cluster.worker.id * 10000)
+    );
+    const reference = allUsers[cluster.worker.id - 1].ref;
+    console.log(reference);
     await fireEvents(reference);
-  });
+    console.log(`Worker ${process.pid} ended`);
+
+  }
 };
 
 const fireEvents = async (reference) => {
   const userFlight = await searchFlights(reference);
   await cheapestFlightScannedToday(userFlight);
   await checkMaximumHoliday(userFlight.ref);
-  return true
+  return true;
 };
 
 // main();

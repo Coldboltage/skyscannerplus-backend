@@ -3,7 +3,6 @@ console.log(process.env) // remove this after you've confirmed it working
 const cron = require("node-cron");
 const { Cluster } = require("puppeteer-cluster");
 const path = require("path");
-console.log(path.join(__dirname, "..", ".env"));
 
 // UserFlights
 
@@ -49,6 +48,8 @@ const main = async () => {
 //     await fireEvents(reference);
 //   });
 // };
+
+
 
 const fireEvents = async (reference) => {
   const userFlight = await searchFlights(reference);
