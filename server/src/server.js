@@ -132,5 +132,5 @@ const main = async () => {
   });
 };
 
-main();
-fireAllJobs();
+// main();
+// fireAllJobs();

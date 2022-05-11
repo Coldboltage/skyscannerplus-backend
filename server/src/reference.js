@@ -25,12 +25,10 @@ const { mongoConnect } = require("../services/mongo");
 
 const server = http.createServer(app);
 
-// Start Server
-server.listen(3000, () => {
+server.listen(process.env.PORT || 3000, () => {
   console.log(`Listening on port ${process.env.PORT}`);
 });
 
-// const server = http.createServer(app)
 
 const main = async () => {
   // cron.schedule('1 * * * *', async () => {
@@ -57,4 +55,4 @@ const fireEvents = async (reference) => {
 };
 
 // main();
-fireEvents("bangkok-september");
+// fireEvents("jonny-japan-edin");

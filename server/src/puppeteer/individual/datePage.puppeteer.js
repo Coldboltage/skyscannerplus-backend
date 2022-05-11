@@ -20,9 +20,9 @@ const monthNames = [
   "December",
 ];
 
-const datePage = async (page, browser, newUser) => {
-
+const datePage = async (page, browser, newUser, puppeteer, pageURL) => {
   console.log("Entered Date page");
+  await page.waitForTimeout(1000);
   const userFlight = await FlightsDatabase.findOne({ ref: newUser.ref });
   const html = await page.content();
   const $ = cheerio.load(html);
@@ -84,8 +84,8 @@ const datePage = async (page, browser, newUser) => {
 
   // Get Todays Date
   const todaysDate = new Date();
-  const todaysDateParsed = Date.parse(todaysDate)
-  const nextScan = todaysDateParsed * 43200000
+  const todaysDateParsed = Date.parse(todaysDate);
+  const nextScan = todaysDateParsed * 43200000;
 
   // Setup Scan Date
   const flightScannerObject = {
@@ -98,7 +98,7 @@ const datePage = async (page, browser, newUser) => {
   //  Add day reps the amount of days added to the depart day.
   for (
     let addDepartDay = 0;
-    addDepartDay + userFlight.dates.minimalHoliday <= departArriveDifference;
+    addDepartDay + userFlight.dates.minimalHoliday <= departArriveDifference ;
     addDepartDay++
   ) {
     // Find out Day
@@ -162,8 +162,8 @@ const datePage = async (page, browser, newUser) => {
     console.log(addDepartDay);
     for (
       let addReturnDay = 0;
-      userFlight.dates.minimalHoliday + addDepartDay + addReturnDay <=
-      departArriveDifference;
+      userFlight.dates.minimalHoliday + addDepartDay + addReturnDay <= departArriveDifference &&
+      userFlight.dates.minimalHoliday + addReturnDay <= userFlight.dates.maximumHoliday;
       addReturnDay++
     ) {
       console.log("Firing second loop");
@@ -204,17 +204,17 @@ const datePage = async (page, browser, newUser) => {
       // await page.waitForTimeout(1500);
 
       // Dunnno regex so using forEach for this.
-      const fullURL = await page.url();
-      const removeFront = fullURL.replace(
+      let fullURL = pageURL;
+      let removeFront = fullURL.replace(
         "https://www.skyscanner.net/transport/flights/",
         ""
       );
-      const firstSlash = removeFront.indexOf("/");
-      const firstCode = removeFront.slice(0, firstSlash);
-      const removeFirstSlash = removeFront.replace("/", "");
-      const removeFirstCode = removeFirstSlash.replace(firstCode, "");
-      const secondSlash = removeFirstCode.indexOf("/");
-      const secondCode = removeFirstCode.slice(0, secondSlash);
+      let firstSlash = removeFront.indexOf("/");
+      let firstCode = removeFront.slice(0, firstSlash);
+      let removeFirstSlash = removeFront.replace("/", "");
+      let removeFirstCode = removeFirstSlash.replace(firstCode, "");
+      let secondSlash = removeFirstCode.indexOf("/");
+      let secondCode = removeFirstCode.slice(0, secondSlash);
 
       const addZeroMonth = (month) => {
         if (month + 1 < 10) {
@@ -246,15 +246,25 @@ const datePage = async (page, browser, newUser) => {
       // Test URL
       // let url = `https://www.skyscanner.net/transport/flights/${firstCode}/${secondCode}/${departureDateIteration.year - 2000}${addZeroMonth(departureDateIteration.month)}${addZeroDate(departureDateIteration.date.getDate())}/${returnDateWithYear - 2000}${addZeroMonth(returnDateWithMonth)}${addZeroDate(returnDateWithDate)}/?rtn=1&stops=direct`;
 
-      console.log(url);
-
-      const flightDateCheckupPage = await browser.newPage();
-      await flightDateCheckupPage.goto(url);
+      await page.goto(url, { waitUntil: "domcontentloaded", timeout: 300000 });
       const returnInformationObject = await processPage(
-        flightDateCheckupPage,
+        page,
         returnDateInMili,
         departureDateIteration
       );
+
+      await browser.close();
+      browser = await puppeteer.launch({
+        headless: false,
+        args: [
+          "--no-sandbox",
+          "--disable-setuid-sandbox",
+          "--disable-background-timer-throttling",
+          "--disable-backgrounding-occluded-windows",
+          "--disable-renderer-backgrounding",
+        ],
+      });
+      page = await browser.newPage();
       console.log("Info here");
       console.log(returnInformationObject);
       // Create return date Object
@@ -266,14 +276,13 @@ const datePage = async (page, browser, newUser) => {
       // };
 
       if (returnInformationObject === false) {
-        continue
+        continue;
       }
 
       departureDateIteration.returnDates.push(returnInformationObject);
 
       if (
-        userFlight.dates.minimalHoliday + addDepartDay + addReturnDay ===
-        departArriveDifference
+        userFlight.dates.minimalHoliday + addReturnDay === userFlight.dates.maximumHoliday
       ) {
         flightScannerObject.departureDate.push(departureDateIteration);
       }
@@ -282,10 +291,10 @@ const datePage = async (page, browser, newUser) => {
   console.log("Saving information");
   console.log(flightScannerObject);
   userFlight.scanDate.push(flightScannerObject);
-  userFlight.isBeingScanned = false
-  userFlight.workerPID = 0
-  userFlight.scannedLast = Date.parse(todaysDate)
-  userFlight.nextScan = nextScan
+  userFlight.isBeingScanned = false;
+  userFlight.workerPID = 0;
+  userFlight.scannedLast = Date.parse(todaysDate);
+  userFlight.nextScan = nextScan;
   await userFlight.save();
   console.log("Saved");
 
