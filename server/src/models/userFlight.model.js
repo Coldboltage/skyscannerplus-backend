@@ -83,17 +83,21 @@ const cheapestFlightScannedToday = async (newUser) => {
     return a.best.cost - b.best.cost;
   });
 
+  let cheapestFlightsOrderTopTen = []
+  let bestFlightsOrderTopTen = []
+
+
   for (let i = 0; i < 10; i++) {
-    // console.log(cheapestFlightsOrder[i]);
+    cheapestFlightsOrderTopTen.push(cheapestFlightsOrder[i]);
   }
   console.log("####################");
   console.log("####################");
   console.log("####################");
 
   for (let i = 0; i < 10; i++) {
-    // console.log(bestFlightsOrder[i]);
+    bestFlightsOrderTopTen.push(bestFlightsOrder[i]);
   }
-  return { cheapestFlightsOrder, bestFlightsOrder };
+  return { cheapestFlightsOrderTopTen, bestFlightsOrderTopTen };
 };
 
 // We know users will have a reference. We can use this to find flights
@@ -105,8 +109,8 @@ const findUserFlight = async (reference) => {
 const checkUserFlightStuff = async (reference) => {
   console.log(`checkedUserFlightStuff passed reference = ${reference}`)
   const userFlight = await findUserFlight(reference)
-  const {cheapestFlightsOrder, bestFlightsOrder} = await cheapestFlightScannedToday(userFlight)
-  return {cheapestFlightsOrder, bestFlightsOrder, userFlight}
+  const {cheapestFlightsOrderTopTen: cheapestFlightsOrder, bestFlightsOrderTopTen: bestFlightsOrder} = await cheapestFlightScannedToday(userFlight)
+  return {cheapestFlightsOrder, bestFlightsOrder}
 };
 
 

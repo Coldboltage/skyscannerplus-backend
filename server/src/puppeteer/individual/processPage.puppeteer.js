@@ -12,21 +12,17 @@ const processPage = async (page, returnDateInMili, departureDateIteration) => {
   if ($("body").html().includes("wrong") === true) {
     return false;
   } else {
-    console.log("page seems good");
-  }
-
-  if ($("#acceptCookieButton").html() === "OK" === true) {
-    console.log("ok where are you");
+    console.log("Page loaded without error");
   }
   
-
+  // await page.screenshot({path: "./screenshot.jpg"})
   await page.waitForSelector(
     "#app-root > div.FlightsDayView_row__NjQyZ > div > div.FlightsDayView_container__ZjgwY > div.FlightsDayView_results__YjlmM > div:nth-child(1) > div.ResultsSummary_container__ZWE4O > div.ResultsSummary_innerContainer__ZjFhZ > div.ResultsSummary_summaryContainer__NmI1Y > span",
     { timeout: 300000 }
   );
 
   if ($("#acceptCookieButton").html() === "OK" === true) {
-    console.log("ok where are you");
+    console.log("Locating cookie button");
     await page.click("#acceptCookieButton");
   }
 

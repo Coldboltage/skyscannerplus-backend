@@ -98,7 +98,7 @@ const datePage = async (page, browser, newUser, puppeteer, pageURL) => {
   //  Add day reps the amount of days added to the depart day.
   for (
     let addDepartDay = 0;
-    addDepartDay + userFlight.dates.minimalHoliday <= departArriveDifference ;
+    addDepartDay + userFlight.dates.minimalHoliday <= departArriveDifference;
     addDepartDay++
   ) {
     // Find out Day
@@ -162,8 +162,10 @@ const datePage = async (page, browser, newUser, puppeteer, pageURL) => {
     console.log(addDepartDay);
     for (
       let addReturnDay = 0;
-      userFlight.dates.minimalHoliday + addDepartDay + addReturnDay <= departArriveDifference &&
-      userFlight.dates.minimalHoliday + addReturnDay <= userFlight.dates.maximumHoliday;
+      userFlight.dates.minimalHoliday + addDepartDay + addReturnDay <=
+        departArriveDifference &&
+      userFlight.dates.minimalHoliday + addReturnDay <=
+        userFlight.dates.maximumHoliday;
       addReturnDay++
     ) {
       console.log("Firing second loop");
@@ -265,6 +267,29 @@ const datePage = async (page, browser, newUser, puppeteer, pageURL) => {
         ],
       });
       page = await browser.newPage();
+      await page.setRequestInterception(true);
+
+      const rejectRequestPattern = [
+        "googlesyndication.com",
+        "/*.doubleclick.net",
+        "/*.amazon-adsystem.com",
+        "/*.adnxs.com",
+        "/*.nr-data.net",
+      ];
+      const blockList = [];
+
+      page.on("request", (request) => {
+        if (
+          rejectRequestPattern.find((pattern) => request.url().match(pattern))
+        ) {
+          blockList.push(request.url());
+          request.abort();
+        } else if (request.resourceType() === "image") {
+          request.abort();
+        } else {
+          request.continue();
+        }
+      });
       console.log("Info here");
       console.log(returnInformationObject);
       // Create return date Object
@@ -282,7 +307,8 @@ const datePage = async (page, browser, newUser, puppeteer, pageURL) => {
       departureDateIteration.returnDates.push(returnInformationObject);
 
       if (
-        userFlight.dates.minimalHoliday + addReturnDay === userFlight.dates.maximumHoliday
+        userFlight.dates.minimalHoliday + addReturnDay ===
+        userFlight.dates.maximumHoliday
       ) {
         flightScannerObject.departureDate.push(departureDateIteration);
       }

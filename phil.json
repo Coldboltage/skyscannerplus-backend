@@ -1,0 +1,366 @@
+{
+  "cheapestFlightsOrder": [
+      {
+          "cheapest": {
+              "cost": 391,
+              "time": "12:35",
+              "arrival": "20:13"
+          },
+          "best": {
+              "cost": 464,
+              "time": "16:05",
+              "arrival": "17:40"
+          },
+          "departDate": "2022-09-23T00:00:00.000Z",
+          "returnDate": "2022-10-01T00:00:00.000Z",
+          "daysBetweenDepartureDateAndArrivalDate": 8,
+          "dateString": "Sat Oct 01 2022 01:00:00 GMT+0100 (British Summer Time)",
+          "url": "https://www.skyscanner.net/transport/flights/dub/seaa/220923/221001/?rtn=1&stops=direct,!twoPlusStops",
+          "_id": "627bc4189f7a62f9f630666b"
+      },
+      {
+          "cheapest": {
+              "cost": 391,
+              "time": "12:35",
+              "arrival": "20:13"
+          },
+          "best": {
+              "cost": 507,
+              "time": "16:05",
+              "arrival": "17:40"
+          },
+          "departDate": "2022-09-26T00:00:00.000Z",
+          "returnDate": "2022-10-05T00:00:00.000Z",
+          "daysBetweenDepartureDateAndArrivalDate": 9,
+          "dateString": "Wed Oct 05 2022 01:00:00 GMT+0100 (British Summer Time)",
+          "url": "https://www.skyscanner.net/transport/flights/dub/seaa/220926/221005/?rtn=1&stops=direct,!twoPlusStops",
+          "_id": "627bc4189f7a62f9f630667b"
+      },
+      {
+          "cheapest": {
+              "cost": 392,
+              "time": "12:35",
+              "arrival": "20:17"
+          },
+          "best": {
+              "cost": 464,
+              "time": "16:05",
+              "arrival": "17:40"
+          },
+          "departDate": "2022-10-06T00:00:00.000Z",
+          "returnDate": "2022-10-14T00:00:00.000Z",
+          "daysBetweenDepartureDateAndArrivalDate": 8,
+          "dateString": "Fri Oct 14 2022 01:00:00 GMT+0100 (British Summer Time)",
+          "url": "https://www.skyscanner.net/transport/flights/dub/seaa/221006/221014/?rtn=1&stops=direct,!twoPlusStops",
+          "_id": "627bc4189f7a62f9f63066ac"
+      },
+      {
+          "cheapest": {
+              "cost": 393,
+              "time": "12:35",
+              "arrival": "20:13"
+          },
+          "best": {
+              "cost": 503,
+              "time": "16:05",
+              "arrival": "17:40"
+          },
+          "departDate": "2022-09-12T00:00:00.000Z",
+          "returnDate": "2022-09-22T00:00:00.000Z",
+          "daysBetweenDepartureDateAndArrivalDate": 10,
+          "dateString": "Thu Sep 22 2022 01:00:00 GMT+0100 (British Summer Time)",
+          "url": "https://www.skyscanner.net/transport/flights/dub/seaa/220912/220922/?rtn=1&stops=direct,!twoPlusStops",
+          "_id": "627bc4189f7a62f9f6306636"
+      },
+      {
+          "cheapest": {
+              "cost": 393,
+              "time": "12:35",
+              "arrival": "20:13"
+          },
+          "best": {
+              "cost": 445,
+              "time": "16:05",
+              "arrival": "17:40"
+          },
+          "departDate": "2022-09-15T00:00:00.000Z",
+          "returnDate": "2022-09-25T00:00:00.000Z",
+          "daysBetweenDepartureDateAndArrivalDate": 10,
+          "dateString": "Sun Sep 25 2022 01:00:00 GMT+0100 (British Summer Time)",
+          "url": "https://www.skyscanner.net/transport/flights/dub/seaa/220915/220925/?rtn=1&stops=direct,!twoPlusStops",
+          "_id": "627bc4189f7a62f9f6306645"
+      },
+      {
+          "cheapest": {
+              "cost": 394,
+              "time": "12:35",
+              "arrival": "20:13"
+          },
+          "best": {
+              "cost": 453,
+              "time": "12:35",
+              "arrival": "20:13"
+          },
+          "departDate": "2022-09-18T00:00:00.000Z",
+          "returnDate": "2022-09-27T00:00:00.000Z",
+          "daysBetweenDepartureDateAndArrivalDate": 9,
+          "dateString": "Tue Sep 27 2022 01:00:00 GMT+0100 (British Summer Time)",
+          "url": "https://www.skyscanner.net/transport/flights/dub/seaa/220918/220927/?rtn=1&stops=direct,!twoPlusStops",
+          "_id": "627bc4189f7a62f9f6306653"
+      },
+      {
+          "cheapest": {
+              "cost": 394,
+              "time": "12:35",
+              "arrival": "20:13"
+          },
+          "best": {
+              "cost": 461,
+              "time": "16:05",
+              "arrival": "17:40"
+          },
+          "departDate": "2022-09-23T00:00:00.000Z",
+          "returnDate": "2022-10-03T00:00:00.000Z",
+          "daysBetweenDepartureDateAndArrivalDate": 10,
+          "dateString": "Mon Oct 03 2022 01:00:00 GMT+0100 (British Summer Time)",
+          "url": "https://www.skyscanner.net/transport/flights/dub/seaa/220923/221003/?rtn=1&stops=direct,!twoPlusStops",
+          "_id": "627bc4189f7a62f9f630666d"
+      },
+      {
+          "cheapest": {
+              "cost": 394,
+              "time": "12:35",
+              "arrival": "20:13"
+          },
+          "best": {
+              "cost": 504,
+              "time": "16:05",
+              "arrival": "17:40"
+          },
+          "departDate": "2022-09-29T00:00:00.000Z",
+          "returnDate": "2022-10-08T00:00:00.000Z",
+          "daysBetweenDepartureDateAndArrivalDate": 9,
+          "dateString": "Sat Oct 08 2022 01:00:00 GMT+0100 (British Summer Time)",
+          "url": "https://www.skyscanner.net/transport/flights/dub/seaa/220929/221008/?rtn=1&stops=direct,!twoPlusStops",
+          "_id": "627bc4189f7a62f9f630668a"
+      },
+      {
+          "cheapest": {
+              "cost": 394,
+              "time": "12:35",
+              "arrival": "21:17"
+          },
+          "best": {
+              "cost": 461,
+              "time": "16:05",
+              "arrival": "17:40"
+          },
+          "departDate": "2022-10-07T00:00:00.000Z",
+          "returnDate": "2022-10-17T00:00:00.000Z",
+          "daysBetweenDepartureDateAndArrivalDate": 10,
+          "dateString": "Mon Oct 17 2022 01:00:00 GMT+0100 (British Summer Time)",
+          "url": "https://www.skyscanner.net/transport/flights/dub/seaa/221007/221017/?rtn=1&stops=direct,!twoPlusStops",
+          "_id": "627bc4189f7a62f9f63066b3"
+      },
+      {
+          "cheapest": {
+              "cost": 394,
+              "time": "12:35",
+              "arrival": "20:17"
+          },
+          "best": {
+              "cost": 505,
+              "time": "16:05",
+              "arrival": "17:40"
+          },
+          "departDate": "2022-10-08T00:00:00.000Z",
+          "returnDate": "2022-10-17T00:00:00.000Z",
+          "daysBetweenDepartureDateAndArrivalDate": 9,
+          "dateString": "Mon Oct 17 2022 01:00:00 GMT+0100 (British Summer Time)",
+          "url": "https://www.skyscanner.net/transport/flights/dub/seaa/221008/221017/?rtn=1&stops=direct,!twoPlusStops",
+          "_id": "627bc4189f7a62f9f63066b7"
+      }
+  ],
+  "bestFlightsOrder": [
+      {
+          "cheapest": {
+              "cost": 394,
+              "time": "12:35",
+              "arrival": "20:17"
+          },
+          "best": {
+              "cost": 394,
+              "time": "12:35",
+              "arrival": "20:17"
+          },
+          "departDate": "2022-10-09T00:00:00.000Z",
+          "returnDate": "2022-10-18T00:00:00.000Z",
+          "daysBetweenDepartureDateAndArrivalDate": 9,
+          "dateString": "Tue Oct 18 2022 01:00:00 GMT+0100 (British Summer Time)",
+          "url": "https://www.skyscanner.net/transport/flights/dub/seaa/221009/221018/?rtn=1&stops=direct,!twoPlusStops",
+          "_id": "627bc4189f7a62f9f63066bc"
+      },
+      {
+          "cheapest": {
+              "cost": 395,
+              "time": "12:35",
+              "arrival": "20:13"
+          },
+          "best": {
+              "cost": 395,
+              "time": "12:35",
+              "arrival": "20:13"
+          },
+          "departDate": "2022-09-18T00:00:00.000Z",
+          "returnDate": "2022-09-28T00:00:00.000Z",
+          "daysBetweenDepartureDateAndArrivalDate": 10,
+          "dateString": "Wed Sep 28 2022 01:00:00 GMT+0100 (British Summer Time)",
+          "url": "https://www.skyscanner.net/transport/flights/dub/seaa/220918/220928/?rtn=1&stops=direct,!twoPlusStops",
+          "_id": "627bc4189f7a62f9f6306654"
+      },
+      {
+          "cheapest": {
+              "cost": 395,
+              "time": "12:35",
+              "arrival": "20:13"
+          },
+          "best": {
+              "cost": 395,
+              "time": "12:35",
+              "arrival": "20:13"
+          },
+          "departDate": "2022-09-25T00:00:00.000Z",
+          "returnDate": "2022-10-05T00:00:00.000Z",
+          "daysBetweenDepartureDateAndArrivalDate": 10,
+          "dateString": "Wed Oct 05 2022 01:00:00 GMT+0100 (British Summer Time)",
+          "url": "https://www.skyscanner.net/transport/flights/dub/seaa/220925/221005/?rtn=1&stops=direct,!twoPlusStops",
+          "_id": "627bc4189f7a62f9f6306677"
+      },
+      {
+          "cheapest": {
+              "cost": 395,
+              "time": "12:35",
+              "arrival": "20:17"
+          },
+          "best": {
+              "cost": 395,
+              "time": "12:35",
+              "arrival": "20:17"
+          },
+          "departDate": "2022-10-16T00:00:00.000Z",
+          "returnDate": "2022-10-26T00:00:00.000Z",
+          "daysBetweenDepartureDateAndArrivalDate": 10,
+          "dateString": "Wed Oct 26 2022 01:00:00 GMT+0100 (British Summer Time)",
+          "url": "https://www.skyscanner.net/transport/flights/dub/seaa/221016/221026/?rtn=1&stops=direct,!twoPlusStops",
+          "_id": "627bc4189f7a62f9f63066e0"
+      },
+      {
+          "cheapest": {
+              "cost": 396,
+              "time": "12:35",
+              "arrival": "22:00"
+          },
+          "best": {
+              "cost": 396,
+              "time": "15:15",
+              "arrival": "23:42"
+          },
+          "departDate": "2022-09-04T00:00:00.000Z",
+          "returnDate": "2022-09-14T00:00:00.000Z",
+          "daysBetweenDepartureDateAndArrivalDate": 10,
+          "dateString": "Wed Sep 14 2022 01:00:00 GMT+0100 (British Summer Time)",
+          "url": "https://www.skyscanner.net/transport/flights/dub/seaa/220904/220914/?rtn=1&stops=direct,!twoPlusStops",
+          "_id": "627bc4189f7a62f9f630660e"
+      },
+      {
+          "cheapest": {
+              "cost": 396,
+              "time": "12:35",
+              "arrival": "22:00"
+          },
+          "best": {
+              "cost": 397,
+              "time": "15:15",
+              "arrival": "23:42"
+          },
+          "departDate": "2022-09-06T00:00:00.000Z",
+          "returnDate": "2022-09-14T00:00:00.000Z",
+          "daysBetweenDepartureDateAndArrivalDate": 8,
+          "dateString": "Wed Sep 14 2022 01:00:00 GMT+0100 (British Summer Time)",
+          "url": "https://www.skyscanner.net/transport/flights/dub/seaa/220906/220914/?rtn=1&stops=direct,!twoPlusStops",
+          "_id": "627bc4189f7a62f9f6306616"
+      },
+      {
+          "cheapest": {
+              "cost": 396,
+              "time": "12:35",
+              "arrival": "20:13"
+          },
+          "best": {
+              "cost": 397,
+              "time": "12:35",
+              "arrival": "20:13"
+          },
+          "departDate": "2022-09-20T00:00:00.000Z",
+          "returnDate": "2022-09-28T00:00:00.000Z",
+          "daysBetweenDepartureDateAndArrivalDate": 8,
+          "dateString": "Wed Sep 28 2022 01:00:00 GMT+0100 (British Summer Time)",
+          "url": "https://www.skyscanner.net/transport/flights/dub/seaa/220920/220928/?rtn=1&stops=direct,!twoPlusStops",
+          "_id": "627bc4189f7a62f9f630665c"
+      },
+      {
+          "cheapest": {
+              "cost": 397,
+              "time": "12:35",
+              "arrival": "20:13"
+          },
+          "best": {
+              "cost": 397,
+              "time": "12:35",
+              "arrival": "20:13"
+          },
+          "departDate": "2022-10-02T00:00:00.000Z",
+          "returnDate": "2022-10-09T00:00:00.000Z",
+          "daysBetweenDepartureDateAndArrivalDate": 7,
+          "dateString": "Sun Oct 09 2022 01:00:00 GMT+0100 (British Summer Time)",
+          "url": "https://www.skyscanner.net/transport/flights/dub/seaa/221002/221009/?rtn=1&stops=direct,!twoPlusStops",
+          "_id": "627bc4189f7a62f9f6306697"
+      },
+      {
+          "cheapest": {
+              "cost": 397,
+              "time": "12:35",
+              "arrival": "20:17"
+          },
+          "best": {
+              "cost": 397,
+              "time": "12:35",
+              "arrival": "20:17"
+          },
+          "departDate": "2022-10-16T00:00:00.000Z",
+          "returnDate": "2022-10-23T00:00:00.000Z",
+          "daysBetweenDepartureDateAndArrivalDate": 7,
+          "dateString": "Sun Oct 23 2022 01:00:00 GMT+0100 (British Summer Time)",
+          "url": "https://www.skyscanner.net/transport/flights/dub/seaa/221016/221023/?rtn=1&stops=direct,!twoPlusStops",
+          "_id": "627bc4189f7a62f9f63066dd"
+      },
+      {
+          "cheapest": {
+              "cost": 399,
+              "time": "12:35",
+              "arrival": "22:00"
+          },
+          "best": {
+              "cost": 399,
+              "time": "15:15",
+              "arrival": "23:42"
+          },
+          "departDate": "2022-09-04T00:00:00.000Z",
+          "returnDate": "2022-09-11T00:00:00.000Z",
+          "daysBetweenDepartureDateAndArrivalDate": 7,
+          "dateString": "Sun Sep 11 2022 01:00:00 GMT+0100 (British Summer Time)",
+          "url": "https://www.skyscanner.net/transport/flights/dub/seaa/220904/220911/?rtn=1&stops=direct,!twoPlusStops",
+          "_id": "627bc4189f7a62f9f630660b"
+      }
+  ]
+}

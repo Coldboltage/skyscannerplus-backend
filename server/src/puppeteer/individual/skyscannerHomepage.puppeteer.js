@@ -1,7 +1,8 @@
 const FlightsDatabase = require("../../models/userFlight.mongo");
+console.log("Started skyscannerHomepage")
 
 const skyscannerHomePage = async (page, newUser) => {
-  await page.goto("https://www.skyscanner.net", { waitUntil: "networkidle0", timeout: 60000 });
+  await page.goto("https://www.skyscanner.net?currency=GBP&locale=en-GB&market=UK", { waitUntil: "networkidle0", timeout: 60000 });
   
   const UserFlight = await FlightsDatabase.findOne({ ref: newUser.ref });
   console.log("fired");
