@@ -14,13 +14,13 @@ const pluginProxy = require("puppeteer-extra-plugin-proxy");
 
 // puppeteer.use(
 //   pluginProxy({
-//     address: "proxy.iproyal.com",
-//     port: 12323,
-//     // address: "154.17.91.227",
-//     // port: 29842,
+//     // address: "proxy.iproyal.com",
+//     // port: 12323,
+//     address: "154.17.91.227",
+//     port: 29842,
 //     credentials: {
-//       username: `${process.env.PROXY_USERNAME}`,
-//       password: `${process.env.PROXY_PASSWORD}`,
+//       username: `${process.env.OLD_PROXY_USERNAME}`,
+//       password: `${process.env.OLD_PROXY_PASSWORD}`,
 //     },
 //   })
 // );

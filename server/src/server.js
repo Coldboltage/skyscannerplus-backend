@@ -83,10 +83,12 @@ const fireAllJobs = async () => {
       const todaysDateToMili = Date.parse(todaysDate);
       console.log(`Todays Date to mili ${todaysDateToMili}`)
       console.log(`timeWhenNewScanNeeded is: ${timeWhenNewScanNeeded}`)
-      console.log(`Is todaysDateToMili bigger than timeWhenNewScanNeeded:${todaysDateToMili > timeWhenNewScanNeeded}`);
+      console.log(`Is todaysDateToMili bigger than timeWhenNewScanNeeded for ${user.ref}:${todaysDateToMili > timeWhenNewScanNeeded}`);
       return todaysDateToMili > timeWhenNewScanNeeded ? true : false;
   });
 
+  console.log(allUsersScansNeeded)
+  
   const cpusCurrentlyBeingUsed = await checkAmountOfProcessesInUse();
   console.log(`How many CPUs in use? ${cpusCurrentlyBeingUsed}`);
 
@@ -103,14 +105,18 @@ const fireAllJobs = async () => {
     });
   } else {
     console.log(`Worker ${process.pid} started`);
-    console.log(`What is this worked ID ${cluster.worker.id}`);
+    console.log(`What is this worker ID ${cluster.worker.id}`);
     await new Promise((resolve) =>
       setTimeout(resolve, cluster.worker.id * 1000)
     );
     // database call
 
-    if (allUsersScansNeeded[cluster.worker.id]) {
-      reference = allUsersScansNeeded[cluster.worker.id].ref;
+    if (allUsersScansNeeded[cluster.worker.id - 1]) {
+      console.log(allUsersScansNeeded.length)
+      reference = allUsersScansNeeded[cluster.worker.id - 1].ref;
+      console.log(`#############################`)
+      console.log(`>>> ${allUsersScansNeeded[cluster.worker.id - 1].ref} will be looked at`)
+      console.log(`#############################`)
     } else {
       console.log("worker should die here");
       return;

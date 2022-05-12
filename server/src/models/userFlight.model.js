@@ -1,8 +1,16 @@
 const userFlightDatabase = require("./userFlight.mongo");
+const searchFlights = require("../puppeteer/bundle/firstTimeSearch");
+
 
 // Get all documents
 const getAllDocuments = async () => {
   return await userFlightDatabase.find({})
+}
+
+const getAllReferences = async () => {
+  const documents = await userFlightDatabase.find({})
+  const references = documents.map(doc => doc.ref)
+  return references
 }
 
 const createUser = async (userObject) => {
@@ -132,6 +140,12 @@ const checkMaximumHoliday = async (reference) => {
   return {cheapestFlightsOrderMax, bestFlightsOrderMax}
 }
 
+const fireEvents = async (reference) => {
+  const userFlight = await searchFlights(reference);
+  await cheapestFlightScannedToday(userFlight);
+  await checkMaximumHoliday(userFlight.ref);
+}
+
 const consoleOutput = async (cheapestFlightsOrder, bestFlightsOrder) => {
   console.log("#################")
   console.log(">> Max Holiday Output: Cheapest <<")
@@ -152,10 +166,12 @@ module.exports = {
   changeFlightScanStatusByPID,
   changePIDToZero,
   getAllDocuments,
+  getAllReferences,
   checkAmountOfProcessesInUse,
   cheapestFlightScannedToday,
   findUserFlight,
   maximumHoliday,
   checkUserFlightStuff,
-  checkMaximumHoliday
+  checkMaximumHoliday,
+  fireEvents
 };
