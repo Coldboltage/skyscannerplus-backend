@@ -59,7 +59,7 @@ const skyscannerHomePage = async (page, newUser) => {
   await page.click(
     "#flights-search-controls-root > div > div > form > div:nth-child(3) > button"
   );
-  console.log(page)
+  // console.log(page)
   await page.waitForTimeout(5000);
   let url = await page.url()
   console.log(url)

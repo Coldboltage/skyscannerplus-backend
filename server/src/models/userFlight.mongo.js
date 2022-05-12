@@ -23,6 +23,14 @@ const flightSchema = new mongoose.Schema({
     type: Number,
     required: true,
   },
+  scannedLast: {
+    type: Number,
+    required: true,
+  },
+  nextScan: {
+    type: Number,
+    required: true,
+  },
   flights: {
     departure: {
       type: String,

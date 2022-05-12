@@ -85,7 +85,7 @@ const datePage = async (page, browser, newUser, puppeteer, pageURL) => {
   // Get Todays Date
   const todaysDate = new Date();
   const todaysDateParsed = Date.parse(todaysDate);
-  const nextScan = todaysDateParsed * 43200000;
+  const nextScan = todaysDateParsed + 43200000;
 
   // Setup Scan Date
   const flightScannerObject = {
@@ -306,11 +306,18 @@ const datePage = async (page, browser, newUser, puppeteer, pageURL) => {
 
       departureDateIteration.returnDates.push(returnInformationObject);
 
+      console.log(`userFlight.dates.minimalHoliday = ${userFlight.dates.minimalHoliday}`);
+      console.log(`addReturnDay = ${addReturnDay}`);
+      console.log(`userFlight.dates.maximumHoliday = ${userFlight.dates.maximumHoliday}`);
+
       if (
-        userFlight.dates.minimalHoliday + addReturnDay ===
-        userFlight.dates.maximumHoliday
+        userFlight.dates.minimalHoliday + addReturnDay === userFlight.dates.maximumHoliday
+        || userFlight.dates.minimalHoliday + addDepartDay + addReturnDay ===
+        departArriveDifference
       ) {
+        console.log("pushed departureDateIteration");
         flightScannerObject.departureDate.push(departureDateIteration);
+        console.log(flightScannerObject)
       }
     }
   }

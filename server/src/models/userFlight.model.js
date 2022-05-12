@@ -61,7 +61,7 @@ const cheapestFlightScannedToday = async (newUser) => {
   // console.log(newUser)
   const Flight = await userFlightDatabase.findOne({ ref: newUser.ref });
   // console.log(Flight)
-  const FlightArrays = Flight.scanDate.at(-1).departureDate;
+  const FlightArrays = await Flight.scanDate.at(-1).departureDate;
   let cheapestObject = [];
   let bestObject = [];
   for (let departureDateArray of FlightArrays) {
@@ -87,16 +87,19 @@ const cheapestFlightScannedToday = async (newUser) => {
   let bestFlightsOrderTopTen = []
 
 
-  for (let i = 0; i < 10; i++) {
+  for (let i = 0; i < 10 && i < cheapestFlightsOrder.length; i++) {
+    // console.log(`${i}: ${cheapestFlightsOrder[i]}`)
     cheapestFlightsOrderTopTen.push(cheapestFlightsOrder[i]);
   }
   console.log("####################");
   console.log("####################");
   console.log("####################");
 
-  for (let i = 0; i < 10; i++) {
+  for (let i = 0; i < 10 && i < bestFlightsOrder.length; i++) {
+    // console.log(`${i}: ${bestFlightsOrder[i]}`)
     bestFlightsOrderTopTen.push(bestFlightsOrder[i]);
   }
+  console.log("Ending cheapestFlightScannedToday")
   return { cheapestFlightsOrderTopTen, bestFlightsOrderTopTen };
 };
 
@@ -110,7 +113,7 @@ const checkUserFlightStuff = async (reference) => {
   console.log(`checkedUserFlightStuff passed reference = ${reference}`)
   const userFlight = await findUserFlight(reference)
   const {cheapestFlightsOrderTopTen: cheapestFlightsOrder, bestFlightsOrderTopTen: bestFlightsOrder} = await cheapestFlightScannedToday(userFlight)
-  return {cheapestFlightsOrder, bestFlightsOrder}
+  return {cheapestFlightsOrder, bestFlightsOrder, userFlight}
 };
 
 
@@ -125,7 +128,7 @@ const checkMaximumHoliday = async (reference) => {
   let {cheapestFlightsOrder, bestFlightsOrder, userFlight} = await checkUserFlightStuff(reference)
   const cheapestFlightsOrderMax = await maximumHoliday(cheapestFlightsOrder, userFlight.dates.maximumHoliday)
   const bestFlightsOrderMax = await maximumHoliday(bestFlightsOrder, userFlight.dates.maximumHoliday)
-  consoleOutput(cheapestFlightsOrderMax,bestFlightsOrderMax)
+  consoleOutput(cheapestFlightsOrderMax, bestFlightsOrderMax)
   return {cheapestFlightsOrderMax, bestFlightsOrderMax}
 }
 

@@ -55,4 +55,4 @@ const fireEvents = async (reference) => {
 };
 
 // main();
-// fireEvents("phil-seattle");
+fireEvents("bangkok-september");
