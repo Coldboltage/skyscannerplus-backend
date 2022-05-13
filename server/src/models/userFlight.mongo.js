@@ -109,6 +109,9 @@ const flightSchema = new mongoose.Schema({
                 arrival: {
                   type: String,
                 },
+                durationOfFlight: {
+                  type: String,
+                },
               },
               best: {
                 cost: {
@@ -119,6 +122,9 @@ const flightSchema = new mongoose.Schema({
                   type: String,
                 },
                 arrival: {
+                  type: String,
+                },
+                durationOfFlight: {
                   type: String,
                 },
               },
