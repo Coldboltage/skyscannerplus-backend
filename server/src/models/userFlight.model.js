@@ -1,5 +1,6 @@
 const userFlightDatabase = require("./userFlight.mongo");
 const searchFlights = require("../puppeteer/bundle/firstTimeSearch");
+const testEmail = require("../../services/reference.email")
 
 
 // Get all documents
@@ -137,6 +138,8 @@ const checkMaximumHoliday = async (reference) => {
   const cheapestFlightsOrderMax = await maximumHoliday(cheapestFlightsOrder, userFlight.dates.maximumHoliday)
   const bestFlightsOrderMax = await maximumHoliday(bestFlightsOrder, userFlight.dates.maximumHoliday)
   consoleOutput(cheapestFlightsOrderMax, bestFlightsOrderMax)
+  // Send email
+  testEmail(cheapestFlightsOrderMax, bestFlightsOrderMax, userFlight)
   return {cheapestFlightsOrderMax, bestFlightsOrderMax}
 }
 
