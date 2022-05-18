@@ -238,15 +238,21 @@ const datePage = async (page, browser, newUser, puppeteer, pageURL) => {
 
       // Setup Info
 
+      // let url = `https://www.skyscanner.net/transport/flights/${firstCode}/${secondCode}/${
+      //   departureDateIteration.year - 2000
+      // }${addZeroMonth(departureDateIteration.month)}${addZeroDate(
+      //   departureDateIteration.date.getDate()
+      // )}/${returnDateWithYear - 2000}${addZeroMonth(
+      //   returnDateWithMonth
+      // )}${addZeroDate(returnDateWithDate)}/?rtn=1&stops=direct,!twoPlusStops`;
+      // Test URL
       let url = `https://www.skyscanner.net/transport/flights/${firstCode}/${secondCode}/${
         departureDateIteration.year - 2000
       }${addZeroMonth(departureDateIteration.month)}${addZeroDate(
         departureDateIteration.date.getDate()
       )}/${returnDateWithYear - 2000}${addZeroMonth(
         returnDateWithMonth
-      )}${addZeroDate(returnDateWithDate)}/?rtn=1&stops=direct,!twoPlusStops`;
-      // Test URL
-      // let url = `https://www.skyscanner.net/transport/flights/${firstCode}/${secondCode}/${departureDateIteration.year - 2000}${addZeroMonth(departureDateIteration.month)}${addZeroDate(departureDateIteration.date.getDate())}/${returnDateWithYear - 2000}${addZeroMonth(returnDateWithMonth)}${addZeroDate(returnDateWithDate)}/?rtn=1&stops=direct`;
+      )}${addZeroDate(returnDateWithDate)}/?rtn=1&stops=direct`;
 
       await page.goto(url, { waitUntil: "domcontentloaded", timeout: 300000 });
       const returnInformationObject = await processPage(
@@ -306,18 +312,23 @@ const datePage = async (page, browser, newUser, puppeteer, pageURL) => {
 
       departureDateIteration.returnDates.push(returnInformationObject);
 
-      console.log(`userFlight.dates.minimalHoliday = ${userFlight.dates.minimalHoliday}`);
+      console.log(
+        `userFlight.dates.minimalHoliday = ${userFlight.dates.minimalHoliday}`
+      );
       console.log(`addReturnDay = ${addReturnDay}`);
-      console.log(`userFlight.dates.maximumHoliday = ${userFlight.dates.maximumHoliday}`);
+      console.log(
+        `userFlight.dates.maximumHoliday = ${userFlight.dates.maximumHoliday}`
+      );
 
       if (
-        userFlight.dates.minimalHoliday + addReturnDay === userFlight.dates.maximumHoliday
-        || userFlight.dates.minimalHoliday + addDepartDay + addReturnDay ===
-        departArriveDifference
+        userFlight.dates.minimalHoliday + addReturnDay ===
+          userFlight.dates.maximumHoliday ||
+        userFlight.dates.minimalHoliday + addDepartDay + addReturnDay ===
+          departArriveDifference
       ) {
         console.log("pushed departureDateIteration");
         flightScannerObject.departureDate.push(departureDateIteration);
-        console.log(flightScannerObject)
+        console.log(flightScannerObject);
       }
     }
   }

@@ -1,4 +1,5 @@
 const cheerio = require("cheerio");
+const dayjs = require('dayjs')
 
 const processPage = async (page, returnDateInMili, departureDateIteration) => {
   console.log("refreshing page");
@@ -108,25 +109,33 @@ const processPage = async (page, returnDateInMili, departureDateIteration) => {
   console.log("Done");
   // await page.close();
 
+  const departDate = dayjs(new Date(departureDateIteration.date)).format("dddd DD MMMM YYYY")
+  const returnDate = dayjs(new Date(returnDateInMili)).format("dddd DD MMMM YYYY")
+  const flightDatesString = {
+    departDate,
+    returnDate
+  }
+
   return {
     daysBetweenDepartureDateAndArrivalDate: Number(
       (returnDateInMili - departureDateIteration.date) / 86400000
     ),
     departDate: new Date(departureDateIteration.date),
     returnDate: new Date(returnDateInMili),
+    flightDatesString,
     dateString: new Date(returnDateInMili).toString(),
     url: await page.url(),
     cheapest: {
       cost: +cheapestCost,
       time: cheapestDepartureDepartTime,
       arrival: cheapestDepartureArrivalTime,
-      duration: cheapestDepartureDurationFlight
+      durationOfFlight: cheapestDepartureDurationFlight
     },
     best: {
       cost: +bestCost,
       time: bestDepartureDepartTime,
       arrival: bestDepartureArrivalTime,
-      duration: bestDepartureDurationFlight
+      durationOfFlight: bestDepartureDurationFlight
     },
   };
 };

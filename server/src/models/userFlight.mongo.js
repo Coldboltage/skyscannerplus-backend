@@ -50,6 +50,12 @@ const flightSchema = new mongoose.Schema({
       type: Date,
       required: true,
     },
+    departureDateString: {
+      type: String,
+    },
+    returnDateString: {
+      type: String,
+    },
     minimalHoliday: {
       type: Number,
       required: true,
@@ -97,6 +103,9 @@ const flightSchema = new mongoose.Schema({
               url: {
                 type: String,
                 required: true,
+              },
+              flightDatesString : {
+                type: Object,
               },
               cheapest: {
                 cost: {

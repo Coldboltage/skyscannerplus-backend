@@ -9,6 +9,8 @@ const testEmail = async (
   bestFlightsOrderMax,
   userFlight
 ) => {
+  
+
   const { requestId } = await courier.send({
     message: {
       to: {
@@ -16,10 +18,12 @@ const testEmail = async (
       },
       template: "AHNVWAJMJ7413SHMFTHXTFPJ5HSY",
       data: {
+        flights: userFlight.flights,
+        dates: userFlight.dates,
         name: userFlight.user.name,
         reference: userFlight.ref,
         cheapestFlight: cheapestFlightsOrderMax,
-        bestFlight: bestFlightsOrderMax
+        bestFlight: bestFlightsOrderMax,
       },
     },
   });

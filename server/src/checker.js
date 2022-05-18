@@ -40,7 +40,7 @@ const fireAllJobs = async () => {
     // const tasks = await snapshot("cpu");
     // console.log(tasks);
     // Fork workers.
-    for (let i = 0; i < 3; i++) {
+    for (let i = 0; i < 4; i++) {
       cluster.fork();
     }
     cluster.on("exit", (worker, code, signal) => {
