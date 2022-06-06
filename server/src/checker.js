@@ -60,7 +60,7 @@ const fireEvents = async (reference) => {
 };
 
 const fireAllJobs = async () => {
-  const allUsers = await getAllDocuments();
+  // const allUsers = await getAllDocuments();
   // for (let users of allUsers) {
   //   const lastSearch = Date.parse(users.scanDate.at(-1).dateOfScanLoop)
   //   console.log(lastSearch + 43200000)
@@ -95,7 +95,7 @@ const fireAllJobs = async () => {
   //   return todaysDateToMili > timeWhenNewScanNeeded ? true : false;
   // };
 
-  console.log(allUsersScansNeeded);
+  // console.log(allUsersScansNeeded);
 
   const cpusCurrentlyBeingUsed = await checkAmountOfProcessesInUse();
   console.log(`How many CPUs in use? ${cpusCurrentlyBeingUsed}`);
@@ -116,33 +116,25 @@ const fireAllJobs = async () => {
     console.log(`Worker ${process.pid} started`);
     console.log(`What is this worker ID ${cluster.worker.id}`);
     await new Promise((resolve) =>
-      setTimeout(resolve, cluster.worker.id * 1000)
+      setTimeout(resolve, cluster.worker.id * 10000)
     );
 
     const checkIfUserFlightAvailable = async () => {
       // Check to see if any flights should be scanned now
-      const checkForUserFlight = await checkIfFlightTimeForScan();
+      console.log("Fired checkIfUserFlightAvailable");
+      return await checkIfFlightTimeForScan();
       // Verification if we're good to go with that user incase something is wrong
       // const checkForUserFlightOutcome = await shouldThisFlightBeScanned(checkForUserFlight);
-      return checkForUserFlight
     };
-
     while (await checkIfUserFlightAvailable()) {
       if (await checkIfUserFlightAvailable()) {
-        const flightToBeScanned = await checkIfFlightTimeForScan.checkForUserFlight();
-        console.log(allUsersScansNeeded.length);
+        const flightToBeScanned = await checkIfUserFlightAvailable();
+        console.log(flightToBeScanned);
         reference = flightToBeScanned.ref;
         console.log(`#############################`);
-        console.log(
-          `>>> ${
-            flightToBeScanned.ref
-          } will be looked at`
-        );
+        console.log(`>>> ${flightToBeScanned.ref} will be looked at`);
         console.log(`#############################`);
         console.log(reference);
-        await new Promise((resolve) =>
-          setTimeout(resolve, cluster.worker.id * 1000)
-        );
         console.log("setting flight status by reference");
         await changeFlightScanStatusByReference(reference, true);
         console.log("change pid by reference");
@@ -152,9 +144,9 @@ const fireAllJobs = async () => {
         console.log(`Worker ${process.pid} ended`);
       } else {
         console.log("worker should die here");
-        return;
       }
     }
+    console.log("worker should die here");
   }
 };
 
