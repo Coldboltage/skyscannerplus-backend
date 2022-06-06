@@ -116,7 +116,7 @@ const fireAllJobs = async () => {
     console.log(`Worker ${process.pid} started`);
     console.log(`What is this worker ID ${cluster.worker.id}`);
     await new Promise((resolve) =>
-      setTimeout(resolve, cluster.worker.id * 10000)
+      setTimeout(resolve, cluster.worker.id * 1000)
     );
 
     const checkIfUserFlightAvailable = async () => {
