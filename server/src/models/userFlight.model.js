@@ -14,6 +14,11 @@ const getAllReferences = async () => {
   return references;
 };
 
+const checkIfFlightTimeForScan = async () => {
+  // Next Scan adds 43200000ms to the last scan. If the current time is over this, then we want to scan
+  return await userFlightDatabase.find({$or : [ {isBeingScanned: false},{nextScan: 0}, {nextScan: {$lt: new Date().getTime() }}]});
+}
+
 const createUser = async (userObject) => {
   userObject.dates.departureDateString = dayjs(
     userObject.dates.departureDate
@@ -210,6 +215,7 @@ module.exports = {
   createUser,
   updateUserByReference,
   userTest,
+  checkIfFlightTimeForScan,
   getUserFlightByReference,
   changeFlightScanStatusByReference,
   changePIDByReference,

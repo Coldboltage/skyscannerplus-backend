@@ -16,6 +16,7 @@ const searchFlights = require("./puppeteer/bundle/firstTimeSearch");
 const {
   cheapestFlightScannedToday,
   checkMaximumHoliday,
+  checkIfFlightTimeForScan,
   getAllDocuments,
   changeFlightScanStatusByReference,
   changePIDByReference,
@@ -50,6 +51,8 @@ const { mongoConnect } = require("../services/mongo");
 //   });
 // };
 
+const isTimeForScan = () => {};
+
 const fireEvents = async (reference) => {
   const userFlight = await searchFlights(reference);
   await cheapestFlightScannedToday(userFlight);
@@ -64,31 +67,36 @@ const fireAllJobs = async () => {
   //   const todaysDate = new Date()
   //   console.log(Date.parse(todaysDate))
   // }
-  const allUsersScansNeeded = allUsers.filter((user, index) => {
-      if (user.isBeingScanned === true) {
-        console.log(`user ref: ${user.ref} is being scanned`);
-        return false;
-      }
-      if (!user.scanDate[0] || user?.scannedLast === undefined) {
-        console.log(user.ref);
-        console.log(`New scan needed for ${user.ref} now`);
-        return true;
-      }
-      console.log(`There's scanData for ${user.ref}`);
-      const lastSearch = user.scannedLast;
-      console.log(`What is this: ${lastSearch}`);
-      console.log(`and this ${user.scannedLast}`);
-      const timeWhenNewScanNeeded = lastSearch + 43200000;
-      const todaysDate = new Date();
-      const todaysDateToMili = Date.parse(todaysDate);
-      console.log(`Todays Date to mili ${todaysDateToMili}`)
-      console.log(`timeWhenNewScanNeeded is: ${timeWhenNewScanNeeded}`)
-      console.log(`Is todaysDateToMili bigger than timeWhenNewScanNeeded for ${user.ref}:${todaysDateToMili > timeWhenNewScanNeeded}`);
-      return todaysDateToMili > timeWhenNewScanNeeded ? true : false;
-  });
+  // const allUsersScansNeeded = allUsers.filter((user, index) => {
+  // const shouldThisFlightBeScanned = async (user) => {
+  //   if (user.isBeingScanned === true) {
+  //     console.log(`user ref: ${user.ref} is being scanned`);
+  //     return false;
+  //   }
+  //   if (!user.scanDate[0] || user?.scannedLast === 0) {
+  //     console.log(user.ref);
+  //     console.log(`New scan needed for ${user.ref} now`);
+  //     return true;
+  //   }
+  //   console.log(`There's scanData for ${user.ref}`);
+  //   const lastSearch = user.scannedLast;
+  //   console.log(`What is this: ${lastSearch}`);
+  //   console.log(`and this ${user.scannedLast}`);
+  //   const timeWhenNewScanNeeded = lastSearch + 43200000;
+  //   const todaysDate = new Date();
+  //   const todaysDateToMili = Date.parse(todaysDate);
+  //   console.log(`Todays Date to mili ${todaysDateToMili}`);
+  //   console.log(`timeWhenNewScanNeeded is: ${timeWhenNewScanNeeded}`);
+  //   console.log(
+  //     `Is todaysDateToMili bigger than timeWhenNewScanNeeded for ${user.ref}:${
+  //       todaysDateToMili > timeWhenNewScanNeeded
+  //     }`
+  //   );
+  //   return todaysDateToMili > timeWhenNewScanNeeded ? true : false;
+  // };
 
-  console.log(allUsersScansNeeded)
-  
+  console.log(allUsersScansNeeded);
+
   const cpusCurrentlyBeingUsed = await checkAmountOfProcessesInUse();
   console.log(`How many CPUs in use? ${cpusCurrentlyBeingUsed}`);
 
@@ -104,34 +112,49 @@ const fireAllJobs = async () => {
       await changePIDToZero(worker.process.pid);
     });
   } else {
+    // CLUSTER PROCESSES WORKING ON THIS
     console.log(`Worker ${process.pid} started`);
     console.log(`What is this worker ID ${cluster.worker.id}`);
     await new Promise((resolve) =>
       setTimeout(resolve, cluster.worker.id * 1000)
     );
-    // database call
 
-    if (allUsersScansNeeded[cluster.worker.id - 1]) {
-      console.log(allUsersScansNeeded.length)
-      reference = allUsersScansNeeded[cluster.worker.id - 1].ref;
-      console.log(`#############################`)
-      console.log(`>>> ${allUsersScansNeeded[cluster.worker.id - 1].ref} will be looked at`)
-      console.log(`#############################`)
-    } else {
-      console.log("worker should die here");
-      return;
+    const checkIfUserFlightAvailable = async () => {
+      // Check to see if any flights should be scanned now
+      const checkForUserFlight = await checkIfFlightTimeForScan();
+      // Verification if we're good to go with that user incase something is wrong
+      // const checkForUserFlightOutcome = await shouldThisFlightBeScanned(checkForUserFlight);
+      return checkForUserFlight
+    };
+
+    while (await checkIfUserFlightAvailable()) {
+      if (await checkIfUserFlightAvailable()) {
+        const flightToBeScanned = await checkIfFlightTimeForScan.checkForUserFlight();
+        console.log(allUsersScansNeeded.length);
+        reference = flightToBeScanned.ref;
+        console.log(`#############################`);
+        console.log(
+          `>>> ${
+            flightToBeScanned.ref
+          } will be looked at`
+        );
+        console.log(`#############################`);
+        console.log(reference);
+        await new Promise((resolve) =>
+          setTimeout(resolve, cluster.worker.id * 1000)
+        );
+        console.log("setting flight status by reference");
+        await changeFlightScanStatusByReference(reference, true);
+        console.log("change pid by reference");
+        await changePIDByReference(reference, process.pid);
+        console.log(`${reference} - scan started`);
+        await fireEvents(reference);
+        console.log(`Worker ${process.pid} ended`);
+      } else {
+        console.log("worker should die here");
+        return;
+      }
     }
-    console.log(reference);
-    await new Promise((resolve) =>
-      setTimeout(resolve, cluster.worker.id * 1000)
-    );
-    console.log("setting flight status by reference");
-    await changeFlightScanStatusByReference(reference, true);
-    console.log("change pid by reference");
-    await changePIDByReference(reference, process.pid);
-    console.log(`${reference} - scan started`);
-    await fireEvents(reference);
-    console.log(`Worker ${process.pid} ended`);
   }
 };
 

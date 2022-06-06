@@ -49,10 +49,11 @@ const main = async () => {
 
 
 const fireEvents = async (reference) => {
+  await new Promise(resolve => setTimeout(resolve, 10000))
   const userFlight = await searchFlights(reference);
   await cheapestFlightScannedToday(userFlight);
   await checkMaximumHoliday(userFlight.ref);
 };
 
 // main();
-fireEvents("marta-london");
+// fireEvents("marta-london");
