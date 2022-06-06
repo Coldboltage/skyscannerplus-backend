@@ -108,10 +108,10 @@ const main = async (reference = false) => {
   }
   // Execute skyscannerHomePage
 
-  let { page: datePageData, url } = await skyscannerHomePage(page, user);
+  let { page: datePageData, url, verifyNames } = await skyscannerHomePage(page, user);
   console.log(url);
-  await datePage(datePageData, browser, user, puppeteer, url);
-  return user;
+  const verifyFlights = await datePage(datePageData, browser, user, puppeteer, url, verifyNames);
+  return {user, verifyFlights};
 };
 
 module.exports = main;

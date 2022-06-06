@@ -54,7 +54,12 @@ const { mongoConnect } = require("../services/mongo");
 const isTimeForScan = () => {};
 
 const fireEvents = async (reference) => {
-  const userFlight = await searchFlights(reference);
+  const {user: userFlight, verifyFlights} = await searchFlights(reference);
+  console.log(`What is this ${verifyFlights}`)
+  if (verifyFlights === false) {
+    console.log(`It's false`)
+    return false
+  }
   await cheapestFlightScannedToday(userFlight);
   await checkMaximumHoliday(userFlight.ref);
 };
@@ -103,7 +108,7 @@ const fireAllJobs = async () => {
   if (cluster.isPrimary) {
     console.log(`Primary ${process.pid} is running`);
     // Fork workers.
-    for (let i = cpusCurrentlyBeingUsed; i < 4; i++) {
+    for (let i = cpusCurrentlyBeingUsed; i < 1; i++) {
       cluster.fork();
     }
     cluster.on("exit", async (worker, code, signal) => {

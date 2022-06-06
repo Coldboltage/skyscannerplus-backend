@@ -20,10 +20,19 @@ const monthNames = [
   "December",
 ];
 
-const datePage = async (page, browser, newUser, puppeteer, pageURL) => {
+const datePage = async (page, browser, newUser, puppeteer, pageURL, verifyNames) => {
+ 
   console.log("Entered Date page");
   await page.waitForTimeout(1000);
   const userFlight = await FlightsDatabase.findOne({ ref: newUser.ref });
+  if (verifyNames === false || (true)) {
+    console.log(`We are returning false from datePage`)
+    userFlight.isBeingScanned = false;
+    userFlight.workerPID = 0;
+    await userFlight.save()
+    await browser.close()
+    return false
+  }
   const html = await page.content();
   const $ = cheerio.load(html);
 
@@ -343,6 +352,7 @@ const datePage = async (page, browser, newUser, puppeteer, pageURL) => {
   console.log("Saved");
 
   await browser.close();
+  return true
 };
 
 module.exports = datePage;

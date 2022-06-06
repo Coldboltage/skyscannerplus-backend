@@ -1,4 +1,5 @@
 const FlightsDatabase = require("../../models/userFlight.mongo");
+const cheerio = require("cheerio")
 console.log("Started skyscannerHomepage")
 
 const skyscannerHomePage = async (page, newUser) => {
@@ -33,15 +34,28 @@ const skyscannerHomePage = async (page, newUser) => {
 
   // Setting up from and away
   await page.focus(originDestination);
-  await page.waitForTimeout(100);
+  await page.waitForTimeout(300);
   await page.keyboard.type(UserFlight.flights.departure);
   await page.keyboard.press("Enter");
 
   // Setting up from and away
   await page.focus(arrivalDestination);
-  await page.waitForTimeout(100);
+  await page.waitForTimeout(300);
   await page.keyboard.type(UserFlight.flights.arrival);
   await page.keyboard.press("Enter");
+
+  // CHECKING
+  let verifyNames = true;
+  const $ = cheerio.load(await page.content())
+  const originDestinationVerification = $(originDestination).val()
+  const arrivalDestinationVerification = $(arrivalDestination).val()
+  if ((originDestinationVerification !== UserFlight.flights.departure) || (arrivalDestinationVerification !== UserFlight.flights.arrival) ) {
+    console.log(`${originDestinationVerification}} - ${arrivalDestinationVerification} and ${$(arrivalDestination).value} - ${UserFlight.flights.arrival}`)
+    console.log("FALSE FALSE FALSE")
+    verifyNames = false
+  }
+
+  console.log("Names correct move on")
 
   // Clicking Cheapest month setup
   await page.click(originInput);
@@ -55,16 +69,18 @@ const skyscannerHomePage = async (page, newUser) => {
   await page.click(arrivalInputCheapestMonth);
 
   // Submit Page
-  await page.waitForTimeout(100);
+  await page.waitForTimeout(200);
+ 
   await page.click(
     "#flights-search-controls-root > div > div > form > div:nth-child(3) > button"
   );
   // console.log(page)
+  
   await page.waitForTimeout(5000);
   let url = await page.url()
   console.log(url)
   // done
-  return {page, url};
+  return {page, url, verifyNames};
 };
 
 module.exports = skyscannerHomePage;
