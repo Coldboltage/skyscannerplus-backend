@@ -309,7 +309,7 @@ const datePage = async (page, browser, newUser, puppeteer, pageURL, verifyNames)
 
       await browser.close();
       browser = await puppeteer.launch({
-        headless: true,
+        headless: false,
         args: [
           "--no-sandbox",
           "--disable-setuid-sandbox",

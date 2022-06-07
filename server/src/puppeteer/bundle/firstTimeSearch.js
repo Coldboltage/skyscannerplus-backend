@@ -44,7 +44,7 @@ const todaysDate = new Date();
 const main = async (reference = false) => {
   console.log("Starting Main");
   let browser = await puppeteer.launch({
-    headless: true,
+    headless: false,
     args: [
       "--no-sandbox",
       "--disable-setuid-sandbox",
