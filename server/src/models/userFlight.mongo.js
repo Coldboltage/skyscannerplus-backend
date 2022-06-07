@@ -40,6 +40,9 @@ const flightSchema = new mongoose.Schema({
       type: String,
       required: true,
     },
+    passengers: {
+      type: Number,
+    },
   },
   dates: {
     departureDate: {

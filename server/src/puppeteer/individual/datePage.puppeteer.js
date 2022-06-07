@@ -280,6 +280,8 @@ const datePage = async (page, browser, newUser, puppeteer, pageURL, verifyNames)
         }
       };
 
+      // Check if there's passengers or not
+
       // Setup Info
 
       // let url = `https://www.skyscanner.net/transport/flights/${firstCode}/${secondCode}/${
@@ -296,7 +298,7 @@ const datePage = async (page, browser, newUser, puppeteer, pageURL, verifyNames)
         departureDateIteration.date.getDate()
       )}/${returnDateWithYear - 2000}${addZeroMonth(
         returnDateWithMonth
-      )}${addZeroDate(returnDateWithDate)}/?rtn=1&stops=direct`;
+      )}${addZeroDate(returnDateWithDate)}/?rtn=1&stops=direct&adultsv2=${userFlight.flights.passengers || 1}`;
 
       await page.goto(url, { waitUntil: "domcontentloaded", timeout: 300000 });
       const returnInformationObject = await processPage(
@@ -307,7 +309,7 @@ const datePage = async (page, browser, newUser, puppeteer, pageURL, verifyNames)
 
       await browser.close();
       browser = await puppeteer.launch({
-        headless: false,
+        headless: true,
         args: [
           "--no-sandbox",
           "--disable-setuid-sandbox",
