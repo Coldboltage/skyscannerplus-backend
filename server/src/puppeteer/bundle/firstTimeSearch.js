@@ -25,12 +25,6 @@ const pluginProxy = require("puppeteer-extra-plugin-proxy");
 //   })
 // );
 
-// puppeteer.use(
-//   PuppeteerExtraPluginProxy({
-//     proxy: `http://cbolt:Fuj0dAfcV8IX7b87_country-gb@91.239.130.17:12323`,
-//   })
-// );
-
 // Database
 const FlightsDatabase = require("../../models/userFlight.mongo");
 
