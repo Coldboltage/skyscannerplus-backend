@@ -50,10 +50,12 @@ const skyscannerHomePage = async (page, newUser) => {
   const originDestinationVerification = $(originDestination).val()
   const arrivalDestinationVerification = $(arrivalDestination).val()
   if ((originDestinationVerification !== UserFlight.flights.departure) || (arrivalDestinationVerification !== UserFlight.flights.arrival) ) {
-    console.log(`${originDestinationVerification}} - ${arrivalDestinationVerification} and ${$(arrivalDestination).value} - ${UserFlight.flights.arrival}`)
+    console.log(`${originDestinationVerification} - ${UserFlight.flights.departure} and ${arrivalDestinationVerification} - ${UserFlight.flights.arrival}`)
     console.log("FALSE FALSE FALSE")
     verifyNames = false
   }
+
+  await page.waitForTimeout(2000)
 
   console.log("Names correct move on")
 

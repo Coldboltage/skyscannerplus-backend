@@ -49,11 +49,17 @@ const main = async () => {
 
 
 const fireEvents = async (reference) => {
-  await new Promise(resolve => setTimeout(resolve, 10000))
-  const userFlight = await searchFlights(reference);
+  await new Promise((resolve) =>
+      setTimeout(resolve, 15000)
+    );
+  const {user: userFlight, verifyFlights} = await searchFlights(reference);
+  console.log(`What is this ${verifyFlights}`)
+  if (verifyFlights === false) {
+    console.log(`It's false`)
+    return false
+  }
   await cheapestFlightScannedToday(userFlight);
   await checkMaximumHoliday(userFlight.ref);
 };
-
 // main();
-// fireEvents("marta-london");
+// fireEvents("alan-london");

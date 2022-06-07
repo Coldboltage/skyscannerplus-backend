@@ -65,10 +65,10 @@ const flightSchema = new mongoose.Schema({
       required: true,
     },
     requiredDayStart: {
-      type: Number,
+      type: Date,
     },
     requiredDayEnd: {
-      type: Number,
+      type: Date,
     },
   },
   scanDate: [

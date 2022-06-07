@@ -25,7 +25,7 @@ const datePage = async (page, browser, newUser, puppeteer, pageURL, verifyNames)
   console.log("Entered Date page");
   await page.waitForTimeout(1000);
   const userFlight = await FlightsDatabase.findOne({ ref: newUser.ref });
-  if (verifyNames === false || (true)) {
+  if (verifyNames === false) {
     console.log(`We are returning false from datePage`)
     userFlight.isBeingScanned = false;
     userFlight.workerPID = 0;
@@ -144,6 +144,9 @@ const datePage = async (page, browser, newUser, puppeteer, pageURL, verifyNames)
     departureDateIteration.year = new Date(
       departureDate.fullDate + addDepartDay * 86400000
     ).getFullYear();
+    departureDateIteration.time = new Date(
+      departureDate.fullDate + addDepartDay * 86400000
+    ).getTime();
     departureDateIteration.returnDates = [];
     console.log(`How many times has this been fired ${addDepartDay}`);
 
@@ -188,9 +191,41 @@ const datePage = async (page, browser, newUser, puppeteer, pageURL, verifyNames)
       const returnDateWithMonth = new Date(returnDateInMili).getMonth();
       const returnDateWithYear = new Date(returnDateInMili).getFullYear();
 
+      // Setting up requiredDates here
+      const requiredDayStart = new Date(userFlight.dates.requiredDayStart).getTime()
+      const requiredDayEnd = new Date(userFlight.dates.requiredDayEnd).getTime()
+      // departureDateIteration.time = lower than requiredDayStart
+      // returnDateInMili = higher than requiredDayEnd
+
       console.log(
         `Returning: Click for ${returnDateWithDate} ${monthNames[returnDateWithMonth]}`
       );
+
+
+      console.log("############")
+      console.log("############")
+      console.log("############")
+      console.log("testing")
+      console.log((departureDateIteration.time > requiredDayStart) && (requiredDayEnd < returnDateInMili))
+      console.log(new Date(departureDateIteration.time))
+      console.log(new Date(requiredDayStart))
+      console.log(new Date(requiredDayEnd))
+      console.log(new Date(returnDateInMili))
+      console.log("############")
+      console.log(departureDateIteration.time)
+      console.log(requiredDayStart)
+      console.log(requiredDayEnd)
+      console.log(returnDateInMili)
+      console.log("############")
+      console.log("############")
+      // Check to see if user has required days
+      if (((departureDateIteration.time < requiredDayStart) && (requiredDayEnd < returnDateInMili)) || (isNaN(requiredDayStart ) && isNaN(requiredDayEnd))) {
+        console.log("Good date") 
+      } else {
+        console.log("we got a wee false here")
+        continue
+      }
+
 
       // await page.waitForTimeout(200);
       // await page.click(returnGraph.monthSelector);

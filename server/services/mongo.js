@@ -1,4 +1,5 @@
 const mongoose = require("mongoose")
+console.log("fired")
 
 mongoose.connection.once("open", () => {
   console.log("MongoDB connection ready")
