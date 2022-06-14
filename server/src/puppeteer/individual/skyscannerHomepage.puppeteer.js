@@ -49,7 +49,9 @@ const skyscannerHomePage = async (page, newUser) => {
   const $ = cheerio.load(await page.content())
   const originDestinationVerification = $(originDestination).val()
   const arrivalDestinationVerification = $(arrivalDestination).val()
-  if ((originDestinationVerification !== UserFlight.flights.departure) || (arrivalDestinationVerification !== UserFlight.flights.arrival) ) {
+  if ((originDestinationVerification.includes(UserFlight.flights.departure)) || (arrivalDestinationVerification.includes(UserFlight.flights.arrival)) ) {
+    console.log("All good")
+  } else {
     console.log(`${originDestinationVerification} - ${UserFlight.flights.departure} and ${arrivalDestinationVerification} - ${UserFlight.flights.arrival}`)
     console.log("FALSE FALSE FALSE")
     verifyNames = false

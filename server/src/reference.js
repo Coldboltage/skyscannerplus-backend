@@ -62,4 +62,4 @@ const fireEvents = async (reference) => {
   await checkMaximumHoliday(userFlight.ref);
 };
 // main();
-fireEvents("f1-abu-2022");
+fireEvents("test-test");
