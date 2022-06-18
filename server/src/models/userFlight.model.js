@@ -198,7 +198,7 @@ const checkMaximumHoliday = async (reference) => {
   );
   consoleOutput(cheapestFlightsOrderMax, bestFlightsOrderMax)
   // Send email
-  testEmail(cheapestFlightsOrderMax, bestFlightsOrderMax, userFlight)
+  // testEmail(cheapestFlightsOrderMax, bestFlightsOrderMax, userFlight)
   return { cheapestFlightsOrderMax, bestFlightsOrderMax };
 };
 
