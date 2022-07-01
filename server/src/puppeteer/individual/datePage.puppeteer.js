@@ -180,6 +180,13 @@ const datePage = async (
     // );
 
     console.log(addDepartDay);
+
+    console.log("Checking to see if departureDay is less than current day of scan commencing")
+    if (departureDateIteration.time  < new Date().getTime()) {
+      console.log("DepartureDate is less than current day. The day has literally passed the day of scanning")
+      continue
+    }
+
     for (
       let addReturnDay = 0;
       userFlight.dates.minimalHoliday + addDepartDay + addReturnDay <=
@@ -250,6 +257,8 @@ const datePage = async (
       console.log("############");
       console.log("############");
       // Check to see if user has required days
+      console.log(`departureDateIteration.time < requiredDayStart: ${departureDateIteration.time < requiredDayStart}`)
+      console.log(`requiredDayEnd < returnDateInMili: ${requiredDayEnd < returnDateInMili}`)
       if (
         (departureDateIteration.time < requiredDayStart &&
           requiredDayEnd < returnDateInMili) ||

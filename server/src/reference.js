@@ -62,7 +62,7 @@ const fireEvents = async (reference) => {
   await checkMaximumHoliday(userFlight.ref);
 };
 // main();
-fireEvents("chris-rome");
+fireEvents("f1-austria-2022");
 
 // DO NOT FORGET THIS CUNT BAG
 // {"dates.returnDate" : { $gt : new ISODate("2022-06-30T19:28:42.288Z") }}
