@@ -16,12 +16,14 @@ const getAllReferences = async () => {
 
 const checkIfFlightTimeForScan = async () => {
   console.log(`checkIfFlightTimeForScan Fired`)
+
   // Next Scan adds 43200000ms to the last scan. If the current time is over this, then we want to scan
   // return await userFlightDatabase.find({$or : [ {isBeingScanned: false},{nextScan: 0}, {nextScan: {$lt: new Date().getTime() }}]});
   return await userFlightDatabase.findOne({$or: [
-    { $and: [ { isBeingScanned: false }, {nextScan: 0} ] },
-    { $and: [ { isBeingScanned: false }, {nextScan: {$lt: new Date().getTime() }}] }
-]})}
+    { $and: [ { isBeingScanned: false }, {nextScan: 0},  ] },
+    { $and: [ { isBeingScanned: false }, {nextScan: {$lt: new Date().getTime() }}] },
+    { $and: [ { "dates.returnDate": { $gt: new Date().toISOString() }}] }
+]},)}
 
 const createUser = async (userObject) => {
   userObject.dates.departureDateString = dayjs(
