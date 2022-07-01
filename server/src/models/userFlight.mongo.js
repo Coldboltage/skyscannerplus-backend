@@ -73,6 +73,9 @@ const flightSchema = new mongoose.Schema({
     requiredDayEnd: {
       type: Date,
     },
+    weekendOnly: {
+      type: Boolean,
+    }
   },
   scanDate: [
     {

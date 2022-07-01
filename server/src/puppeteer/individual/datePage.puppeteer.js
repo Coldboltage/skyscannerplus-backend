@@ -20,18 +20,24 @@ const monthNames = [
   "December",
 ];
 
-const datePage = async (page, browser, newUser, puppeteer, pageURL, verifyNames) => {
- 
+const datePage = async (
+  page,
+  browser,
+  newUser,
+  puppeteer,
+  pageURL,
+  verifyNames
+) => {
   console.log("Entered Date page");
   await page.waitForTimeout(1000);
   const userFlight = await FlightsDatabase.findOne({ ref: newUser.ref });
   if (verifyNames === false) {
-    console.log(`We are returning false from datePage`)
+    console.log(`We are returning false from datePage`);
     userFlight.isBeingScanned = false;
     userFlight.workerPID = 0;
-    await userFlight.save()
-    await browser.close()
-    return false
+    await userFlight.save();
+    await browser.close();
+    return false;
   }
   const html = await page.content();
   const $ = cheerio.load(html);
@@ -140,7 +146,9 @@ const datePage = async (page, browser, newUser, puppeteer, pageURL, verifyNames)
     departureDateIteration.dateString = new Date(
       departureDate.fullDate + addDepartDay * 86400000
     ).toDateString();
-
+    departureDateIteration.day = new Date(
+      departureDate.fullDate + addDepartDay * 86400000
+    ).getDay();
     departureDateIteration.year = new Date(
       departureDate.fullDate + addDepartDay * 86400000
     ).getFullYear();
@@ -190,42 +198,86 @@ const datePage = async (page, browser, newUser, puppeteer, pageURL, verifyNames)
       const returnDateWithDate = new Date(returnDateInMili).getDate();
       const returnDateWithMonth = new Date(returnDateInMili).getMonth();
       const returnDateWithYear = new Date(returnDateInMili).getFullYear();
+      const returnDateWithDay = new Date(returnDateInMili).getDay();
 
       // Setting up requiredDates here
-      const requiredDayStart = new Date(userFlight.dates.requiredDayStart).getTime()
-      const requiredDayEnd = new Date(userFlight.dates.requiredDayEnd).getTime()
+      const requiredDayStart = new Date(
+        userFlight.dates.requiredDayStart
+      ).getTime();
+      const requiredDayEnd = new Date(
+        userFlight.dates.requiredDayEnd
+      ).getTime();
       // departureDateIteration.time = lower than requiredDayStart
       // returnDateInMili = higher than requiredDayEnd
+
+      // FUNCTION SETS
+      // If a function has to end, check to see if we beed to push or not
+      const checkIfLastDay = () => {
+        if (
+          userFlight.dates.minimalHoliday + addReturnDay ===
+            userFlight.dates.maximumHoliday ||
+          userFlight.dates.minimalHoliday + addDepartDay + addReturnDay ===
+            departArriveDifference
+        ) {
+          console.log("pushed departureDateIteration");
+          flightScannerObject.departureDate.push(departureDateIteration);
+          console.log(flightScannerObject);
+        }
+      }
+
 
       console.log(
         `Returning: Click for ${returnDateWithDate} ${monthNames[returnDateWithMonth]}`
       );
 
-
-      console.log("############")
-      console.log("############")
-      console.log("############")
-      console.log("testing")
-      console.log((departureDateIteration.time > requiredDayStart) && (requiredDayEnd < returnDateInMili))
-      console.log(new Date(departureDateIteration.time))
-      console.log(new Date(requiredDayStart))
-      console.log(new Date(requiredDayEnd))
-      console.log(new Date(returnDateInMili))
-      console.log("############")
-      console.log(departureDateIteration.time)
-      console.log(requiredDayStart)
-      console.log(requiredDayEnd)
-      console.log(returnDateInMili)
-      console.log("############")
-      console.log("############")
+      console.log("############");
+      console.log("############");
+      console.log("############");
+      console.log("testing");
+      console.log(
+        departureDateIteration.time > requiredDayStart &&
+          requiredDayEnd < returnDateInMili
+      );
+      console.log(new Date(departureDateIteration.time));
+      console.log(new Date(requiredDayStart));
+      console.log(new Date(requiredDayEnd));
+      console.log(new Date(returnDateInMili));
+      console.log("############");
+      console.log(departureDateIteration.time);
+      console.log(requiredDayStart);
+      console.log(requiredDayEnd);
+      console.log(returnDateInMili);
+      console.log("############");
+      console.log("############");
       // Check to see if user has required days
-      if (((departureDateIteration.time < requiredDayStart) && (requiredDayEnd < returnDateInMili)) || (isNaN(requiredDayStart ) && isNaN(requiredDayEnd))) {
-        console.log("Good date") 
+      if (
+        (departureDateIteration.time < requiredDayStart &&
+          requiredDayEnd < returnDateInMili) ||
+        (isNaN(requiredDayStart) && isNaN(requiredDayEnd))
+      ) {
+        console.log("Good date");
       } else {
-        console.log("we got a wee false here")
-        continue
+        console.log("we got a wee false here");
+        checkIfLastDay()
+        continue;
       }
-
+      console.log(userFlight.dates.weekendOnly)
+      console.log(departureDateIteration.day)
+      console.log(returnDateWithDay)
+      // Check if weekend has been added or not
+      if (userFlight.dates.weekendOnly) {
+        
+        // if (departingDay = Friday and returnDay = Sunday) {
+        if (departureDateIteration.day === 5 && returnDateWithDay === 0) {
+          console.log("Weekend special, all good to go!");
+        } else {
+          console.log(
+            "This is a weekend special but either departing day or return day incorrect"
+          );
+          checkIfLastDay()
+          continue;
+        }
+      }
 
       // await page.waitForTimeout(200);
       // await page.click(returnGraph.monthSelector);
@@ -298,7 +350,9 @@ const datePage = async (page, browser, newUser, puppeteer, pageURL, verifyNames)
         departureDateIteration.date.getDate()
       )}/${returnDateWithYear - 2000}${addZeroMonth(
         returnDateWithMonth
-      )}${addZeroDate(returnDateWithDate)}/?rtn=1&stops=direct&adultsv2=${userFlight.flights.passengers || 1}`;
+      )}${addZeroDate(returnDateWithDate)}/?rtn=1&stops=direct&adultsv2=${
+        userFlight.flights.passengers || 1
+      }`;
 
       await page.goto(url, { waitUntil: "domcontentloaded", timeout: 300000 });
       const returnInformationObject = await processPage(
@@ -389,7 +443,7 @@ const datePage = async (page, browser, newUser, puppeteer, pageURL, verifyNames)
   console.log("Saved");
 
   await browser.close();
-  return true
+  return true;
 };
 
 module.exports = datePage;
