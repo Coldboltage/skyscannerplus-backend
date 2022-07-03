@@ -15,15 +15,29 @@ const getAllReferences = async () => {
 };
 
 const checkIfFlightTimeForScan = async () => {
-  console.log(`checkIfFlightTimeForScan Fired`)
+  console.log(`checkIfFlightTimeForScan Fired`);
 
   // Next Scan adds 43200000ms to the last scan. If the current time is over this, then we want to scan
   // return await userFlightDatabase.find({$or : [ {isBeingScanned: false},{nextScan: 0}, {nextScan: {$lt: new Date().getTime() }}]});
-  return await userFlightDatabase.findOne({$or: [
-    { $and: [ { isBeingScanned: false }, {nextScan: 0},  ] },
-    { $and: [ { isBeingScanned: false }, {nextScan: {$lt: new Date().getTime() }}] },
-    { $and: [ { "dates.returnDate": { $gt: new Date().toISOString() }}] }
-]},)}
+  return await userFlightDatabase.findOne({
+    $or: [
+      {
+        $and: [
+          { isBeingScanned: false },
+          { nextScan: 0 },
+          { "dates.returnDate": { $gt: new Date().toISOString() } },
+        ],
+      },
+      {
+        $and: [
+          { isBeingScanned: false },
+          { nextScan: { $lt: new Date().getTime() } },
+          { "dates.returnDate": { $gt: new Date().toISOString() } },
+        ],
+      },
+    ],
+  });
+};
 
 const createUser = async (userObject) => {
   userObject.dates.departureDateString = dayjs(
@@ -71,7 +85,7 @@ const changeFlightScanStatusByReference = async (reference, status) => {
 };
 
 const searchFlightByPID = async (workerPID) => {
-  console.log(`searchFlightByPID fired`)
+  console.log(`searchFlightByPID fired`);
   return await userFlightDatabase.findOne({ workerPID: workerPID });
 };
 
@@ -82,9 +96,9 @@ const changePIDByReference = async (reference, workerPID) => {
 };
 
 const changeFlightScanStatusByPID = async (workerPID, status) => {
-  console.log(`changeFlightScanStatusByPID fired`)
+  console.log(`changeFlightScanStatusByPID fired`);
   const UserFlight = await searchFlightByPID(workerPID);
-  console.log(UserFlight)
+  console.log(UserFlight);
   UserFlight.isBeingScanned = status;
   await UserFlight.save();
   console.log(`Flight status changed to ${status}`);
@@ -198,7 +212,7 @@ const checkMaximumHoliday = async (reference) => {
   console.log(
     `cheapestFlightsOrderMax Length = ${cheapestFlightsOrderMax.length}`
   );
-  consoleOutput(cheapestFlightsOrderMax, bestFlightsOrderMax)
+  consoleOutput(cheapestFlightsOrderMax, bestFlightsOrderMax);
   // Send email
   // testEmail(cheapestFlightsOrderMax, bestFlightsOrderMax, userFlight)
   return { cheapestFlightsOrderMax, bestFlightsOrderMax };

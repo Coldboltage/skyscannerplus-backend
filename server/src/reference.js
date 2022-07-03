@@ -46,8 +46,6 @@ const main = async () => {
 //   });
 // };
 
-
-
 const fireEvents = async (reference) => {
   await new Promise((resolve) =>
       setTimeout(resolve, 15000)
