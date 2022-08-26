@@ -107,13 +107,35 @@ const fireAllJobs = async () => {
 
   // console.log(allUsersScansNeeded);
 
+  const cpusNeeded = async () => {
+    const response = await checkIfAllFlightTimeForScan()
+    const numberOfJobs = response.length
+    if (numberOfJobs > 5) {
+      console.log("Using 5 cores")
+      return 5
+    } else {
+      console.log(`Only ${numberOfJobs} cores needed`)
+      return numberOfJobs
+    }
+  }
+  
+  const checkIfUserFlightAvailable = async () => {
+    // Check to see if any flights should be scanned now
+    console.log("Fired checkIfUserFlightAvailable");
+    return await checkIfFlightTimeForScan();
+    // Verification if we're good to go with that user incase something is wrong
+    // const checkForUserFlightOutcome = await shouldThisFlightBeScanned(checkForUserFlight);
+  };
+  const checkIfJobAvailable = await checkIfUserFlightAvailable()
   const cpusCurrentlyBeingUsed = await checkAmountOfProcessesInUse();
   console.log(`How many CPUs in use? ${cpusCurrentlyBeingUsed}`);
 
   if (cluster.isPrimary) {
     console.log(`Primary ${process.pid} is running`);
     // Fork workers.
-    for (let i = cpusCurrentlyBeingUsed; i < 1; i++) {
+
+    const cpuNeededAnswer = await cpusNeeded()
+    for (let i = cpusCurrentlyBeingUsed; i < 5 && checkIfJobAvailable; i++) {
       console.log("The for loop for cluster.isPrimary has been fired");
       console.log("cpuInUse is currently: " + cpusCurrentlyBeingUsed);
       cluster.fork();
@@ -129,13 +151,7 @@ const fireAllJobs = async () => {
     console.log(`Worker ${process.pid} started`);
     console.log(`What is this worker ID ${cluster.worker.id}`);
 
-    const checkIfUserFlightAvailable = async () => {
-      // Check to see if any flights should be scanned now
-      console.log("Fired checkIfUserFlightAvailable");
-      return await checkIfFlightTimeForScan();
-      // Verification if we're good to go with that user incase something is wrong
-      // const checkForUserFlightOutcome = await shouldThisFlightBeScanned(checkForUserFlight);
-    };
+    
     while (await checkIfUserFlightAvailable()) {
       if (await checkIfUserFlightAvailable()) {
         const flightToBeScanned = await checkIfUserFlightAvailable();
@@ -168,6 +184,6 @@ const main = async () => {
   });
 };
 
-// main();
+main();
 // fireAllJobs();
-cpuCount()
+// cpuCount()
