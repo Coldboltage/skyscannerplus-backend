@@ -139,6 +139,7 @@ const fireAllJobs = async () => {
       console.log("The for loop for cluster.isPrimary has been fired");
       console.log("cpuInUse is currently: " + cpusCurrentlyBeingUsed);
       cluster.fork();
+      await new Promise(r => setTimeout(r, 10000));
     }
     cluster.on("exit", async (worker, code, signal) => {
       console.log(`worker ${worker.process.pid} died`);
@@ -174,10 +175,11 @@ const fireAllJobs = async () => {
     }
     console.log("worker should die here");
   }
-  cluster.worker.disconnect()
+  // cluster.worker.disconnect()
 };
 
 const main = async () => {
+  await fireAllJobs();
   // cron.schedule("0 */12 * * *", async () => {
   cron.schedule("*/1 * * * *", async () => {
     await fireAllJobs();

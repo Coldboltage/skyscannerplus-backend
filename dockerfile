@@ -1,17 +1,14 @@
 FROM node:16.17.0
 # install glxgears
 RUN apt-get update -y \
-  && apt-get install --no-install-recommends -y mesa-utils \
-  && rm -rf /var/lib/apt/lists/* \
-  && apt-get -y install \
-    xvfb \
-  && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
+  && apt-get install -y mesa-utils libasound2 xvfb libgconf-2-4 libatk1.0-0 libatk-bridge2.0-0 libgdk-pixbuf2.0-0 libgtk-3-0 libgbm-dev libnss3-dev libxss-dev \
+  && rm -rf /var/lib/apt/lists/* /var/cache/apt/* 
 
-WORKDIR /app
+WORKDIR /
 
-COPY package*.json ./
+COPY . /
 RUN npm install
-COPY . /app
+
 
 # Start server on port 3000∂
 EXPOSE 3000:3001
