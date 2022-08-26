@@ -7,7 +7,9 @@
     "start-server": "npm start --prefix server",
     "checker-pm2": "pm2 start ecosystem.config.js --watch",
     "checker": "npm run checker --prefix server",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "pm2-test": "pm2 start server/src/checker.js --cron=`* * * * * * `"
+
   },
   "keywords": [],
   "author": "",

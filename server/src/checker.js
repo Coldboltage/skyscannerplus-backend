@@ -24,6 +24,7 @@ const {
   changePIDToZero,
   checkAmountOfProcessesInUse,
   getUserFlightByReference,
+  checkIfAllFlightTimeForScan
 } = require("./models/userFlight.model");
 
 // Database things
@@ -51,14 +52,18 @@ const { mongoConnect } = require("../services/mongo");
 //   });
 // };
 
-const isTimeForScan = () => {};
+const cpuCount = async() => {
+  console.log(numCPUs)
+  const numberScans = await checkIfAllFlightTimeForScan()
+  console.log(numberScans.length)
+}
 
 const fireEvents = async (reference) => {
-  const {user: userFlight, verifyFlights} = await searchFlights(reference);
-  console.log(`What is this ${verifyFlights}`)
+  const { user: userFlight, verifyFlights } = await searchFlights(reference);
+  console.log(`What is this ${verifyFlights}`);
   if (verifyFlights === false) {
-    console.log(`It's false`)
-    return false
+    console.log(`It's false`);
+    return false;
   }
   await cheapestFlightScannedToday(userFlight);
   await checkMaximumHoliday(userFlight.ref);
@@ -108,7 +113,9 @@ const fireAllJobs = async () => {
   if (cluster.isPrimary) {
     console.log(`Primary ${process.pid} is running`);
     // Fork workers.
-    for (let i = cpusCurrentlyBeingUsed; i < 4; i++) {
+    for (let i = cpusCurrentlyBeingUsed; i < 1; i++) {
+      console.log("The for loop for cluster.isPrimary has been fired");
+      console.log("cpuInUse is currently: " + cpusCurrentlyBeingUsed);
       cluster.fork();
     }
     cluster.on("exit", async (worker, code, signal) => {
@@ -116,13 +123,11 @@ const fireAllJobs = async () => {
       await changeFlightScanStatusByPID(worker.process.pid, false);
       await changePIDToZero(worker.process.pid);
     });
-  } else {
+  } else if (cpusCurrentlyBeingUsed < 1) {
     // CLUSTER PROCESSES WORKING ON THIS
+
     console.log(`Worker ${process.pid} started`);
     console.log(`What is this worker ID ${cluster.worker.id}`);
-    await new Promise((resolve) =>
-      setTimeout(resolve, cluster.worker.id * 10000)
-    );
 
     const checkIfUserFlightAvailable = async () => {
       // Check to see if any flights should be scanned now
@@ -153,14 +158,16 @@ const fireAllJobs = async () => {
     }
     console.log("worker should die here");
   }
+  cluster.worker.disconnect()
 };
 
 const main = async () => {
   // cron.schedule("0 */12 * * *", async () => {
-  cron.schedule("59 23 * * *", async () => {
+  cron.schedule("*/1 * * * *", async () => {
     await fireAllJobs();
   });
 };
 
 // main();
-fireAllJobs();
+// fireAllJobs();
+cpuCount()

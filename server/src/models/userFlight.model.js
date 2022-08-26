@@ -14,6 +14,31 @@ const getAllReferences = async () => {
   return references;
 };
 
+const checkIfAllFlightTimeForScan = async () => {
+  console.log(`checkIfFlightTimeForScan Fired`);
+
+  // Next Scan adds 43200000ms to the last scan. If the current time is over this, then we want to scan
+  // return await userFlightDatabase.find({$or : [ {isBeingScanned: false},{nextScan: 0}, {nextScan: {$lt: new Date().getTime() }}]});
+  return await userFlightDatabase.find({
+    $or: [
+      {
+        $and: [
+          { isBeingScanned: false },
+          { nextScan: 0 },
+          { "dates.returnDate": { $gt: new Date().toISOString() } },
+        ],
+      },
+      {
+        $and: [
+          { isBeingScanned: false },
+          { nextScan: { $lt: new Date().getTime() } },
+          { "dates.returnDate": { $gt: new Date().toISOString() } },
+        ],
+      },
+    ],
+  });
+};
+
 const checkIfFlightTimeForScan = async () => {
   console.log(`checkIfFlightTimeForScan Fired`);
 
@@ -238,6 +263,7 @@ module.exports = {
   createUser,
   updateUserByReference,
   userTest,
+  checkIfAllFlightTimeForScan,
   checkIfFlightTimeForScan,
   getUserFlightByReference,
   changeFlightScanStatusByReference,
