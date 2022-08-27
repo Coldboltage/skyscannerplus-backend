@@ -24,7 +24,8 @@ const {
   changePIDToZero,
   checkAmountOfProcessesInUse,
   getUserFlightByReference,
-  checkIfAllFlightTimeForScan
+  checkIfAllFlightTimeForScan,
+  searchFlightByPID,
 } = require("./models/userFlight.model");
 
 // Database things
@@ -52,11 +53,11 @@ const { mongoConnect } = require("../services/mongo");
 //   });
 // };
 
-const cpuCount = async() => {
-  console.log(numCPUs)
-  const numberScans = await checkIfAllFlightTimeForScan()
-  console.log(numberScans.length)
-}
+const cpuCount = async () => {
+  console.log(numCPUs);
+  const numberScans = await checkIfAllFlightTimeForScan();
+  console.log(numberScans.length);
+};
 
 const fireEvents = async (reference) => {
   const { user: userFlight, verifyFlights } = await searchFlights(reference);
@@ -108,17 +109,17 @@ const fireAllJobs = async () => {
   // console.log(allUsersScansNeeded);
 
   const cpusNeeded = async () => {
-    const response = await checkIfAllFlightTimeForScan()
-    const numberOfJobs = response.length
+    const response = await checkIfAllFlightTimeForScan();
+    const numberOfJobs = response.length;
     if (numberOfJobs > 5) {
-      console.log("Using 5 cores")
-      return 5
+      console.log("Using 5 cores");
+      return 5;
     } else {
-      console.log(`Only ${numberOfJobs} cores needed`)
-      return numberOfJobs
+      console.log(`Only ${numberOfJobs} cores needed`);
+      return numberOfJobs;
     }
-  }
-  
+  };
+
   const checkIfUserFlightAvailable = async () => {
     // Check to see if any flights should be scanned now
     console.log("Fired checkIfUserFlightAvailable");
@@ -126,7 +127,14 @@ const fireAllJobs = async () => {
     // Verification if we're good to go with that user incase something is wrong
     // const checkForUserFlightOutcome = await shouldThisFlightBeScanned(checkForUserFlight);
   };
-  const checkIfJobAvailable = await checkIfUserFlightAvailable()
+  const checkIfJobAvailable = async() => {
+    console.log("I have fired checkIfJobAvailable")
+    return await checkIfUserFlightAvailable()
+  }
+  const checkIfJobAvailableQuestion = async () => {
+    const check = await checkIfJobAvailable;
+    return check ? true : false;
+  };
   const cpusCurrentlyBeingUsed = await checkAmountOfProcessesInUse();
   console.log(`How many CPUs in use? ${cpusCurrentlyBeingUsed}`);
 
@@ -134,17 +142,33 @@ const fireAllJobs = async () => {
     console.log(`Primary ${process.pid} is running`);
     // Fork workers.
 
-    const cpuNeededAnswer = await cpusNeeded()
-    for (let i = cpusCurrentlyBeingUsed; i < 5 && checkIfJobAvailable; i++) {
+    const cpuNeededAnswer = await cpusNeeded();
+    for (let i = cpusCurrentlyBeingUsed; i < 5 && await checkIfJobAvailable(); i++) {
       console.log("The for loop for cluster.isPrimary has been fired");
       console.log("cpuInUse is currently: " + cpusCurrentlyBeingUsed);
-      await new Promise(r => setTimeout(r, 1000));
-      cluster.fork();
+      console.log(
+        `What is checkIfJobAvailable: ${await checkIfJobAvailableQuestion()}`
+      );
+      if (await checkIfJobAvailableQuestion()) {
+        // if (1>2) {
+        cluster.fork();
+        await new Promise((r) => setTimeout(r, 3000));
+
+      } else {
+        console.log("## DISCONNECT ##");
+        console.log("## DISCONNECT ##");
+        console.log("Killing process");
+        cluster.disconnect();
+      }
     }
     cluster.on("exit", async (worker, code, signal) => {
       console.log(`worker ${worker.process.pid} died`);
-      await changeFlightScanStatusByPID(worker.process.pid, false);
-      await changePIDToZero(worker.process.pid);
+      if (await searchFlightByPID(worker.process.pid)) {
+        await changeFlightScanStatusByPID(worker.process.pid, false);
+        await changePIDToZero(worker.process.pid);
+      } else {
+        console.log("Worked has fully died and had no work job");
+      }
     });
   } else if (cpusCurrentlyBeingUsed < 5) {
     // CLUSTER PROCESSES WORKING ON THIS
@@ -152,7 +176,6 @@ const fireAllJobs = async () => {
     console.log(`Worker ${process.pid} started`);
     console.log(`What is this worker ID ${cluster.worker.id}`);
 
-    
     while (await checkIfUserFlightAvailable()) {
       if (await checkIfUserFlightAvailable()) {
         const flightToBeScanned = await checkIfUserFlightAvailable();
@@ -174,6 +197,7 @@ const fireAllJobs = async () => {
       }
     }
     console.log("worker should die here");
+    process.exit();
   }
   // cluster.worker.disconnect()
 };
