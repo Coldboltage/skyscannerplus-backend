@@ -138,15 +138,15 @@ const fireAllJobs = async () => {
     for (let i = cpusCurrentlyBeingUsed; i < 5 && checkIfJobAvailable; i++) {
       console.log("The for loop for cluster.isPrimary has been fired");
       console.log("cpuInUse is currently: " + cpusCurrentlyBeingUsed);
+      await new Promise(r => setTimeout(r, 1000));
       cluster.fork();
-      await new Promise(r => setTimeout(r, 10000));
     }
     cluster.on("exit", async (worker, code, signal) => {
       console.log(`worker ${worker.process.pid} died`);
       await changeFlightScanStatusByPID(worker.process.pid, false);
       await changePIDToZero(worker.process.pid);
     });
-  } else if (cpusCurrentlyBeingUsed < 1) {
+  } else if (cpusCurrentlyBeingUsed < 5) {
     // CLUSTER PROCESSES WORKING ON THIS
 
     console.log(`Worker ${process.pid} started`);
