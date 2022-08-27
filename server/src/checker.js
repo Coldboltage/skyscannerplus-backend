@@ -152,8 +152,7 @@ const fireAllJobs = async () => {
       if (await checkIfJobAvailableQuestion()) {
         // if (1>2) {
         cluster.fork();
-        await new Promise((r) => setTimeout(r, 3000));
-
+        await new Promise((r) => setTimeout(r, 2000));
       } else {
         console.log("## DISCONNECT ##");
         console.log("## DISCONNECT ##");
