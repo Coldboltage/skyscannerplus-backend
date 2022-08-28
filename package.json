@@ -8,8 +8,7 @@
     "checker-pm2": "pm2 start ecosystem.config.js --watch",
     "checker": "npm run checker --prefix server",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "pm2-test": "pm2 start server/src/checker.js --cron=`* * * * * * `"
-
+    "pm2-test": "pm2 start server/src/checker.js --cron=`*/2 * * * * * `"
   },
   "keywords": [],
   "author": "",
@@ -32,6 +31,7 @@
     "puppeteer-extra-plugin-proxy": "^1.0.2",
     "puppeteer-extra-plugin-recaptcha": "^3.5.0",
     "puppeteer-extra-plugin-stealth": "^2.9.0",
-    "puppeteer-page-proxy": "^1.2.8"
+    "puppeteer-page-proxy": "^1.2.8",
+    "xvfb": "^0.4.0"
   }
 }

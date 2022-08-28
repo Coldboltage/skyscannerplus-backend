@@ -1,3 +1,10 @@
+const Xvfb = require('xvfb');
+var xvfb = new Xvfb({
+  silent: true,
+  xvfb_args: ["-screen", "0", '1280x720x24', "-ac"],
+});
+xvfb.start((err)=>{if (err) console.error(err)})
+
 // puppeteer-extra is a drop-in replacement for puppeteer,
 // it augments the installed puppeteer with plugin functionality
 const puppeteer = require("puppeteer-extra");
@@ -38,6 +45,7 @@ const todaysDate = new Date();
 const main = async (reference = false) => {
   console.log("Starting Main");
   let browser = await puppeteer.launch({
+
     headless: false,
     args: [
       "--no-sandbox",
