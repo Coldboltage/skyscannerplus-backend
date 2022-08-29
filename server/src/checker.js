@@ -143,7 +143,7 @@ const fireAllJobs = async () => {
     // Fork workers.
 
     const cpuNeededAnswer = await cpusNeeded();
-    for (let i = cpusCurrentlyBeingUsed; i < 5 && await checkIfJobAvailable(); i++) {
+    for (let i = cpusCurrentlyBeingUsed; i < numCPUs && await checkIfJobAvailable(); i++) {
       console.log("The for loop for cluster.isPrimary has been fired");
       console.log("cpuInUse is currently: " + cpusCurrentlyBeingUsed);
       console.log(
