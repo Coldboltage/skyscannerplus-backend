@@ -25,10 +25,10 @@ const {
   getUserFlightByReference,
   checkIfAllFlightTimeForScan,
   searchFlightByPID,
-} = require("./models/userFlight.model");
+} = require("../models/userFlight.model");
 
 // Database things
-const { mongoConnect } = require("../services/mongo");
+const { mongoConnect } = require("../../services/mongo");
 
 (async () => {
   await mongoConnect();
@@ -107,7 +107,9 @@ const fireAllJobs = async () => {
   if (cluster.isPrimary) {
     console.log(`Primary ${process.pid} is running`);
     // Fork workers.
-
+    const response = await axios("http://localhost:2375/v1.41/version")
+    console.log(response.data)
+    await new Promise((r) => setTimeout(r, 200000));
     const cpuNeededAnswer = await cpusNeeded();
     for (let i = cpusCurrentlyBeingUsed; i < numCPUs && await checkIfJobAvailable(); i++) {
       console.log("The for loop for cluster.isPrimary has been fired");
@@ -115,8 +117,7 @@ const fireAllJobs = async () => {
       console.log(
         `What is checkIfJobAvailable: ${await checkIfJobAvailableQuestion()}`
       );
-      const response = await axios("http://localhost:2375/v1.41/version")
-      await new Promise((r) => setTimeout(r, 200000));
+
 
       console.log(response)
       if (await checkIfJobAvailableQuestion()) {
