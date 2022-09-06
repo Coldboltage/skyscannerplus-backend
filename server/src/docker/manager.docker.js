@@ -1,18 +1,17 @@
 const path = require("path");
-require("dotenv").config(path.join(__dirname, "..", "..", ".env"));
+require("dotenv").config(path.join(__dirname, "..", "..","..", ".env"));
 console.log(path.join(__dirname, "..", "..", ".env"));
 const cron = require("node-cron");
 const cluster = require("node:cluster");
 const numCPUs = require("node:os").cpus().length;
 const process = require("node:process");
+const axios = require('axios').default;
 
 // UserFlights
 
-// WEB SERVER
-const http = require("http");
-const app = require("./app");
 // Puppeteer Bundles / Individuals
-const searchFlights = require("./puppeteer/bundle/firstTimeSearch");
+
+const searchFlights = require("../puppeteer/bundle/firstTimeSearch");
 const {
   cheapestFlightScannedToday,
   checkMaximumHoliday,
@@ -98,6 +97,10 @@ const fireAllJobs = async () => {
     const check = await checkIfJobAvailable;
     return check ? true : false;
   };
+
+// 
+
+
   const cpusCurrentlyBeingUsed = await checkAmountOfProcessesInUse();
   console.log(`How many CPUs in use? ${cpusCurrentlyBeingUsed}`);
 
@@ -112,6 +115,10 @@ const fireAllJobs = async () => {
       console.log(
         `What is checkIfJobAvailable: ${await checkIfJobAvailableQuestion()}`
       );
+      const response = await axios("http://localhost:2375/v1.41/version")
+      await new Promise((r) => setTimeout(r, 200000));
+
+      console.log(response)
       if (await checkIfJobAvailableQuestion()) {
         // if (1>2) {
         cluster.fork();
@@ -132,36 +139,7 @@ const fireAllJobs = async () => {
         console.log("Worked has fully died and had no work job");
       }
     });
-  } else if (cpusCurrentlyBeingUsed < 5) {
-    // CLUSTER PROCESSES WORKING ON THIS
-
-    console.log(`Worker ${process.pid} started`);
-    console.log(`What is this worker ID ${cluster.worker.id}`);
-
-    while (await checkIfUserFlightAvailable()) {
-      if (await checkIfUserFlightAvailable()) {
-        const flightToBeScanned = await checkIfUserFlightAvailable();
-        console.log(flightToBeScanned);
-        reference = flightToBeScanned.ref;
-        console.log(`#############################`);
-        console.log(`>>> ${flightToBeScanned.ref} will be looked at`);
-        console.log(`#############################`);
-        console.log(reference);
-        console.log("setting flight status by reference");
-        await changeFlightScanStatusByReference(reference, true);
-        console.log("change pid by reference");
-        await changePIDByReference(reference, process.pid);
-        console.log(`${reference} - scan started`);
-        await fireEvents(reference);
-        console.log(`Worker ${process.pid} ended`);
-      } else {
-        console.log("worker should die here");
-      }
-    }
-    console.log("worker should die here");
-    process.exit();
   }
-  // cluster.worker.disconnect()
 };
 
 const main = async () => {
