@@ -6,7 +6,6 @@ const cluster = require("node:cluster");
 const numCPUs = require("node:os").cpus().length;
 const process = require("node:process");
 const axios = require("axios").default;
-var ON_DEATH = require("death"); //this is intentionally ugly
 
 // UserFlights
 
@@ -27,6 +26,7 @@ const {
   checkIfAllFlightTimeForScan,
   searchFlightByPID,
   checkFlightsBeingScanned,
+  checkIfFlightTimeForScanAndUpdate,
 } = require("../models/userFlight.model");
 
 // Database things
@@ -209,10 +209,10 @@ const fireAllJobs = async () => {
     // Verification if we're good to go with that user incase something is wrong
     // const checkForUserFlightOutcome = await shouldThisFlightBeScanned(checkForUserFlight);
   };
-  const checkIfJobAvailable = async () => {
-    console.log("I have fired checkIfJobAvailable");
-    return await checkIfUserFlightAvailable();
-  };
+  // const checkIfJobAvailable = async () => {
+  //   console.log("I have fired checkIfJobAvailable");
+  //   return await checkIfUserFlightAvailable();
+  // };
   const checkIfJobAvailableQuestion = async () => {
     const check = await checkIfJobAvailable();
     return check ? true : false;
@@ -255,152 +255,154 @@ const fireAllJobs = async () => {
   // CLUSTER PROCESSES WORKING ON THIS
 
   console.log(`Worker ${process.pid} started`);
-  await new Promise((r) => setTimeout(r, Math.random(Math.floor * 1000) * 10000));
+  await new Promise((r) =>
+    setTimeout(r, Math.random(Math.floor * 1000) * 4000)
+  );
   // console.log(`What is this worker ID ${cluster.worker.id}`);
 
-  // while (await checkIfUserFlightAvailable()) {
-  //   if (await checkIfUserFlightAvailable()) {
-  const flightToBeScanned = await checkIfUserFlightAvailable();
-  console.log(flightToBeScanned);
-  reference = flightToBeScanned.ref;
-  console.log(`#############################`);
-  console.log(`>>> ${flightToBeScanned.ref} will be looked at`);
-  console.log(`#############################`);
-  console.log(reference);
-  console.log("setting flight status by reference");
-  await changeFlightScanStatusByReference(reference, true);
-  console.log("change pid by reference");
-  await changePIDByReference(reference, process.pid);
-  console.log(`${reference} - scan started`);
-  await fireEvents(reference);
-  console.log(`Worker ${process.pid} ended`);
-  console.log("Right time to do some cleanup");
-  try {
-
-    console.log("Cleanup time");
-    var replicateCount = await axios(
-      "http://host.docker.internal:2375/v1.41/services/worker"
-    );
-    console.log(
-      `Number of Replicas: ${replicateCount.data.Spec.Mode.Replicated.Replicas}`
-    );
-    console.log(
-      `Version number for Update: ${replicateCount.data.Version.Index}`
-    );
-    // Find amount of scans currently happening
-    var checkFlightsBeingScannedNow = await checkFlightsBeingScanned();
-    console.log(
-      `Amount of flights being scanned ${checkFlightsBeingScannedNow}`
-    );
-    // Versus out the number of scans needed
-    var numberOfScansNeededNow = await numberOfScansNeeded();
-    console.log(`Number of scans needed: ${numberOfScansNeededNow}`);
-    await new Promise((r) => setTimeout(r, 2000));
-  } catch (error) {
-    console.log("ERROR OCCURED");
-    console.log(error);
+  while (await checkIfUserFlightAvailable()) {
+    const flightToBeScanned = await checkIfFlightTimeForScanAndUpdate();
+    if (flightToBeScanned) {
+      console.log(flightToBeScanned);
+      reference = flightToBeScanned.ref;
+      console.log(`#############################`);
+      console.log(`>>> ${flightToBeScanned.ref} will be looked at`);
+      console.log(`#############################`);
+      console.log(reference);
+      console.log("setting flight status by reference");
+      await changeFlightScanStatusByReference(reference, true);
+      console.log("change pid by reference");
+      await changePIDByReference(reference, process.pid);
+      console.log(`${reference} - scan started`);
+      await fireEvents(reference);
+      console.log(`Worker ${process.pid} ended`);
+      console.log("Right time to do some cleanup");
+    } else {
+      console.log("worker should die here");
+    }
   }
+  process.exit()
 
-  try {
-    const test = await axios.post(
-      `http://host.docker.internal:2375/v1.41/services/worker/update?version=${replicateCount.data.Version.Index}`,
-      {
-        Name: "worker",
-        Mode: {
-          Replicated: {
-            Replicas:
-              checkFlightsBeingScannedNow + numberOfScansNeededNow > 8
-                ? 8
-                : checkFlightsBeingScannedNow + numberOfScansNeededNow,
-          },
-        },
-        RollbackConfig: {
-          Delay: 1000000000,
-          FailureAction: "pause",
-          MaxFailureRatio: 0.15,
-          Monitor: 15000000000,
-          Parallelism: 1,
-        },
-        TaskTemplate: {
-          ContainerSpec: {
-            Image: "coldbolt/skyscannerplus-checker-worker:0.0.1",
-          },
-          Resources: {
-            Reservations: { NanoCPUs: 1000000000 },
-          },
-          RestartPolicy: {
-            Condition: "none",
-            Delay: 10000000000,
-            MaxAttempts: 0,
-          },
-        },
-        UpdateConfig: {
-          Parallelism: 1,
-          Delay: 2000000000,
-          FailureAction: "pause",
-          MaxFailureRatio: 0.15,
-          Monitor: 15000000000,
-        },
-      }
-    );
-    console.log(test);
-  } catch (error) {
-    console.log("ERROR MATE");
-    console.log(error);
-    const test = await axios.post(
-      `http://host.docker.internal:2375/v1.41/services/worker/update?version=${replicateCount.data.Version.Index}`,
-      {
-        Name: "worker",
-        Mode: {
-          Replicated: {
-            Replicas:
-              checkFlightsBeingScannedNow + numberOfScansNeededNow > 8
-                ? 8
-                : checkFlightsBeingScannedNow + numberOfScansNeededNow,
-          },
-        },
-        RollbackConfig: {
-          Delay: 1000000000,
-          FailureAction: "pause",
-          MaxFailureRatio: 0.15,
-          Monitor: 15000000000,
-          Parallelism: 1,
-        },
-        TaskTemplate: {
-          ContainerSpec: {
-            Image: "coldbolt/skyscannerplus-checker-worker:0.0.1",
-          },
-          Resources: {
-            Reservations: { NanoCPUs: 1000000000 },
-          },
-          RestartPolicy: {
-            Condition: "none",
-            Delay: 10000000000,
-            MaxAttempts: 0,
-          },
-        },
-        UpdateConfig: {
-          Parallelism: 1,
-          Delay: 2000000000,
-          FailureAction: "pause",
-          MaxFailureRatio: 0.15,
-          Monitor: 15000000000,
-        },
-      }
-    );
-    console.log(test);
-  }
-
-  process.exit();
-
-  // } else {
-  //   console.log("worker should die here");
+  // try {
+  //   console.log("Cleanup time");
+  //   var replicateCount = await axios(
+  //     "http://host.docker.internal:2375/v1.41/services/worker"
+  //   );
+  //   console.log(
+  //     `Number of Replicas: ${replicateCount.data.Spec.Mode.Replicated.Replicas}`
+  //   );
+  //   console.log(
+  //     `Version number for Update: ${replicateCount.data.Version.Index}`
+  //   );
+  //   // Find amount of scans currently happening
+  //   var checkFlightsBeingScannedNow = await checkFlightsBeingScanned();
+  //   console.log(
+  //     `Amount of flights being scanned ${checkFlightsBeingScannedNow}`
+  //   );
+  //   // Versus out the number of scans needed
+  //   var numberOfScansNeededNow = await numberOfScansNeeded();
+  //   console.log(`Number of scans needed: ${numberOfScansNeededNow}`);
+  //   await new Promise((r) => setTimeout(r, 2000));
+  // } catch (error) {
+  //   console.log("ERROR OCCURED");
+  //   console.log(error);
   // }
+  // try {
+  //   await new Promise((r) =>
+  //     setTimeout(r, Math.random(Math.floor * 1000) * 10000)
+  //   );
+  //   const test = await axios.post(
+  //     `http://host.docker.internal:2375/v1.41/services/worker/update?version=${replicateCount.data.Version.Index}`,
+  //     {
+  //       Name: "worker",
+  //       Mode: {
+  //         Replicated: {
+  //           Replicas:
+  //             checkFlightsBeingScannedNow + numberOfScansNeededNow >= 4
+  //               ? 3
+  //               : checkFlightsBeingScannedNow + numberOfScansNeededNow,
+  //         },
+  //       },
+  //       RollbackConfig: {
+  //         Delay: 1000000000,
+  //         FailureAction: "pause",
+  //         MaxFailureRatio: 0.15,
+  //         Monitor: 15000000000,
+  //         Parallelism: 1,
+  //       },
+  //       TaskTemplate: {
+  //         ContainerSpec: {
+  //           Image: "coldbolt/skyscannerplus-checker-worker:0.0.1",
+  //         },
+  //         Resources: {
+  //           Reservations: { NanoCPUs: 1000000000 },
+  //         },
+  //         RestartPolicy: {
+  //           Condition: "none",
+  //           Delay: 10000000000,
+  //           MaxAttempts: 0,
+  //         },
+  //       },
+  //       UpdateConfig: {
+  //         Parallelism: 1,
+  //         Delay: 2000000000,
+  //         FailureAction: "pause",
+  //         MaxFailureRatio: 0.15,
+  //         Monitor: 15000000000,
+  //       },
+  //     }
+  //   );
+  //   console.log(test);
+  //   if(test.data.status === 200) {
+  //     process.exit()
+  //   }
+  // } catch (error) {
+  //   console.log("ERROR MATE");
+  //   console.log(error);
+  //   const test = await axios.post(
+  //     `http://host.docker.internal:2375/v1.41/services/worker/update?version=${replicateCount.data.Version.Index}`,
+  //     {
+  //       Name: "worker",
+  //       Mode: {
+  //         Replicated: {
+  //           Replicas:
+  //             checkFlightsBeingScannedNow + numberOfScansNeededNow > 5
+  //               ? 4
+  //               : checkFlightsBeingScannedNow + numberOfScansNeededNow,
+  //         },
+  //       },
+  //       RollbackConfig: {
+  //         Delay: 1000000000,
+  //         FailureAction: "pause",
+  //         MaxFailureRatio: 0.15,
+  //         Monitor: 15000000000,
+  //         Parallelism: 1,
+  //       },
+  //       TaskTemplate: {
+  //         ContainerSpec: {
+  //           Image: "coldbolt/skyscannerplus-checker-worker:0.0.1",
+  //         },
+  //         Resources: {
+  //           Reservations: { NanoCPUs: 1000000000 },
+  //         },
+  //         RestartPolicy: {
+  //           Condition: "none",
+  //           Delay: 10000000000,
+  //           MaxAttempts: 0,
+  //         },
+  //       },
+  //       UpdateConfig: {
+  //         Parallelism: 1,
+  //         Delay: 2000000000,
+  //         FailureAction: "pause",
+  //         MaxFailureRatio: 0.15,
+  //         Monitor: 15000000000,
+  //       },
+  //     }
+  //   );
+  //   console.log(test);
+  //   process.exit()
   // }
-  //   console.log("worker should die here");
-  //   process.exit();
-  // }
-  // cluster.worker.disconnect()
 };
 
 const main = async () => {

@@ -1,4 +1,4 @@
-const {checkMaximumHoliday, getAllDocuments, getAllReferences, fireEvents} = require("../../models/userFlight.model")
+const {checkMaximumHoliday, getAllDocuments, getAllReferences, fireEvents, resetFlightStatus} = require("../../models/userFlight.model")
 
 const httpGetLatestFlightsByReference = async (req, res) => {
   console.log(req.body)
@@ -21,9 +21,15 @@ const httpFireEvents = (req, res) => {
   return res.status(200).json({fired: "successfull"})
 }
 
+const httpResetFlightStatus = (req, res) => {
+  const response = await resetFlightStatus()
+  return res.status(200).json(response)
+}
+
 module.exports = {
   httpGetLatestFlightsByReference,
   httpGetAllDocuments,
   httpFireEvents,
-  httpGetAllReferences
+  httpGetAllReferences,
+  httpResetFlightStatus
 }

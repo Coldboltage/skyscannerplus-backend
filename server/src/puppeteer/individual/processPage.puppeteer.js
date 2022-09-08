@@ -1,7 +1,15 @@
 const cheerio = require("cheerio");
 const dayjs = require('dayjs')
+const exitHook = require('async-exit-hook');
 
-const processPage = async (page, returnDateInMili, departureDateIteration) => {
+
+const processPage = async (page, returnDateInMili, departureDateIteration,userFlight) => {
+  exitHook(async () => {
+    userFlight.isBeingScanned = false;
+    userFlight.workerPID = 0;
+    await userFlight.save();
+    console.log("WE HAVE DIED VIA EXIT HOOK")
+  })
   console.log("refreshing page");
   await page.waitForTimeout(1000);
   // await page.reload({ waitUntil: "domcontentloaded", timeout: 300000 });

@@ -214,12 +214,11 @@ const fireAllJobs = async () => {
     return await checkIfUserFlightAvailable();
   };
   const checkIfJobAvailableQuestion = async () => {
-    const check = await checkIfJobAvailable;
+    const check = await checkIfJobAvailable();
     return check ? true : false;
   };
 
-  //
-
+  // Checks the amount of processes being used via looking at PID over 0.
   const cpusCurrentlyBeingUsed = await checkAmountOfProcessesInUse();
   console.log(`How many CPUs in use? ${cpusCurrentlyBeingUsed}`);
 
@@ -227,22 +226,18 @@ const fireAllJobs = async () => {
     console.log(`Primary ${process.pid} is running`);
     // Create new containers.
     // await new Promise((r) => setTimeout(r, 200000));
-    const cpuNeededAnswer = await cpusNeeded();
+    // const cpuNeededAnswer = await cpusNeeded();
     // cpusCurrentlyBeingUsed previously checked the amount of jobs being performed. We don't need this anymore
     // Docker will create new machines based upon the work which we currently have.
     // An upper limit of jobs can be undertaken
-    for (
-      let i = cpusCurrentlyBeingUsed;
-      // i < numCPUs && (await checkIfJobAvailable());
-      i < 1 && (await checkIfJobAvailable());
-      i++
-    ) {
+    // if (cpusCurrentlyBeingUsed < 3 && await checkIfJobAvailable()) {
       console.log("The for loop for cluster.isPrimary has been fired");
       console.log("cpuInUse is currently: " + cpusCurrentlyBeingUsed);
       console.log(
         `What is checkIfJobAvailable: ${await checkIfJobAvailableQuestion()}`
       );
-      if (await checkIfJobAvailableQuestion()) {
+      // It checks if any job is available which will return true
+      // if (await checkIfJobAvailableQuestion()) {
         // if (1>2) {
         const response = await axios("http://0.0.0.0:2375/v1.41/version");
         // console.log(response.data);
@@ -264,7 +259,7 @@ const fireAllJobs = async () => {
           // Versus out the number of scans needed
           var numberOfScansNeededNow = await numberOfScansNeeded();
           console.log(`Number of scans needed: ${numberOfScansNeededNow}`);
-          await new Promise((r) => setTimeout(r, 2000));
+          // await new Promise((r) => setTimeout(r, 2000));
         } catch (error) {
           console.log("ERROR OCCURED");
           console.log(error);
@@ -278,8 +273,8 @@ const fireAllJobs = async () => {
               Mode: {
                 Replicated: {
                   Replicas:
-                    checkFlightsBeingScannedNow + numberOfScansNeededNow > 8
-                      ? 8
+                    checkFlightsBeingScannedNow + numberOfScansNeededNow >= 5
+                      ? 5
                       : checkFlightsBeingScannedNow + numberOfScansNeededNow,
                 },
               },
@@ -330,12 +325,12 @@ const fireAllJobs = async () => {
         // await axios.post("http://localhost:2375/v1.41/containers/worker/start");
         console.log("Setup complete");
         // await new Promise((r) => setTimeout(r, 200000));
-      } else {
-        console.log("## DISCONNECT ##");
-        console.log("## DISCONNECT ##");
-        console.log("Killing process");
-        cluster.disconnect();
-      }
+      // } else {
+      //   console.log("## DISCONNECT ##");
+      //   console.log("## DISCONNECT ##");
+      //   console.log("Killing process");
+      //   cluster.disconnect();
+      // }
     }
     // cluster.on("exit", async (worker, code, signal) => {
     //   console.log(`worker ${worker.process.pid} died`);
@@ -348,13 +343,13 @@ const fireAllJobs = async () => {
     // }
     // );
   }
-};
+// };
 
 const main = async () => {
   await initSwarm();
   await fireAllJobs();
   // cron.schedule("0 */12 * * *", async () => {
-  cron.schedule("*/2 * * * *", async () => {
+  cron.schedule("*/1 * * * *", async () => {
     await fireAllJobs();
   });
 };
