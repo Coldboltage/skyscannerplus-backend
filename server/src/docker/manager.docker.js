@@ -155,9 +155,9 @@ const initSwarm = async () => {
           ContainerSpec: {
             Image: "coldbolt/skyscannerplus-checker-worker:0.0.1",
           },
-          // Resources: {
-          //   Reservations: { NanoCPUs: 1000000000 },
-          // },
+          Resources: {
+            Reservations: { NanoCPUs: 1000000000 },
+          },
           RestartPolicy: {
             Condition: "none",
             Delay: 10000000000,
@@ -289,9 +289,9 @@ const fireAllJobs = async () => {
                 ContainerSpec: {
                   Image: "coldbolt/skyscannerplus-checker-worker:0.0.1",
                 },
-                // Resources: {
-                //   Reservations: { NanoCPUs: 1000000000 },
-                // },
+                Resources: {
+                  Reservations: { NanoCPUs: 1000000000 },
+                },
                 RestartPolicy: {
                   Condition: "none",
                   Delay: 10000000000,
