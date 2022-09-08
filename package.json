@@ -16,10 +16,12 @@
   "dependencies": {
     "@senfo/process-list": "^2.0.6",
     "@trycourier/courier": "^3.12.0",
+    "async-request": "^1.2.0",
     "axios": "^0.27.2",
     "cheerio": "^1.0.0-rc.10",
     "cors": "^2.8.5",
     "dayjs": "^1.11.2",
+    "death": "^1.1.0",
     "dotenv": "^16.0.0",
     "express": "^4.18.1",
     "mongoose": "^6.3.1",
@@ -32,6 +34,8 @@
     "puppeteer-extra-plugin-recaptcha": "^3.5.0",
     "puppeteer-extra-plugin-stealth": "^2.9.0",
     "puppeteer-page-proxy": "^1.2.8",
+    "request": "^2.88.2",
+    "superagent": "^8.0.0",
     "xvfb": "^0.4.0"
   }
 }

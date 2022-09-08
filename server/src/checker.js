@@ -132,7 +132,7 @@ const fireAllJobs = async () => {
     return await checkIfUserFlightAvailable()
   }
   const checkIfJobAvailableQuestion = async () => {
-    const check = await checkIfJobAvailable;
+    const check = await checkIfJobAvailable();
     return check ? true : false;
   };
   const cpusCurrentlyBeingUsed = await checkAmountOfProcessesInUse();

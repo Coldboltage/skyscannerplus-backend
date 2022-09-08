@@ -64,6 +64,38 @@ const checkIfFlightTimeForScan = async () => {
   });
 };
 
+const checkIfFlightTimeForScanAndUpdate = async () => {
+  console.log(`checkIfFlightTimeForScan Fired`);
+
+  // Next Scan adds 43200000ms to the last scan. If the current time is over this, then we want to scan
+  // return await userFlightDatabase.find({$or : [ {isBeingScanned: false},{nextScan: 0}, {nextScan: {$lt: new Date().getTime() }}]});
+  const answer = await userFlightDatabase.findOneAndUpdate({
+    $or: [
+      {
+        $and: [
+          { isBeingScanned: false },
+          { nextScan: 0 },
+          { "dates.returnDate": { $gt: new Date().toISOString() } },
+        ],
+      },
+      {
+        $and: [
+          { isBeingScanned: false },
+          { nextScan: { $lt: new Date().getTime() } },
+          { "dates.returnDate": { $gt: new Date().toISOString() } },
+        ],
+      },
+    ],
+  }, {isBeingScanned: true});
+  answer ? console.log("A flight was present") : console.log("No flights needed")
+  return answer
+};
+
+const checkFlightsBeingScanned = async () => {
+  const response = await userFlightDatabase.find({isBeingScanned: true})
+  return +response.length
+}
+
 const createUser = async (userObject) => {
   userObject.dates.departureDateString = dayjs(
     userObject.dates.departureDate
@@ -280,4 +312,6 @@ module.exports = {
   checkUserFlightStuff,
   checkMaximumHoliday,
   fireEvents,
+  checkFlightsBeingScanned,
+  checkIfFlightTimeForScanAndUpdate,
 };
