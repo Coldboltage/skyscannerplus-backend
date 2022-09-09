@@ -349,7 +349,7 @@ const main = async () => {
   await initSwarm();
   await fireAllJobs();
   // cron.schedule("0 */12 * * *", async () => {
-  cron.schedule("*/1 * * * *", async () => {
+  cron.schedule("*/3 * * * *", async () => {
     await fireAllJobs();
   });
 };

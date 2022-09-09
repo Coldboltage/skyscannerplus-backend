@@ -281,7 +281,7 @@ const fireAllJobs = async () => {
       console.log("worker should die here");
     }
   }
-  process.exit()
+  process.exit();
 
   // try {
   //   console.log("Cleanup time");
