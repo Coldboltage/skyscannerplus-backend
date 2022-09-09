@@ -256,7 +256,7 @@ const fireAllJobs = async () => {
 
   console.log(`Worker ${process.pid} started`);
   await new Promise((r) =>
-    setTimeout(r, Math.random(Math.floor * 1000) * 4000)
+    setTimeout(r, Math.random(Math.floor * 1000) * 30000)
   );
   // console.log(`What is this worker ID ${cluster.worker.id}`);
 
@@ -281,7 +281,9 @@ const fireAllJobs = async () => {
       console.log("worker should die here");
     }
   }
-  process.exit();
+  await new Promise((r) => setTimeout(r, 2000));
+  console.log("Killing")
+  process.exit(137);
 
   // try {
   //   console.log("Cleanup time");

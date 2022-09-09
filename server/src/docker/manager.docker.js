@@ -27,6 +27,7 @@ const {
   checkIfAllFlightTimeForScan,
   searchFlightByPID,
   checkFlightsBeingScanned,
+  oneHundredSecondWait,
 } = require("../models/userFlight.model");
 
 // Database things
@@ -73,6 +74,8 @@ const fireEvents = async (reference) => {
 };
 
 const initSwarm = async () => {
+  await oneHundredSecondWait();
+  await new Promise((r) => setTimeout(r, 10000));
   try {
     console.log("FIRING THE BIG CANNON");
     var codeTime = await axios.post("http://localhost:2375/swarm/init", {
@@ -91,7 +94,7 @@ const initSwarm = async () => {
     });
     console.log(codeTime.data);
   } catch (error) {
-    console.log(error);
+    // console.log(error);
   }
 
   if (true) {
@@ -173,9 +176,10 @@ const initSwarm = async () => {
         },
       });
     } catch (error) {
-      console.log(error);
+      // console.log(error);
     }
-    await new Promise((r) => setTimeout(r, 2000));
+    await oneHundredSecondWait();
+    await new Promise((r) => setTimeout(r, 10000));
 
     // try {
     //   const test = await axios(
@@ -231,118 +235,125 @@ const fireAllJobs = async () => {
     // Docker will create new machines based upon the work which we currently have.
     // An upper limit of jobs can be undertaken
     // if (cpusCurrentlyBeingUsed < 3 && await checkIfJobAvailable()) {
-      console.log("The for loop for cluster.isPrimary has been fired");
-      console.log("cpuInUse is currently: " + cpusCurrentlyBeingUsed);
-      console.log(
-        `What is checkIfJobAvailable: ${await checkIfJobAvailableQuestion()}`
+    console.log("The for loop for cluster.isPrimary has been fired");
+    console.log("cpuInUse is currently: " + cpusCurrentlyBeingUsed);
+    console.log(
+      `What is checkIfJobAvailable: ${await checkIfJobAvailableQuestion()}`
+    );
+    // It checks if any job is available which will return true
+    // if (await checkIfJobAvailableQuestion()) {
+    // if (1>2) {
+    const response = await axios("http://0.0.0.0:2375/v1.41/version");
+    // console.log(response.data);
+    try {
+      var replicateCount = await axios(
+        "http://0.0.0.0:2375/v1.41/services/worker"
       );
-      // It checks if any job is available which will return true
-      // if (await checkIfJobAvailableQuestion()) {
-        // if (1>2) {
-        const response = await axios("http://0.0.0.0:2375/v1.41/version");
-        // console.log(response.data);
-        try {
-          var replicateCount = await axios(
-            "http://0.0.0.0:2375/v1.41/services/worker"
-          );
-          console.log(
-            `Number of Replicas: ${replicateCount.data.Spec.Mode.Replicated.Replicas}`
-          );
-          console.log(
-            `Version number for Update: ${replicateCount.data.Version.Index}`
-          );
-          // Find amount of scans currently happening
-          var checkFlightsBeingScannedNow = await checkFlightsBeingScanned();
-          console.log(
-            `Amount of flights being scanned ${checkFlightsBeingScannedNow}`
-          );
-          // Versus out the number of scans needed
-          var numberOfScansNeededNow = await numberOfScansNeeded();
-          console.log(`Number of scans needed: ${numberOfScansNeededNow}`);
-          // await new Promise((r) => setTimeout(r, 2000));
-        } catch (error) {
-          console.log("ERROR OCCURED");
-          console.log(error);
-        }
-
-        try {
-          const test = await axios.post(
-            `http://0.0.0.0:2375/v1.41/services/worker/update?version=${replicateCount.data.Version.Index}`,
-            {
-              Name: "worker",
-              Mode: {
-                Replicated: {
-                  Replicas:
-                    checkFlightsBeingScannedNow + numberOfScansNeededNow >= 5
-                      ? 5
-                      : checkFlightsBeingScannedNow + numberOfScansNeededNow,
-                },
-              },
-              RollbackConfig: {
-                Delay: 1000000000,
-                FailureAction: "pause",
-                MaxFailureRatio: 0.15,
-                Monitor: 15000000000,
-                Parallelism: 1,
-              },
-              TaskTemplate: {
-                ContainerSpec: {
-                  Image: "coldbolt/skyscannerplus-checker-worker:0.0.2",
-                },
-                Resources: {
-                  Reservations: { NanoCPUs: 1000000000 },
-                },
-                RestartPolicy: {
-                  Condition: "none",
-                  Delay: 10000000000,
-                  MaxAttempts: 0,
-                },
-              },
-              UpdateConfig: {
-                Delay: 1000000000,
-                FailureAction: "pause",
-                MaxFailureRatio: 0.15,
-                Monitor: 15000000000,
-                Parallelism: 2,
-              },
-            }
-          );
-          console.log(test);
-        } catch (error) {
-          console.log("ERROR MATE");
-          console.log(error);
-        }
-
-        // try {
-        //   const response = await axios(
-        //     "http://localhost:2375/v1.41/services/worker/update"
-        //   );
-        //   console.log(response.data)
-        // } catch (error) {
-        //   console.log(error);
-        // }
-
-        // await axios.post("http://localhost:2375/v1.41/containers/worker/start");
-        console.log("Setup complete");
-        // await new Promise((r) => setTimeout(r, 200000));
-      // } else {
-      //   console.log("## DISCONNECT ##");
-      //   console.log("## DISCONNECT ##");
-      //   console.log("Killing process");
-      //   cluster.disconnect();
-      // }
+      console.log(
+        `Number of Replicas: ${replicateCount.data.Spec.Mode.Replicated.Replicas}`
+      );
+      console.log(
+        `Version number for Update: ${replicateCount.data.Version.Index}`
+      );
+      // Find amount of scans currently happening
+      var checkFlightsBeingScannedNow = await checkFlightsBeingScanned();
+      console.log(
+        `Amount of flights being scanned ${checkFlightsBeingScannedNow}`
+      );
+      // Versus out the number of scans needed
+      var numberOfScansNeededNow = await numberOfScansNeeded();
+      var oneHundredSecondWaitResult = await oneHundredSecondWait();
+      console.log(`Number of scans needed: ${numberOfScansNeededNow}`);
+      // await new Promise((r) => setTimeout(r, 2000));
+    } catch (error) {
+      console.log("ERROR OCCURED");
+      console.log(error);
     }
-    // cluster.on("exit", async (worker, code, signal) => {
-    //   console.log(`worker ${worker.process.pid} died`);
-    //   if (await searchFlightByPID(worker.process.pid)) {
-    //     await changeFlightScanStatusByPID(worker.process.pid, false);
-    //     await changePIDToZero(worker.process.pid);
-    //   } else {
-    //     console.log("Worked has fully died and had no work job");
-    //   }
+
+    try {
+      const test = await axios.post(
+        `http://0.0.0.0:2375/v1.41/services/worker/update?version=${replicateCount.data.Version.Index}`,
+        {
+          Name: "worker",
+          Mode: {
+            Replicated: {
+              Replicas:
+                // Add last scan + 100 seconds.
+                checkFlightsBeingScannedNow +
+                  numberOfScansNeededNow +
+                  Number(oneHundredSecondWaitResult) >=
+                5
+                  ? 5
+                  : checkFlightsBeingScannedNow +
+                    numberOfScansNeededNow +
+                    Number(oneHundredSecondWaitResult),
+            },
+          },
+          RollbackConfig: {
+            Delay: 1000000000,
+            FailureAction: "pause",
+            MaxFailureRatio: 0.15,
+            Monitor: 15000000000,
+            Parallelism: 1,
+          },
+          TaskTemplate: {
+            ContainerSpec: {
+              Image: "coldbolt/skyscannerplus-checker-worker:0.0.2",
+            },
+            Resources: {
+              Reservations: { NanoCPUs: 1000000000 },
+            },
+            RestartPolicy: {
+              Condition: "none",
+              Delay: 10000000000,
+              MaxAttempts: 0,
+            },
+          },
+          UpdateConfig: {
+            Delay: 1000000000,
+            FailureAction: "pause",
+            MaxFailureRatio: 0.15,
+            Monitor: 15000000000,
+            Parallelism: 2,
+          },
+        }
+      );
+      console.log(test);
+    } catch (error) {
+      console.log("ERROR MATE");
+      console.log(error);
+    }
+
+    // try {
+    //   const response = await axios(
+    //     "http://localhost:2375/v1.41/services/worker/update"
+    //   );
+    //   console.log(response.data)
+    // } catch (error) {
+    //   console.log(error);
     // }
-    // );
+
+    // await axios.post("http://localhost:2375/v1.41/containers/worker/start");
+    console.log("Setup complete");
+    // await new Promise((r) => setTimeout(r, 200000));
+    // } else {
+    //   console.log("## DISCONNECT ##");
+    //   console.log("## DISCONNECT ##");
+    //   console.log("Killing process");
+    //   cluster.disconnect();
+    // }
   }
+  // cluster.on("exit", async (worker, code, signal) => {
+  //   console.log(`worker ${worker.process.pid} died`);
+  //   if (await searchFlightByPID(worker.process.pid)) {
+  //     await changeFlightScanStatusByPID(worker.process.pid, false);
+  //     await changePIDToZero(worker.process.pid);
+  //   } else {
+  //     console.log("Worked has fully died and had no work job");
+  //   }
+  // }
+  // );
+};
 // };
 
 const main = async () => {

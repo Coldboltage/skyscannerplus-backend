@@ -16,7 +16,7 @@ const getAllReferences = async () => {
 
 const checkIfAllFlightTimeForScan = async () => {
   console.log(`checkIfFlightTimeForScan Fired`);
-
+  const currentTime = new Date().getUTCMilliseconds();
   // Next Scan adds 43200000ms to the last scan. If the current time is over this, then we want to scan
   // return await userFlightDatabase.find({$or : [ {isBeingScanned: false},{nextScan: 0}, {nextScan: {$lt: new Date().getTime() }}]});
   return await userFlightDatabase.find({
@@ -24,6 +24,11 @@ const checkIfAllFlightTimeForScan = async () => {
       {
         $and: [
           { isBeingScanned: false },
+          // {
+          //   scannedLast: {
+          //     $lt: { $add: [new Date().getUTCMilliseconds(), 100000] },
+          //   },
+          // },
           { nextScan: 0 },
           { "dates.returnDate": { $gt: new Date().toISOString() } },
         ],
@@ -31,12 +36,28 @@ const checkIfAllFlightTimeForScan = async () => {
       {
         $and: [
           { isBeingScanned: false },
+          // { scannedLast: { $lt: new Date().getUTCMilliseconds() + 100000 } },
           { nextScan: { $lt: new Date().getTime() } },
           { "dates.returnDate": { $gt: new Date().toISOString() } },
         ],
       },
     ],
   });
+};
+
+const oneHundredSecondWait = async () => {
+  console.log("Will this be worked on is this question")
+  return await userFlightDatabase.find({
+    $and: [
+      { isBeingScanned: false },
+      { nextScan: 0 },
+      {
+        scannedLast: {
+          $gt: { $add: [new Date().getUTCMilliseconds(), 100000] },
+        },
+      },
+    ],
+  }).length;
 };
 
 const checkIfFlightTimeForScan = async () => {
@@ -69,32 +90,37 @@ const checkIfFlightTimeForScanAndUpdate = async () => {
 
   // Next Scan adds 43200000ms to the last scan. If the current time is over this, then we want to scan
   // return await userFlightDatabase.find({$or : [ {isBeingScanned: false},{nextScan: 0}, {nextScan: {$lt: new Date().getTime() }}]});
-  const answer = await userFlightDatabase.findOneAndUpdate({
-    $or: [
-      {
-        $and: [
-          { isBeingScanned: false },
-          { nextScan: 0 },
-          { "dates.returnDate": { $gt: new Date().toISOString() } },
-        ],
-      },
-      {
-        $and: [
-          { isBeingScanned: false },
-          { nextScan: { $lt: new Date().getTime() } },
-          { "dates.returnDate": { $gt: new Date().toISOString() } },
-        ],
-      },
-    ],
-  }, {isBeingScanned: true});
-  answer ? console.log("A flight was present") : console.log("No flights needed")
-  return answer
+  const answer = await userFlightDatabase.findOneAndUpdate(
+    {
+      $or: [
+        {
+          $and: [
+            { isBeingScanned: false },
+            { nextScan: 0 },
+            { "dates.returnDate": { $gt: new Date().toISOString() } },
+          ],
+        },
+        {
+          $and: [
+            { isBeingScanned: false },
+            { nextScan: { $lt: new Date().getTime() } },
+            { "dates.returnDate": { $gt: new Date().toISOString() } },
+          ],
+        },
+      ],
+    },
+    { isBeingScanned: true }
+  );
+  answer
+    ? console.log("A flight was present")
+    : console.log("No flights needed");
+  return answer;
 };
 
 const checkFlightsBeingScanned = async () => {
-  const response = await userFlightDatabase.find({isBeingScanned: true})
-  return +response.length
-}
+  const response = await userFlightDatabase.find({ isBeingScanned: true });
+  return +response.length;
+};
 
 const createUser = async (userObject) => {
   userObject.dates.departureDateString = dayjs(
@@ -282,9 +308,12 @@ const fireEvents = async (reference) => {
 };
 
 const resetFlightStatus = async () => {
-  const response = await userFlightDatabase.find({}, {isBeingScanned: false, workerPID: 0, nextScan: 0, scannedLast: 0})
-  return {message: "reset successful"}
-}
+  const response = await userFlightDatabase.find(
+    {},
+    { isBeingScanned: false, workerPID: 0, nextScan: 0, scannedLast: 0 }
+  );
+  return { message: "reset successful" };
+};
 
 const consoleOutput = async (cheapestFlightsOrder, bestFlightsOrder) => {
   console.log("#################");
@@ -320,4 +349,5 @@ module.exports = {
   checkFlightsBeingScanned,
   checkIfFlightTimeForScanAndUpdate,
   resetFlightStatus,
+  oneHundredSecondWait,
 };
