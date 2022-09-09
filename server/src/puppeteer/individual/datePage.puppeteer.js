@@ -464,7 +464,7 @@ const datePage = async (
   console.log(flightScannerObject);
   userFlight.scanDate.push(flightScannerObject);
   console.log("Applying Database Changed to isBeingScanned and workerPID");
-  setInterval(() => {
+  setInterval(async () => {
     let test = new Date();
     console.log(test.getSeconds());
     if (test.getSeconds() > 10 && test.getSeconds() < 40) {
