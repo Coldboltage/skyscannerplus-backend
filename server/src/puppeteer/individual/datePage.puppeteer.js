@@ -4,8 +4,7 @@ const cheerio = require("cheerio");
 // Puppeteer Package
 const processPage = require("./processPage.puppeteer");
 const { Browser } = require("puppeteer");
-const exitHook = require('async-exit-hook');
-
+const exitHook = require("async-exit-hook");
 
 const monthNames = [
   "January",
@@ -31,15 +30,15 @@ const datePage = async (
   verifyNames
 ) => {
   console.log("Entered Date page");
-  
+
   await page.waitForTimeout(1000);
   const userFlight = await FlightsDatabase.findOne({ ref: newUser.ref });
   exitHook(async () => {
     userFlight.isBeingScanned = false;
     userFlight.workerPID = 0;
     await userFlight.save();
-    console.log("WE HAVE DIED VIA EXIT HOOK")
-  })
+    console.log("WE HAVE DIED VIA EXIT HOOK");
+  });
   if (verifyNames === false) {
     console.log(`We are returning false from datePage`);
     userFlight.isBeingScanned = false;
@@ -190,10 +189,14 @@ const datePage = async (
 
     console.log(addDepartDay);
 
-    console.log("Checking to see if departureDay is less than current day of scan commencing")
-    if (departureDateIteration.time  < new Date().getTime()) {
-      console.log("DepartureDate is less than current day. The day has literally passed the day of scanning")
-      continue
+    console.log(
+      "Checking to see if departureDay is less than current day of scan commencing"
+    );
+    if (departureDateIteration.time < new Date().getTime()) {
+      console.log(
+        "DepartureDate is less than current day. The day has literally passed the day of scanning"
+      );
+      continue;
     }
 
     for (
@@ -239,8 +242,7 @@ const datePage = async (
           flightScannerObject.departureDate.push(departureDateIteration);
           console.log(flightScannerObject);
         }
-      }
-
+      };
 
       console.log(
         `Returning: Click for ${returnDateWithDate} ${monthNames[returnDateWithMonth]}`
@@ -266,8 +268,16 @@ const datePage = async (
       console.log("############");
       console.log("############");
       // Check to see if user has required days
-      console.log(`departureDateIteration.time < requiredDayStart: ${departureDateIteration.time < requiredDayStart}`)
-      console.log(`requiredDayEnd < returnDateInMili: ${requiredDayEnd < returnDateInMili}`)
+      console.log(
+        `departureDateIteration.time < requiredDayStart: ${
+          departureDateIteration.time < requiredDayStart
+        }`
+      );
+      console.log(
+        `requiredDayEnd < returnDateInMili: ${
+          requiredDayEnd < returnDateInMili
+        }`
+      );
       if (
         (departureDateIteration.time < requiredDayStart &&
           requiredDayEnd < returnDateInMili) ||
@@ -276,15 +286,14 @@ const datePage = async (
         console.log("Good date");
       } else {
         console.log("we got a wee false here");
-        checkIfLastDay()
+        checkIfLastDay();
         continue;
       }
-      console.log(userFlight.dates.weekendOnly)
-      console.log(departureDateIteration.day)
-      console.log(returnDateWithDay)
+      console.log(userFlight.dates.weekendOnly);
+      console.log(departureDateIteration.day);
+      console.log(returnDateWithDay);
       // Check if weekend has been added or not
       if (userFlight.dates.weekendOnly) {
-        
         // if (departingDay = Friday and returnDay = Sunday) {
         if (departureDateIteration.day === 5 && returnDateWithDay === 0) {
           console.log("Weekend special, all good to go!");
@@ -292,7 +301,7 @@ const datePage = async (
           console.log(
             "This is a weekend special but either departing day or return day incorrect"
           );
-          checkIfLastDay()
+          checkIfLastDay();
           continue;
         }
       }
@@ -455,15 +464,21 @@ const datePage = async (
   console.log(flightScannerObject);
   userFlight.scanDate.push(flightScannerObject);
   console.log("Applying Database Changed to isBeingScanned and workerPID");
-  userFlight.isBeingScanned = false;
-  userFlight.workerPID = 0;
-  userFlight.scannedLast = Date.parse(todaysDate);
-  userFlight.nextScan = nextScan;
-  const wasUserFlightSaved = await userFlight.save();
-  console.log(`Was used flight saved? - ${wasUserFlightSaved}`)
-  console.log("Saved");
-  await browser.close();
-  return true;
+  setInterval(() => {
+    let test = new Date();
+    console.log(test.getSeconds());
+    if (test.getSeconds() > 10 && test.getSeconds() < 40) {
+      userFlight.isBeingScanned = false;
+      userFlight.workerPID = 0;
+      userFlight.scannedLast = Date.parse(todaysDate);
+      userFlight.nextScan = nextScan;
+      const wasUserFlightSaved = await userFlight.save();
+      console.log(`Was used flight saved? - ${wasUserFlightSaved}`)
+      console.log("Saved");
+      await browser.close();
+      return true;
+    }
+  }, 1000);
 };
 
 module.exports = datePage;
