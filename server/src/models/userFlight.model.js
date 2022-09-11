@@ -45,19 +45,54 @@ const checkIfAllFlightTimeForScan = async () => {
   });
 };
 
+const checkIfAllFlightTimeForScanAndIfScansHappening = async () => {
+  console.log(`checkIfFlightTimeForScan Fired`);
+  const currentTime = new Date().getUTCMilliseconds();
+  // Next Scan adds 43200000ms to the last scan. If the current time is over this, then we want to scan
+  // return await userFlightDatabase.find({$or : [ {isBeingScanned: false},{nextScan: 0}, {nextScan: {$lt: new Date().getTime() }}]});
+  const test =  await userFlightDatabase.find({
+    $or: [
+      {
+        $and: [
+          { isBeingScanned: false },
+
+          { nextScan: 0 },
+          { "dates.returnDate": { $gt: new Date().toISOString() } },
+        ],
+      },
+      {
+        $and: [
+          { isBeingScanned: false },
+          { nextScan: { $lt: new Date().getTime() } },
+          { "dates.returnDate": { $gt: new Date().toISOString() } },
+        ],
+      },
+      {
+        isBeingScanned: true,
+      },
+    ],
+  });
+  return +test.length
+};
+
 const oneHundredSecondWait = async () => {
-  console.log("Will this be worked on is this question")
-  return await userFlightDatabase.find({
+  console.log("Will this be worked on is this question");
+  const numberTest = new Date().valueOf() - 100000;
+  console.log(numberTest);
+  const test = await userFlightDatabase.find({
     $and: [
       { isBeingScanned: false },
       { nextScan: 0 },
       {
         scannedLast: {
-          $gt: { $add: [new Date().getUTCMilliseconds(), 100000] },
+          // $lt:  numberTest,
+          $gt: numberTest,
         },
       },
     ],
-  }).length;
+  });
+  console.log(`Test is this ${test.length}`);
+  return +test.length;
 };
 
 const checkIfFlightTimeForScan = async () => {
@@ -350,4 +385,5 @@ module.exports = {
   checkIfFlightTimeForScanAndUpdate,
   resetFlightStatus,
   oneHundredSecondWait,
+  checkIfAllFlightTimeForScanAndIfScansHappening,
 };

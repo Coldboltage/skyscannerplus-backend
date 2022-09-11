@@ -28,6 +28,7 @@ const {
   searchFlightByPID,
   checkFlightsBeingScanned,
   oneHundredSecondWait,
+  checkIfAllFlightTimeForScanAndIfScansHappening,
 } = require("../models/userFlight.model");
 
 // Database things
@@ -75,7 +76,7 @@ const fireEvents = async (reference) => {
 
 const initSwarm = async () => {
   await oneHundredSecondWait();
-  await new Promise((r) => setTimeout(r, 10000));
+  // await new Promise((r) => setTimeout(r, 10000));
   try {
     console.log("FIRING THE BIG CANNON");
     var codeTime = await axios.post("http://localhost:2375/swarm/init", {
@@ -156,7 +157,7 @@ const initSwarm = async () => {
         },
         TaskTemplate: {
           ContainerSpec: {
-            Image: "coldbolt/skyscannerplus-checker-worker:0.0.2",
+            Image: "coldbolt/skyscannerplus-checker-worker:0.0.3",
           },
           Resources: {
             Reservations: { NanoCPUs: 1000000000 },
@@ -179,7 +180,7 @@ const initSwarm = async () => {
       // console.log(error);
     }
     await oneHundredSecondWait();
-    await new Promise((r) => setTimeout(r, 10000));
+    // await new Promise((r) => setTimeout(r, 10000));
 
     // try {
     //   const test = await axios(
@@ -243,11 +244,11 @@ const fireAllJobs = async () => {
     // It checks if any job is available which will return true
     // if (await checkIfJobAvailableQuestion()) {
     // if (1>2) {
-    const response = await axios("http://0.0.0.0:2375/v1.41/version");
+    const response = await axios("http://35.179.15.157:2375/v1.41/version");
     // console.log(response.data);
     try {
       var replicateCount = await axios(
-        "http://0.0.0.0:2375/v1.41/services/worker"
+        "http://35.179.15.157:2375/v1.41/services/worker"
       );
       console.log(
         `Number of Replicas: ${replicateCount.data.Spec.Mode.Replicated.Replicas}`
@@ -264,29 +265,27 @@ const fireAllJobs = async () => {
       var numberOfScansNeededNow = await numberOfScansNeeded();
       var oneHundredSecondWaitResult = await oneHundredSecondWait();
       console.log(`Number of scans needed: ${numberOfScansNeededNow}`);
+      console.log("####################");
+      console.log(oneHundredSecondWaitResult);
+      // await new Promise((r) => setTimeout(r, 10000));
+
       // await new Promise((r) => setTimeout(r, 2000));
     } catch (error) {
       console.log("ERROR OCCURED");
       console.log(error);
     }
-
+    const momentOfTruth =
+      await checkIfAllFlightTimeForScanAndIfScansHappening();
+    console.log("###########")
+      console.log(momentOfTruth)
     try {
       const test = await axios.post(
-        `http://0.0.0.0:2375/v1.41/services/worker/update?version=${replicateCount.data.Version.Index}`,
+        `http://35.179.15.157:2375/v1.41/services/worker/update?version=${replicateCount.data.Version.Index}`,
         {
           Name: "worker",
           Mode: {
             Replicated: {
-              Replicas:
-                // Add last scan + 100 seconds.
-                checkFlightsBeingScannedNow +
-                  numberOfScansNeededNow +
-                  Number(oneHundredSecondWaitResult) >=
-                5
-                  ? 5
-                  : checkFlightsBeingScannedNow +
-                    numberOfScansNeededNow +
-                    Number(oneHundredSecondWaitResult),
+              Replicas: momentOfTruth >= 2 ? 2 : momentOfTruth,
             },
           },
           RollbackConfig: {
@@ -298,7 +297,7 @@ const fireAllJobs = async () => {
           },
           TaskTemplate: {
             ContainerSpec: {
-              Image: "coldbolt/skyscannerplus-checker-worker:0.0.2",
+              Image: "coldbolt/skyscannerplus-checker-worker:0.0.3",
             },
             Resources: {
               Reservations: { NanoCPUs: 1000000000 },
@@ -357,10 +356,10 @@ const fireAllJobs = async () => {
 // };
 
 const main = async () => {
-  await initSwarm();
+  // await initSwarm();
   await fireAllJobs();
   // cron.schedule("0 */12 * * *", async () => {
-  cron.schedule("*/3 * * * *", async () => {
+  cron.schedule("*/30 * * * * *", async () => {
     await fireAllJobs();
   });
 };

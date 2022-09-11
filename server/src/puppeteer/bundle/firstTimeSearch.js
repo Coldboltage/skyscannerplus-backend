@@ -18,19 +18,20 @@ puppeteer.use(StealthPlugin());
 
 // const PuppeteerExtraPluginProxy = require("puppeteer-extra-plugin-proxy2");
 const pluginProxy = require("puppeteer-extra-plugin-proxy");
+const ipExport = require("../../../services/proxies")
 
-// puppeteer.use(
-//   pluginProxy({
-//     // address: "proxy.iproyal.com",
-//     // port: 12323,
-//     address: "154.17.91.227",
-//     port: 29842,
-//     credentials: {
-//       username: `${process.env.OLD_PROXY_USERNAME}`,
-//       password: `${process.env.OLD_PROXY_PASSWORD}`,
-//     },
-//   })
-// );
+puppeteer.use(
+  pluginProxy({
+    // address: "proxy.iproyal.com",
+    // port: 12323,
+    address: Math.floor(Math.random() * ipExport.length),
+    port: 12323,
+    credentials: {
+      username: `${process.env.PROXY_USERNAME}`,
+      password: `${process.env.PROXY_PASSWORD}`,
+    },
+  })
+);
 
 // Database
 const FlightsDatabase = require("../../models/userFlight.mongo");

@@ -6,6 +6,8 @@ const cluster = require("node:cluster");
 const numCPUs = require("node:os").cpus().length;
 const process = require("node:process");
 const axios = require("axios").default;
+const si = require('systeminformation');
+
 
 // UserFlights
 
@@ -255,9 +257,16 @@ const fireAllJobs = async () => {
   // CLUSTER PROCESSES WORKING ON THIS
 
   console.log(`Worker ${process.pid} started`);
-  await new Promise((r) =>
-    setTimeout(r, Math.random(Math.floor * 1000) * 30000)
-  );
+
+  si.osInfo()
+  .then(data => console.log(data))
+  .catch(error => console.error(error));
+  
+  // await new Promise((r) =>
+  //   // setTimeout(r, Math.random(Math.floor * 1000) * 30000)
+  //   setTimeout(r, Math.random(Math.floor * 1000) * 278346)
+
+  // );
   // console.log(`What is this worker ID ${cluster.worker.id}`);
 
   while (await checkIfUserFlightAvailable()) {
@@ -281,9 +290,10 @@ const fireAllJobs = async () => {
       console.log("worker should die here");
     }
   }
+
   await new Promise((r) => setTimeout(r, 2000));
   console.log("Killing")
-  process.exit(137);
+  process.exit(0);
 
   // try {
   //   console.log("Cleanup time");

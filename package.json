@@ -38,6 +38,7 @@
     "puppeteer-page-proxy": "^1.2.8",
     "request": "^2.88.2",
     "superagent": "^8.0.0",
+    "systeminformation": "^5.12.6",
     "xvfb": "^0.4.0"
   }
 }

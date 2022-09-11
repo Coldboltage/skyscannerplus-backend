@@ -21,7 +21,7 @@ const httpFireEvents = (req, res) => {
   return res.status(200).json({fired: "successfull"})
 }
 
-const httpResetFlightStatus = (req, res) => {
+const httpResetFlightStatus = async (req, res) => {
   const response = await resetFlightStatus()
   return res.status(200).json(response)
 }
