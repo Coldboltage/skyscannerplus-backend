@@ -424,7 +424,7 @@ const fireAllJobs = async () => {
           Name: "worker",
           Mode: {
             Replicated: {
-              Replicas: 4 >= momentOfTruth ? momentOfTruth : 4,
+              Replicas: 6 >= momentOfTruth ? momentOfTruth : 6,
             },
           },
           RollbackConfig: {
