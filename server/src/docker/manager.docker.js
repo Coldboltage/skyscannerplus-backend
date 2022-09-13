@@ -323,9 +323,9 @@ const fireAllJobs = async () => {
       //   {
       const makeSureBottomNumberZero = () => {
         const test =
-          4 >= momentOfTruthNew
+          6 >= momentOfTruthNew
             ? momentOfTruthNew 
-            : 4
+            : 6
         return test <= -1 ? 0 : test;
       };
       const tester = makeSureBottomNumberZero();
