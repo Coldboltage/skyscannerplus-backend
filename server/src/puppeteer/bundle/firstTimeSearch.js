@@ -13,8 +13,8 @@ const puppeteer = require("puppeteer-extra");
 const StealthPlugin = require("puppeteer-extra-plugin-stealth");
 puppeteer.use(StealthPlugin());
 
-// const AdblockerPlugin = require("puppeteer-extra-plugin-adblocker");
-// puppeteer.use(AdblockerPlugin({ blockTrackers: true }));
+const AdblockerPlugin = require("puppeteer-extra-plugin-adblocker");
+puppeteer.use(AdblockerPlugin({ blockTrackers: true }));
 
 // const PuppeteerExtraPluginProxy = require("puppeteer-extra-plugin-proxy2");
 const pluginProxy = require("puppeteer-extra-plugin-proxy");
@@ -48,7 +48,7 @@ const todaysDate = new Date();
 const main = async (reference = false) => {
   console.log("Starting Main");
   let browser = await puppeteer.launch({
-
+    slowMo: 20,
     headless: false,
     args: [
       "--no-sandbox",
