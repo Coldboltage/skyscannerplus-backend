@@ -29,6 +29,7 @@ const {
   searchFlightByPID,
   checkFlightsBeingScanned,
   checkIfFlightTimeForScanAndUpdate,
+  statusChangeByReference
 } = require("../models/userFlight.model");
 
 // Database things
@@ -152,6 +153,7 @@ const fireEvents = async (reference) => {
   }
   await cheapestFlightScannedToday(userFlight);
   await checkMaximumHoliday(userFlight.ref);
+  
 };
 
 const fireAllJobs = async () => {
@@ -268,9 +270,12 @@ const fireAllJobs = async () => {
 
   // );
   // console.log(`What is this worker ID ${cluster.worker.id}`);
-
+  
   while (await checkIfUserFlightAvailable()) {
     const flightToBeScanned = await checkIfFlightTimeForScanAndUpdate();
+    // console.log(flightToBeScanned)
+    // await new Promise((r) => setTimeout(r, 20000000));
+
     if (flightToBeScanned) {
       console.log(flightToBeScanned);
       reference = flightToBeScanned.ref;
@@ -281,19 +286,22 @@ const fireAllJobs = async () => {
       console.log("setting flight status by reference");
       await changeFlightScanStatusByReference(reference, true);
       console.log("change pid by reference");
+      flightToBeScanned.workerPID = process.pid
       await changePIDByReference(reference, process.pid);
       console.log(`${reference} - scan started`);
+      await statusChangeByReference(reference, "running")
       await fireEvents(reference);
       console.log(`Worker ${process.pid} ended`);
       console.log("Right time to do some cleanup");
+      await new Promise((r) => setTimeout(r, Math.ceil(Math.random() * 4) * 1000));
     } else {
       console.log("worker should die here");
     }
   }
-
+  // await axios.post("http://host.docker.internal:2375/v1.41/containers/prune", {}) 
   await new Promise((r) => setTimeout(r, 2000));
   console.log("Killing")
-  process.exit(0);
+  process.exit(137);
 
   // try {
   //   console.log("Cleanup time");
@@ -418,6 +426,7 @@ const fireAllJobs = async () => {
 };
 
 const main = async () => {
+  await new Promise((r) => setTimeout(r, Math.ceil(Math.random() * 4) * 1000));
   await fireAllJobs();
   // cron.schedule("0 */12 * * *", async () => {
   // cron.schedule("*/1 * * * *", async () => {

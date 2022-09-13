@@ -23,6 +23,9 @@ const flightSchema = new mongoose.Schema({
     type: Number,
     required: true,
   },
+  lastUpdated: {
+    type: Number,
+  },
   scannedLast: {
     type: Number,
     required: true,
@@ -30,6 +33,9 @@ const flightSchema = new mongoose.Schema({
   nextScan: {
     type: Number,
     required: true,
+  },
+  status: {
+    type: String,
   },
   flights: {
     departure: {

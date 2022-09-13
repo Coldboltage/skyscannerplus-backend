@@ -14,6 +14,28 @@ const getAllReferences = async () => {
   return references;
 };
 
+const checkIfScanDead = async () => {
+  const time = new Date().getTime() - 110000;
+  const userFlight = await userFlightDatabase.find(
+    {
+      isBeingScanned: true,
+      lastUpdated: { $lt: time },
+    }
+    // {
+    //   isBeingScanned: false,
+    //   workerPID: 0,
+    //   nextScan: new Date().getTime() + 60000
+    // }
+  );
+  console.log(userFlight);
+  for (let task of userFlight) {
+    task.isBeingScanned = false;
+    task.workerPID = 0;
+    task.nextScan = new Date().getTime() + 60000
+    await task.save();
+  }
+};
+
 const checkIfAllFlightTimeForScan = async () => {
   console.log(`checkIfFlightTimeForScan Fired`);
   const currentTime = new Date().getUTCMilliseconds();
@@ -47,15 +69,14 @@ const checkIfAllFlightTimeForScan = async () => {
 
 const checkIfAllFlightTimeForScanAndIfScansHappening = async () => {
   console.log(`checkIfFlightTimeForScan Fired`);
-  const currentTime = new Date().getUTCMilliseconds();
+  const currentTime = new Date().getTime() - 80000;
   // Next Scan adds 43200000ms to the last scan. If the current time is over this, then we want to scan
   // return await userFlightDatabase.find({$or : [ {isBeingScanned: false},{nextScan: 0}, {nextScan: {$lt: new Date().getTime() }}]});
-  const test =  await userFlightDatabase.find({
+  const test = await userFlightDatabase.find({
     $or: [
       {
         $and: [
           { isBeingScanned: false },
-
           { nextScan: 0 },
           { "dates.returnDate": { $gt: new Date().toISOString() } },
         ],
@@ -68,11 +89,34 @@ const checkIfAllFlightTimeForScanAndIfScansHappening = async () => {
         ],
       },
       {
-        isBeingScanned: true,
+        $and: [
+          { isBeingScanned: true },
+          { "dates.returnDate": { $gt: new Date().toISOString() } },
+        ],
       },
+      {
+        // Don't delete too early, give process time to quit
+        $and: [
+          { isBeingScanned: false },
+          { lastUpdated: { $gt: currentTime } },
+          { status: "completed" },
+          // Need a way to know if the job actually finished to cancel this then gg.
+          { "dates.returnDate": { $gt: new Date().toISOString() } },
+        ],
+      },
+      // {
+      //   // If it crashes, this will fix it.
+      //   $and: [
+      //     { isBeingScanned: true },
+      //     { lastUpdated: { $gt: currentTime - 80000 } },
+      //     { status: "running" },
+      //     // Need a way to know if the job actually finished to cancel this then gg.
+      //     { "dates.returnDate": { $gt: new Date().toISOString() } },
+      //   ],
+      // },
     ],
   });
-  return +test.length
+  return +test.length;
 };
 
 const oneHundredSecondWait = async () => {
@@ -345,9 +389,21 @@ const fireEvents = async (reference) => {
 const resetFlightStatus = async () => {
   const response = await userFlightDatabase.find(
     {},
-    { isBeingScanned: false, workerPID: 0, nextScan: 0, scannedLast: 0 }
+    {
+      isBeingScanned: false,
+      workerPID: 0,
+      nextScan: 0,
+      scannedLast: 0,
+      updatedLast: 0,
+    }
   );
   return { message: "reset successful" };
+};
+
+const statusChangeByReference = async (reference, status) => {
+  const userFlight = await userFlightDatabase.findOne({ ref: reference });
+  userFlight.status = status;
+  await userFlight.save();
 };
 
 const consoleOutput = async (cheapestFlightsOrder, bestFlightsOrder) => {
@@ -386,4 +442,6 @@ module.exports = {
   resetFlightStatus,
   oneHundredSecondWait,
   checkIfAllFlightTimeForScanAndIfScansHappening,
+  checkIfScanDead,
+  statusChangeByReference,
 };

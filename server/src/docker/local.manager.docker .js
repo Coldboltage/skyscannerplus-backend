@@ -80,7 +80,7 @@ const initSwarm = async () => {
   // await new Promise((r) => setTimeout(r, 10000));
   try {
     console.log("FIRING THE BIG CANNON");
-    var codeTime = await axios.post("http://host.docker.internal:2375/swarm/init", {
+    var codeTime = await axios.post("http://localhost:2375/swarm/init", {
       ListenAddr: "127.0.0.1",
       AdvertiseAddr: "192.168.1.2",
       ForceNewCluster: false,
@@ -101,7 +101,7 @@ const initSwarm = async () => {
 
   if (true) {
     // try {
-    //    await axios.post("http://host.docker.internal:2375/v1.41/services/create", {
+    //    await axios.post("http://localhost:2375/v1.41/services/create", {
     //   Name: "manager",
     //   Mode: {
     //     Replicated: {
@@ -142,7 +142,7 @@ const initSwarm = async () => {
 
     // WORKER
     try {
-      await axios.post("http://host.docker.internal:2375/v1.41/services/create", {
+      await axios.post("http://localhost:2375/v1.41/services/create", {
         Name: "worker",
         Mode: {
           Replicated: {
@@ -188,7 +188,7 @@ const initSwarm = async () => {
 
     // try {
     //   const test = await axios(
-    //     "http://host.docker.internal:2375/v1.41/services/worker/update", {}
+    //     "http://localhost:2375/v1.41/services/worker/update", {}
     //   );
     //   console.log(test);
     // } catch (error) {
@@ -249,7 +249,7 @@ const fireAllJobs = async () => {
     // if (await checkIfJobAvailableQuestion()) {
     // if (1>2) {
     // const response = await axios("http://35.179.15.157:2375/v1.41/version");
-    const response = await axios("http://host.docker.internal:2375/v1.41/version");
+    const response = await axios("http://localhost:2375/v1.41/version");
     // console.log(response.data);
     const areThereDeadJobs = await checkIfScanDead();
     // Check for tasks which have died
@@ -258,7 +258,7 @@ const fireAllJobs = async () => {
       //   "http://35.179.15.157:2375/v1.41/services/worker"
       // );
       var replicateCount = await axios(
-        "http://host.docker.internal:2375/v1.41/services/worker"
+        "http://localhost:2375/v1.41/services/worker"
       );
       console.log(
         `Number of Replicas: ${replicateCount.data.Spec.Mode.Replicated.Replicas}`
@@ -289,7 +289,7 @@ const fireAllJobs = async () => {
       await checkIfAllFlightTimeForScanAndIfScansHappening();
 
     try {
-      const taskList = await axios("http://host.docker.internal:2375/v1.41/tasks");
+      const taskList = await axios("http://localhost:2375/v1.41/tasks");
       // console.log(taskList.data);
       const currentTime = new Date().getTime();
       const endedTaskList = taskList.data.filter((task) => {
@@ -332,7 +332,7 @@ const fireAllJobs = async () => {
       console.log(makeSureBottomNumberZero());
       await new Promise((r) => setTimeout(r, 1000));
       const test = await axios.post(
-        `http://host.docker.internal:2375/v1.41/services/worker/update?version=${replicateCount.data.Version.Index}`,
+        `http://localhost:2375/v1.41/services/worker/update?version=${replicateCount.data.Version.Index}`,
         {
           Name: "worker",
           Mode: {
@@ -383,7 +383,7 @@ const fireAllJobs = async () => {
       //   "http://35.179.15.157:2375/v1.41/services/worker"
       // );
       var replicateCount = await axios(
-        "http://host.docker.internal:2375/v1.41/services/worker"
+        "http://localhost:2375/v1.41/services/worker"
       );
       console.log(
         `Number of Replicas: ${replicateCount.data.Spec.Mode.Replicated.Replicas}`
@@ -419,7 +419,7 @@ const fireAllJobs = async () => {
       //   `http://35.179.15.157:2375/v1.41/services/worker/update?version=${replicateCount.data.Version.Index}`,
       //   {
       const test = await axios.post(
-        `http://host.docker.internal:2375/v1.41/services/worker/update?version=${replicateCount.data.Version.Index}`,
+        `http://localhost:2375/v1.41/services/worker/update?version=${replicateCount.data.Version.Index}`,
         {
           Name: "worker",
           Mode: {
@@ -466,14 +466,14 @@ const fireAllJobs = async () => {
 
     // try {
     //   const response = await axios(
-    //     "http://host.docker.internal:2375/v1.41/services/worker/update"
+    //     "http://localhost:2375/v1.41/services/worker/update"
     //   );
     //   console.log(response.data)
     // } catch (error) {
     //   console.log(error);
     // }
 
-    // await axios.post("http://host.docker.internal:2375/v1.41/containers/worker/start");
+    // await axios.post("http://localhost:2375/v1.41/containers/worker/start");
     console.log("Setup complete");
     // await new Promise((r) => setTimeout(r, 200000));
     // } else {

@@ -4,7 +4,6 @@ const cheerio = require("cheerio");
 // Puppeteer Package
 const processPage = require("./processPage.puppeteer");
 const { Browser } = require("puppeteer");
-const exitHook = require('async-exit-hook');
 
 
 const monthNames = [
@@ -34,12 +33,6 @@ const datePage = async (
   
   await page.waitForTimeout(1000);
   const userFlight = await FlightsDatabase.findOne({ ref: newUser.ref });
-  exitHook(async () => {
-    userFlight.isBeingScanned = false;
-    userFlight.workerPID = 0;
-    await userFlight.save();
-    console.log("WE HAVE DIED VIA EXIT HOOK")
-  })
   if (verifyNames === false) {
     console.log(`We are returning false from datePage`);
     userFlight.isBeingScanned = false;
@@ -204,7 +197,11 @@ const datePage = async (
         userFlight.dates.maximumHoliday;
       addReturnDay++
     ) {
+
+      // Test
       console.log("Firing second loop");
+      userFlight.lastUpdated = new Date().getTime()
+      await userFlight.save()
       // Test Calculation
       const daysToAdd =
         userFlight.dates.minimalHoliday + addDepartDay + addReturnDay;
@@ -372,7 +369,7 @@ const datePage = async (
         userFlight.flights.passengers || 1
       }`;
 
-      await page.goto(url, { waitUntil: "domcontentloaded", timeout: 300000 });
+      await page.goto(url, { waitUntil: "domcontentloaded", timeout: 100000 });
       const returnInformationObject = await processPage(
         page,
         returnDateInMili,
@@ -459,6 +456,8 @@ const datePage = async (
   userFlight.workerPID = 0;
   userFlight.scannedLast = Date.parse(todaysDate);
   userFlight.nextScan = nextScan;
+  userFlight.lastUpdated = new Date().getTime()
+  userFlight.status = "completed"
   const wasUserFlightSaved = await userFlight.save();
   console.log(`Was used flight saved? - ${wasUserFlightSaved ? "yes it was" : "no it wasn't"}`)
   console.log("Saved");
