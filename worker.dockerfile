@@ -18,4 +18,4 @@ ENV PORT=3001
 USER node
 
 # Start script on Xvfb
-CMD Xvfb :0 -screen 0 1024x768x16 & node server/src/docker/worker.docker.js
+CMD Xvfb :0 -screen 0 1920x1080x16 & node server/src/docker/worker.docker.js

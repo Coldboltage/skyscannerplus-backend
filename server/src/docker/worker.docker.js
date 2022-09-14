@@ -293,13 +293,13 @@ const fireAllJobs = async () => {
       await fireEvents(reference);
       console.log(`Worker ${process.pid} ended`);
       console.log("Right time to do some cleanup");
-      await new Promise((r) => setTimeout(r, Math.ceil(Math.random() * 4) * 1000));
+      // await new Promise((r) => setTimeout(r, Math.ceil(Math.random() * 4) * 1000));
     } else {
       console.log("worker should die here");
     }
   }
   // await axios.post("http://host.docker.internal:2375/v1.41/containers/prune", {}) 
-  await new Promise((r) => setTimeout(r, 2000));
+  // await new Promise((r) => setTimeout(r, 2000));
   console.log("Killing")
   process.exit(137);
 

@@ -34,6 +34,9 @@ const flightSchema = new mongoose.Schema({
     type: Number,
     required: true,
   },
+  screenshot:{
+    type: String
+  },
   status: {
     type: String,
   },

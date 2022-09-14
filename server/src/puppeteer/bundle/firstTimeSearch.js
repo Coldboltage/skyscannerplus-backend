@@ -13,8 +13,8 @@ const puppeteer = require("puppeteer-extra");
 const StealthPlugin = require("puppeteer-extra-plugin-stealth");
 puppeteer.use(StealthPlugin());
 
-const AdblockerPlugin = require("puppeteer-extra-plugin-adblocker");
-puppeteer.use(AdblockerPlugin({ blockTrackers: true }));
+// const AdblockerPlugin = require("puppeteer-extra-plugin-adblocker");
+// puppeteer.use(AdblockerPlugin({ blockTrackers: true }));
 
 // const PuppeteerExtraPluginProxy = require("puppeteer-extra-plugin-proxy2");
 const pluginProxy = require("puppeteer-extra-plugin-proxy");
@@ -62,27 +62,27 @@ const main = async (reference = false) => {
 
   await page.setCacheEnabled(false);
 
-  await page.setRequestInterception(true);
+  // await page.setRequestInterception(true);
 
-  const rejectRequestPattern = [
-    "googlesyndication.com",
-    "/*.doubleclick.net",
-    "/*.amazon-adsystem.com",
-    "/*.adnxs.com",
-    "/*.nr-data.net",
-  ];
-  const blockList = [];
+  // const rejectRequestPattern = [
+  //   "googlesyndication.com",
+  //   "/*.doubleclick.net",
+  //   "/*.amazon-adsystem.com",
+  //   "/*.adnxs.com",
+  //   "/*.nr-data.net",
+  // ];
+  // const blockList = [];
 
-  page.on("request", (request) => {
-    if (rejectRequestPattern.find((pattern) => request.url().match(pattern))) {
-      blockList.push(request.url());
-      request.abort();
-    } else if (request.resourceType() === "image") {
-      request.abort();
-    } else {
-      request.continue();
-    }
-  });
+  // page.on("request", (request) => {
+  //   if (rejectRequestPattern.find((pattern) => request.url().match(pattern))) {
+  //     blockList.push(request.url());
+  //     request.abort();
+  //   } else if (request.resourceType() === "image") {
+  //     request.abort();
+  //   } else {
+  //     request.continue();
+  //   }
+  // });
 
   const pages = await browser.pages();
   await pages[0].close();
