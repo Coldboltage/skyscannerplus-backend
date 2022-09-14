@@ -88,8 +88,16 @@ const processPage = async (
   await page.waitForTimeout(1500);
   const cheapestHTML = await page.content();
   $ = cheerio.load(cheapestHTML);
-
+  await page.waitForTimeout(1500);
   $(dataTestId).remove();
+  console.log(await page.url())
+
+  if($(firstRowCheapest).html()) {
+    console.log("HTML has been confirmed")
+  } else {
+    console.log("Something is wrong here please check")
+    await page.waitForTimeout(10000000)
+  }
   if ($(firstRowCheapest).html().includes("deal") !== true) {
     if (
       $(firstRowCheapestParent).parent().html().includes("ponsored") === true

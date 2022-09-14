@@ -80,7 +80,7 @@ const skyscannerHomePage = async (page, newUser) => {
   );
   // console.log(page)
   
-  await page.waitForTimeout(5000);
+  await page.waitForTimeout(2000);
   let url = await page.url()
   console.log(url)
   // done
