@@ -6,7 +6,6 @@ const cluster = require("node:cluster");
 const numCPUs = require("node:os").cpus().length;
 const process = require("node:process");
 const axios = require("axios").default;
-const superagent = require("superagent");
 
 // UserFlights
 
