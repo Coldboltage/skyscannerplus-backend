@@ -11,6 +11,7 @@ const flightSchema = new mongoose.Schema({
       required: true,
     },
   },
+  
   ref: {
     type: String,
     required: true,
@@ -39,6 +40,10 @@ const flightSchema = new mongoose.Schema({
   },
   status: {
     type: String,
+  },
+  currency: {
+    fullCurrency: String,
+    currencyCode: String
   },
   flights: {
     departure: {
@@ -133,6 +138,10 @@ const flightSchema = new mongoose.Schema({
                   type: Number,
                   required: true,
                 },
+                costWithCurrency: {
+                  type: String,
+                  required: true,
+                },
                 time: {
                   type: String,
                 },
@@ -146,6 +155,10 @@ const flightSchema = new mongoose.Schema({
               best: {
                 cost: {
                   type: Number,
+                  required: true,
+                },
+                costWithCurrency: {
+                  type: String,
                   required: true,
                 },
                 time: {

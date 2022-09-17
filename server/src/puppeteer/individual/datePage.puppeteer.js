@@ -367,7 +367,7 @@ const datePage = async (
         returnDateWithMonth
       )}${addZeroDate(returnDateWithDate)}/?rtn=1&stops=direct&adultsv2=${
         userFlight.flights.passengers || 1
-      }`;
+      }&currency=${userFlight.currency.currencyCode}`;
 
       await page.goto(url, { waitUntil: "domcontentloaded", timeout: 100000 });
       const returnInformationObject = await processPage(

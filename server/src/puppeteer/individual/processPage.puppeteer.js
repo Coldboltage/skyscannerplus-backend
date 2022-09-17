@@ -98,7 +98,9 @@ const processPage = async (
   const cheapestHTML = await page.content();
   $ = cheerio.load(cheapestHTML);
 
-  if ($(flightsDayView(divChecker)).first().html().includes("ponsored") === true) {
+  if (
+    $(flightsDayView(divChecker)).first().html().includes("ponsored") === true
+  ) {
     console.log("################");
     console.log("################");
     console.log("################");
@@ -146,8 +148,12 @@ const processPage = async (
 
   const cheapestCost = $(cheapestCostText(divChecker))
     .text()
-    .substring(1)
-    .replace(",", "");
+    .split("")
+    .filter((element) => !isNaN(+element))
+    .join("")
+    .replace(" ", "");
+
+  const cheapestCostWithCurrency = $(cheapestCostText(divChecker)).text();
 
   const cheapestDepartureDepartTime = $(
     cheapestDepartureDepartTimeText(divChecker)
@@ -176,8 +182,12 @@ const processPage = async (
 
   const bestCost = $(cheapestCostText(divChecker))
     .text()
-    .substring(1)
-    .replace(",", "");
+    .split("")
+    .filter((element) => !isNaN(+element))
+    .join("")
+    .replace(" ", "");
+
+  const bestCostWithCurrency = $(cheapestCostText(divChecker)).text();
 
   const bestDepartureDepartTime = $(
     cheapestDepartureDepartTimeText(divChecker)
@@ -213,12 +223,14 @@ const processPage = async (
     url: await page.url(),
     cheapest: {
       cost: +cheapestCost,
+      costWithCurrency: cheapestCostWithCurrency,
       time: cheapestDepartureDepartTime,
       arrival: cheapestDepartureArrivalTime,
       durationOfFlight: cheapestDepartureDurationFlight,
     },
     best: {
       cost: +bestCost,
+      costWithCurrency: bestCostWithCurrency,
       time: bestDepartureDepartTime,
       arrival: bestDepartureArrivalTime,
       durationOfFlight: bestDepartureDurationFlight,
