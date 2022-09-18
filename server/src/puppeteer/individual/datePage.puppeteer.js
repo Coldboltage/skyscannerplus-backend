@@ -354,9 +354,6 @@ const datePage = async (
           return date;
         }
       };
-
-      const test = `/${`/` + addZeroDate()}`;
-
       // Check if there's passengers or not
 
       // Setup Info
@@ -371,21 +368,26 @@ const datePage = async (
       // Test URL
 
       // Create a condition for the second date, that if one way is true, the second date will become blank rather than be populated.
-
+      console.log(
+        `Is returnFlight true or false:${
+          userFlight.flights.returnFlight === true
+        }`
+      );
       let url = `https://www.skyscanner.net/transport/flights/${firstCode}/${secondCode}/${
         departureDateIteration.year - 2000
       }${addZeroMonth(departureDateIteration.month)}${addZeroDate(
         departureDateIteration.date.getDate()
-      )}
-      ${
-        userFlight.flights.returnFlight
+      )}${
+        userFlight.flights.returnFlight === true
           ? `/${returnDateWithYear - 2000}${addZeroMonth(
               returnDateWithMonth
             )}${addZeroDate(returnDateWithDate)}/?rtn=1&stops=direct&adultsv2=${
               userFlight.flights.passengers || 1
-            }`
-          : "/rtn=0"
-      }&currency=${userFlight.currency.currencyCode}`;
+            }&currency=${userFlight.currency.currencyCode}`
+          : `?rtn=0&stops=direct&adultsv2&currency=${userFlight.currency.currencyCode}`
+      }
+
+      `;
 
       await page.goto(url, { waitUntil: "domcontentloaded", timeout: 100000 });
       const returnInformationObject = await processPage(
