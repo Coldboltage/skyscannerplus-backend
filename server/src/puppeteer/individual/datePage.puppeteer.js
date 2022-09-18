@@ -5,7 +5,6 @@ const cheerio = require("cheerio");
 const processPage = require("./processPage.puppeteer");
 const { Browser } = require("puppeteer");
 
-
 const monthNames = [
   "January",
   "February",
@@ -30,7 +29,7 @@ const datePage = async (
   verifyNames
 ) => {
   console.log("Entered Date page");
-  
+
   await page.waitForTimeout(1000);
   const userFlight = await FlightsDatabase.findOne({ ref: newUser.ref });
   if (verifyNames === false) {
@@ -183,10 +182,14 @@ const datePage = async (
 
     console.log(addDepartDay);
 
-    console.log("Checking to see if departureDay is less than current day of scan commencing")
-    if (departureDateIteration.time  < new Date().getTime()) {
-      console.log("DepartureDate is less than current day. The day has literally passed the day of scanning")
-      continue
+    console.log(
+      "Checking to see if departureDay is less than current day of scan commencing"
+    );
+    if (departureDateIteration.time < new Date().getTime()) {
+      console.log(
+        "DepartureDate is less than current day. The day has literally passed the day of scanning"
+      );
+      continue;
     }
 
     for (
@@ -197,11 +200,10 @@ const datePage = async (
         userFlight.dates.maximumHoliday;
       addReturnDay++
     ) {
-
       // Test
       console.log("Firing second loop");
-      userFlight.lastUpdated = new Date().getTime()
-      await userFlight.save()
+      userFlight.lastUpdated = new Date().getTime();
+      await userFlight.save();
       // Test Calculation
       const daysToAdd =
         userFlight.dates.minimalHoliday + addDepartDay + addReturnDay;
@@ -236,8 +238,7 @@ const datePage = async (
           flightScannerObject.departureDate.push(departureDateIteration);
           console.log(flightScannerObject);
         }
-      }
-
+      };
 
       console.log(
         `Returning: Click for ${returnDateWithDate} ${monthNames[returnDateWithMonth]}`
@@ -263,8 +264,16 @@ const datePage = async (
       console.log("############");
       console.log("############");
       // Check to see if user has required days
-      console.log(`departureDateIteration.time < requiredDayStart: ${departureDateIteration.time < requiredDayStart}`)
-      console.log(`requiredDayEnd < returnDateInMili: ${requiredDayEnd < returnDateInMili}`)
+      console.log(
+        `departureDateIteration.time < requiredDayStart: ${
+          departureDateIteration.time < requiredDayStart
+        }`
+      );
+      console.log(
+        `requiredDayEnd < returnDateInMili: ${
+          requiredDayEnd < returnDateInMili
+        }`
+      );
       if (
         (departureDateIteration.time < requiredDayStart &&
           requiredDayEnd < returnDateInMili) ||
@@ -273,15 +282,14 @@ const datePage = async (
         console.log("Good date");
       } else {
         console.log("we got a wee false here");
-        checkIfLastDay()
+        checkIfLastDay();
         continue;
       }
-      console.log(userFlight.dates.weekendOnly)
-      console.log(departureDateIteration.day)
-      console.log(returnDateWithDay)
+      console.log(userFlight.dates.weekendOnly);
+      console.log(departureDateIteration.day);
+      console.log(returnDateWithDay);
       // Check if weekend has been added or not
       if (userFlight.dates.weekendOnly) {
-        
         // if (departingDay = Friday and returnDay = Sunday) {
         if (departureDateIteration.day === 5 && returnDateWithDay === 0) {
           console.log("Weekend special, all good to go!");
@@ -289,7 +297,7 @@ const datePage = async (
           console.log(
             "This is a weekend special but either departing day or return day incorrect"
           );
-          checkIfLastDay()
+          checkIfLastDay();
           continue;
         }
       }
@@ -347,6 +355,8 @@ const datePage = async (
         }
       };
 
+      const test = `/${`/` + addZeroDate()}`;
+
       // Check if there's passengers or not
 
       // Setup Info
@@ -359,14 +369,22 @@ const datePage = async (
       //   returnDateWithMonth
       // )}${addZeroDate(returnDateWithDate)}/?rtn=1&stops=direct,!twoPlusStops`;
       // Test URL
+
+      // Create a condition for the second date, that if one way is true, the second date will become blank rather than be populated.
+
       let url = `https://www.skyscanner.net/transport/flights/${firstCode}/${secondCode}/${
         departureDateIteration.year - 2000
       }${addZeroMonth(departureDateIteration.month)}${addZeroDate(
         departureDateIteration.date.getDate()
-      )}/${returnDateWithYear - 2000}${addZeroMonth(
-        returnDateWithMonth
-      )}${addZeroDate(returnDateWithDate)}/?rtn=1&stops=direct&adultsv2=${
-        userFlight.flights.passengers || 1
+      )}
+      ${
+        userFlight.flights.returnFlight
+          ? `/${returnDateWithYear - 2000}${addZeroMonth(
+              returnDateWithMonth
+            )}${addZeroDate(returnDateWithDate)}/?rtn=1&stops=direct&adultsv2=${
+              userFlight.flights.passengers || 1
+            }`
+          : "/rtn=0"
       }&currency=${userFlight.currency.currencyCode}`;
 
       await page.goto(url, { waitUntil: "domcontentloaded", timeout: 100000 });
@@ -456,10 +474,14 @@ const datePage = async (
   userFlight.workerPID = 0;
   userFlight.scannedLast = Date.parse(todaysDate);
   userFlight.nextScan = nextScan;
-  userFlight.lastUpdated = new Date().getTime()
-  userFlight.status = "completed"
+  userFlight.lastUpdated = new Date().getTime();
+  userFlight.status = "completed";
   const wasUserFlightSaved = await userFlight.save();
-  console.log(`Was used flight saved? - ${wasUserFlightSaved ? "yes it was" : "no it wasn't"}`)
+  console.log(
+    `Was used flight saved? - ${
+      wasUserFlightSaved ? "yes it was" : "no it wasn't"
+    }`
+  );
   console.log("Saved");
   await browser.close();
   return true;
