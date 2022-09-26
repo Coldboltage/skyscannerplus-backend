@@ -122,12 +122,60 @@ const datePage = async (
   console.log(flightScannerObject);
 
   //  Add day reps the amount of days added to the depart day.
-  // Resumability: Check if failed. 
+  // Resumability: Check if failed.
+  let scanDateIndexBegin = null
+  let departDateIndexBegin = null
+  let returnDateIndexBegin = null
+  let resumeScanOrNot = userFlight.lastUpdated >= new Date().getTime() - 3600000
+
+  if (resumeScanOrNot) {
+    // 1) Check departDay and index number
+    // const resumeScan = await FlightsDatabase.findOne({
+    //   ref: newUser.ref,
+    // });
+    // const scanDateIndexResume = resumeScan.scanDate.length - 1;
+    // const departureDateIndexResume =
+    //   resumeScan.scanDate[0 >= scanDateIndexResume ? 0 : scanDateIndexResume].departureDate
+    //     .length - 1;
+
+
+
+    const departureDatePush = await FlightsDatabase.findOne({
+      ref: newUser.ref,
+    });
+    const scanDateIndexResume =
+      departureDatePush.scanDate.length - 1 <= 0
+        ? 0
+        : departureDatePush.scanDate.length - 1;
+
+    const departureDateIndexResume =
+      departureDatePush.scanDate[scanDateIndexResume].departureDate.length -
+        1 <=
+      0
+        ? 0
+        : departureDatePush.scanDate[scanDateIndexResume].departureDate.length;
+
+    const returnDateIndexResume =
+      departureDatePush.scanDate[scanDateIndexResume].departureDate[
+        departureDateIndexResume
+      ].returnDates.length -
+        1 <=
+      0
+        ? 0
+        : departureDatePush.scanDate[scanDateIndexResume].departureDate[
+            departureDateIndexResume
+          ].returnDates.length - 1;
+
+       scanDateIndexBegin = scanDateIndexResume
+       departDateIndexBegin = departureDateIndexResume
+       returnDateIndexBegin = returnDateIndexResume
+  }
   // 1) Check departDay and index number
   // 2) Check returnDates and it's index number
   // Resumabulity done
   for (
-    let addDepartDay = 0;
+    let addDepartDay = departureDateIndexResume || 0
+    ;
     addDepartDay + userFlight.dates.minimalHoliday <= departArriveDifference;
     addDepartDay++
   ) {
@@ -218,10 +266,16 @@ const datePage = async (
     //   departureDatePush.scanDate[0 >= scanDateIndex ? 0 : scanDateIndex]
     //     .departureDate.length === 0
     // ) {
+    if (resumeScanOrNot) {
+      console.log("Resuming scan and not creating a new array")
+    } else {
       departureDatePush.scanDate[
         0 >= scanDateIndex ? 0 : scanDateIndex
       ].departureDate.push(departDateArray);
-    // } 
+    }
+
+    
+    // }
     // else {
     //   departureDatePush.scanDate[
     //     0 >= scanDateIndex ? 0 : scanDateIndex
@@ -253,7 +307,7 @@ const datePage = async (
     }
 
     for (
-      let addReturnDay = 0;
+      let addReturnDay = returnDateIndexBegin || 0;
       userFlight.dates.minimalHoliday + addDepartDay + addReturnDay <=
         departArriveDifference &&
       userFlight.dates.minimalHoliday + addReturnDay <=
