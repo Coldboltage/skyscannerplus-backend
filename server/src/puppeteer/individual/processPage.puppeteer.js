@@ -1,12 +1,14 @@
 const cheerio = require("cheerio");
 const dayjs = require("dayjs");
 const axios = require("axios");
+const FlightsDatabase = require("../../models/userFlight.mongo");
 
 const processPage = async (
   page,
   returnDateInMili,
   departureDateIteration,
-  userFlight
+  userFlight,
+  newUser
 ) => {
   // try {
   //   console.log("We have fired the cleanup script")
@@ -212,7 +214,7 @@ const processPage = async (
     returnDate,
   };
 
-  return {
+  const result = {
     daysBetweenDepartureDateAndArrivalDate: Number(
       (returnDateInMili - departureDateIteration.date) / 86400000
     ),
@@ -236,6 +238,61 @@ const processPage = async (
       durationOfFlight: bestDepartureDurationFlight,
     },
   };
+
+  console.log("As we now have a new day, creating new");
+  await page.waitForTimeout(2000);
+
+  const ReturnDatePush = await FlightsDatabase.findOne({
+    ref: newUser.ref,
+  });
+  const scanDateIndex = ReturnDatePush.scanDate.length - 1;
+  const departureDateIndex =
+    ReturnDatePush.scanDate[0 >= scanDateIndex ? 0 : scanDateIndex]
+      .departureDate.length - 1;
+  console.log(`DepartureDate is ${departureDateIndex}`);
+
+  console.log(
+    ReturnDatePush.scanDate[0 >= scanDateIndex ? 0 : scanDateIndex]
+      .departureDate[0 >= departureDateIndex ? 0 : departureDateIndex]
+  );
+
+  const returnDateIndex =
+    ReturnDatePush.scanDate[0 >= scanDateIndex ? 0 : scanDateIndex]
+      .departureDate[0 >= departureDateIndex ? 0 : departureDateIndex]
+      .returnDates.length - 1;
+
+  console.log(`ReturnDate is ${returnDateIndex}`);
+
+  // if (
+  //   ReturnDatePush.scanDate[0 >= scanDateIndex ? 0 : scanDateIndex]
+  //     .departureDate[0 >= departureDateIndex ? 0 : departureDateIndex]
+  //     .returnDates.length === 0
+  // ) {
+    console.log("ReturnDatePush set was true");
+    ReturnDatePush.scanDate[
+      0 >= scanDateIndex ? 0 : scanDateIndex
+    ].departureDate[
+      0 >= departureDateIndex ? 0 : departureDateIndex
+    ].returnDates.push(result);
+  // } else {}
+    // console.log("ReturnDatePush was false");
+
+    // console.log( ReturnDatePush.scanDate[
+    //   0 >= scanDateIndex ? 0 : scanDateIndex
+    // ].departureDate[
+    //   0 >= departureDateIndex ? 0 : departureDateIndex
+    // ].returnDates[0 >= returnDateIndex ? 0 : returnDateIndex])
+
+    // ReturnDatePush.scanDate[
+    //   0 >= scanDateIndex ? 0 : scanDateIndex
+    // ].departureDate[
+    //   0 >= departureDateIndex ? 0 : departureDateIndex
+    // ].returnDates[0 >= returnDateIndex ? 0 : returnDateIndex].push(result);
+  // }
+
+  await ReturnDatePush.save();
+
+  return result;
 };
 
 module.exports = processPage;

@@ -434,6 +434,7 @@ const main = async () => {
   // });
 };
 
-main();
+// main();
+fireEvents("AZRQFOUUYY");
 // fireAllJobs();
 // cpuCount()

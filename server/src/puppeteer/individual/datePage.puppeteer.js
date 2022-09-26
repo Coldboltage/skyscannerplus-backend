@@ -43,6 +43,16 @@ const datePage = async (
   const html = await page.content();
   const $ = cheerio.load(html);
 
+  // Push an empty array at the bottom of scanDate which will be empty
+  const newScan = {
+    dateOfScanLoop: new Date(),
+    departureDate: [],
+  };
+  console.log(newScan);
+  userFlight.scanDate.push(newScan);
+  await userFlight.save();
+  await page.waitForTimeout(200);
+
   const departureDate = {
     fullDate: +userFlight.dates.departureDate.getTime(),
     date: userFlight.dates.departureDate.getUTCDate(),
@@ -112,6 +122,10 @@ const datePage = async (
   console.log(flightScannerObject);
 
   //  Add day reps the amount of days added to the depart day.
+  // Resumability: Check if failed. 
+  // 1) Check departDay and index number
+  // 2) Check returnDates and it's index number
+  // Resumabulity done
   for (
     let addDepartDay = 0;
     addDepartDay + userFlight.dates.minimalHoliday <= departArriveDifference;
@@ -181,6 +195,52 @@ const datePage = async (
     // );
 
     console.log(addDepartDay);
+
+    //  Before the first for loop is started
+    console.log("As we now have a new day, creating new");
+    await page.waitForTimeout(2000);
+
+    const departureDatePush = await FlightsDatabase.findOne({
+      ref: newUser.ref,
+    });
+    const scanDateIndex = departureDatePush.scanDate.length - 1;
+    const departureDateIndex =
+      departureDatePush.scanDate[0 >= scanDateIndex ? 0 : scanDateIndex]
+        .departureDate.length - 1;
+
+    const departDateArray = {
+      date: new Date(),
+      dateString: departureDateIteration.dateString,
+      returnDates: [],
+    };
+
+    // if (
+    //   departureDatePush.scanDate[0 >= scanDateIndex ? 0 : scanDateIndex]
+    //     .departureDate.length === 0
+    // ) {
+      departureDatePush.scanDate[
+        0 >= scanDateIndex ? 0 : scanDateIndex
+      ].departureDate.push(departDateArray);
+    // } 
+    // else {
+    //   departureDatePush.scanDate[
+    //     0 >= scanDateIndex ? 0 : scanDateIndex
+    //   ].departureDate[0 >= departureDateIndex ? 0 : departureDateIndex].push(
+    //     departDateArray
+    //   );
+    // }
+
+    // departureDatePush.scanDate[
+    //   0 >= scanDateIndex ? 0 : scanDateIndex
+    // ].departureDate[0 >= departureDateIndex ? 0 : departureDateIndex].push({
+    //   date: new Date(),
+    //   dateString: departureDateIteration.dateString,
+    //   returnDates: [],
+    // });
+
+    await departureDatePush.save();
+    console.log("departureDatePush.save() done");
+    await page.waitForTimeout(2000);
 
     console.log(
       "Checking to see if departureDay is less than current day of scan commencing"
@@ -394,7 +454,8 @@ const datePage = async (
         page,
         returnDateInMili,
         departureDateIteration,
-        userFlight
+        userFlight,
+        newUser
       );
 
       await browser.close();
@@ -470,7 +531,7 @@ const datePage = async (
   }
   console.log("Saving information");
   console.log(flightScannerObject);
-  userFlight.scanDate.push(flightScannerObject);
+  // userFlight.scanDate.push(flightScannerObject);
   console.log("Applying Database Changed to isBeingScanned and workerPID");
   userFlight.isBeingScanned = false;
   userFlight.workerPID = 0;
