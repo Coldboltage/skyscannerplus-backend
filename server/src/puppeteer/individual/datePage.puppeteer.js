@@ -115,7 +115,7 @@ const datePage = async (
   // Resumability: Check if failed.
   let scanDateIndexBegin = null;
   let departDateIndexBegin = null;
-  let returnDateIndexBegin = null;
+  // let returnDateIndexBegin = null;
   // let resumeScanOrNot = null
   let resumeScanOrNot =
     userFlight.lastUpdated >= new Date().getTime() - 3600000;
@@ -131,7 +131,7 @@ const datePage = async (
   } else {
     userFlight.scanDate.push(newScan);
     await userFlight.save();
-    await page.waitForTimeout(200);
+    await page.waitForTimeout(1000);
   }
 
   if (resumeScanOrNot) {
@@ -157,23 +157,31 @@ const datePage = async (
         1 <=
       0
         ? 0
-        : departureDatePush.scanDate[scanDateIndexResume].departureDate.length;
+        : departureDatePush.scanDate[scanDateIndexResume].departureDate.length - 1;
 
-    const returnDateIndexResume =
-      departureDatePush.scanDate[scanDateIndexResume].departureDate[
-        departureDateIndexResume
-      ].returnDates.length -
-        1 <=
-      0
-        ? 0
-        : departureDatePush.scanDate[scanDateIndexResume].departureDate[
-            departureDateIndexResume
-          ].returnDates.length - 1;
+    // const returnDateIndexResume =
+    //   departureDatePush.scanDate[scanDateIndexResume].departureDate[
+    //     departureDateIndexResume
+    //   ].returnDates.length -
+    //     1 <=
+    //   0
+    //     ? 0
+    //     : departureDatePush.scanDate[scanDateIndexResume].departureDate[
+    //         departureDateIndexResume
+    //       ].returnDates.length - 1;
 
     // Actual Index
     var scanDateActualIndexResume = departureDatePush.scanDate.length;
     var departureDateActualIndexResume =
       departureDatePush.scanDate[scanDateIndexResume].departureDate.length;
+
+    console.log(
+      `What is departureDateActualIndexResume: ${departureDateActualIndexResume}`
+    );
+    console.log(
+      `What is what is this: ${departureDatePush.scanDate[scanDateIndexResume].departureDate[departureDateIndexResume]}`
+    );
+
     var returnDateActualIndexResume =
       departureDatePush.scanDate[scanDateIndexResume].departureDate[
         departureDateIndexResume
@@ -181,27 +189,42 @@ const datePage = async (
 
     scanDateIndexBegin = scanDateIndexResume;
     departDateIndexBegin = departureDateIndexResume;
-    returnDateIndexBegin = returnDateIndexResume;
+    // returnDateIndexBegin = returnDateIndexResume;
 
     console.log(`What is departDateIndexBegin: ${departDateIndexBegin}`);
-    console.log(`What is returnDateIndexBegin: ${returnDateIndexBegin}`);
-    await page.waitForTimeout(2000);
+    // console.log(`What is returnDateIndexBegin: ${returnDateIndexBegin}`);
+    console.log(
+      `What is departureDateActualIndexResume: ${departureDateActualIndexResume}`
+    );
+    console.log(
+      `What is returnDateActualIndexResume: ${returnDateActualIndexResume}`
+    );
+
   }
   // 1) Check departDay and index number
   // 2) Check returnDates and it's index number
   // Resumabulity done
   let switchFromDepartDateindexBegin = true;
+  let switchFromReturnDateindexBegin = true;
+  let switchresumeScanOrNot = true;
+
+  console.log(
+    `is the for loop regarding this correctly? ${
+      departDateIndexBegin && switchFromDepartDateindexBegin
+    }`
+  );
+
   for (
-    let addDepartDay = departureDateActualIndexResume && switchFromDepartDateindexBegin === true
-      ? departureDateActualIndexResume
-      : 0;
+    let addDepartDay =
+      departDateIndexBegin > 0 && switchFromDepartDateindexBegin === true
+        ? departureDateActualIndexResume
+        : 0;
     addDepartDay + userFlight.dates.minimalHoliday <= departArriveDifference;
     addDepartDay++
   ) {
     console.log(`What is addDepartDay: ${addDepartDay}`);
-    console.log(`Removing switchFromDepartDateindexBegin`)
-    switchFromDepartDateindexBegin = false
-    await page.waitForTimeout(2000);
+    console.log(`Removing switchFromDepartDateindexBegin`);
+    switchFromDepartDateindexBegin = false;
     // Find out Day
     const departPickDay = new Date(
       departureDate.fullDate + addDepartDay * 86400000
@@ -269,7 +292,6 @@ const datePage = async (
 
     //  Before the first for loop is started
     console.log("As we now have a new day, creating new");
-    await page.waitForTimeout(2000);
 
     const departureDatePush = await FlightsDatabase.findOne({
       ref: newUser.ref,
@@ -289,13 +311,15 @@ const datePage = async (
     //   departureDatePush.scanDate[0 >= scanDateIndex ? 0 : scanDateIndex]
     //     .departureDate.length === 0
     // ) {
-    if (resumeScanOrNot) {
-      console.log("Resuming scan and not creating a new array");
-    } else {
+    // if (resumeScanOrNot && switchresumeScanOrNot) {
+    //   switchresumeScanOrNot = false;
+    //   console.log("Resuming scan and not creating a new array");
+    // } else {
+      console.log("Creating new date");
       departureDatePush.scanDate[
         0 >= scanDateIndex ? 0 : scanDateIndex
       ].departureDate.push(departDateArray);
-    }
+    // }
 
     // }
     // else {
@@ -316,7 +340,8 @@ const datePage = async (
 
     await departureDatePush.save();
     console.log("departureDatePush.save() done");
-    await page.waitForTimeout(2000);
+    await page.waitForTimeout(1000);
+    returnDateActualIndexResume = 0;
 
     console.log(
       "Checking to see if departureDay is less than current day of scan commencing"
@@ -327,13 +352,10 @@ const datePage = async (
       );
       continue;
     }
-
-    let switchFromReturnDateindexBegin = true;
     for (
       let addReturnDay =
-      departureDateActualIndexResume &&
-        switchFromReturnDateindexBegin
-          ? departureDateActualIndexResume
+        returnDateActualIndexResume > 0 && switchFromReturnDateindexBegin
+          ? returnDateActualIndexResume
           : 0;
       userFlight.dates.minimalHoliday + addDepartDay + addReturnDay <=
         departArriveDifference &&
@@ -343,15 +365,13 @@ const datePage = async (
     ) {
       console.log(
         `Is this formula solid: ${
-          returnDateIndexBegin !== null &&
-          switchFromReturnDateindexBegin &&
-          returnDateIndexBegin !== 0
+          returnDateActualIndexResume && switchFromReturnDateindexBegin
         }`
       );
       console.log(`What is addReturnDay: ${addReturnDay}`);
       console.log("Switching off switchFromReturnDateindexBegin");
       switchFromReturnDateindexBegin = false;
-      await page.waitForTimeout(400000);
+      await page.waitForTimeout(200);
       // Test
       console.log("Firing second loop");
       userFlight.lastUpdated = new Date().getTime();
