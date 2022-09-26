@@ -434,7 +434,7 @@ const main = async () => {
   // });
 };
 
-// main();
-fireEvents("GBITYK1EHD");
+main();
+// fireEvents("GBITYK1EHD");
 // fireAllJobs();
 // cpuCount()
