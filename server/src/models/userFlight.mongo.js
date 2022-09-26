@@ -104,7 +104,7 @@ const flightSchema = new mongoose.Schema({
     {
       // This let's us know when the scan was done
       dateOfScanLoop: {
-        type: String,
+        type: Date,
         required: true,
       },
       departureDate: [
