@@ -160,7 +160,7 @@ const initSwarm = async () => {
             MaxReplicas: 3,
           },
           ContainerSpec: {
-            Image: "coldbolt/skyscannerplus-checker-worker:0.1.1",
+            Image: "coldbolt/skyscannerplus-checker-worker:0.2.0",
           },
           Resources: {
             Reservations: { NanoCPUs: 1000000000 },
@@ -347,11 +347,11 @@ const fireAllJobs = async () => {
             Parallelism: 1,
           },
           TaskTemplate: {
-            // Placement: {
-            //   MaxReplicas: 3,
-            // },
+            Placement: {
+              MaxReplicas: 3,
+            },
             ContainerSpec: {
-              Image: "coldbolt/skyscannerplus-checker-worker:0.1.1",
+              Image: "coldbolt/skyscannerplus-checker-worker:0.2.0",
             },
             Resources: {
               Reservations: { NanoCPUs: 1000000000 },
@@ -434,11 +434,11 @@ const fireAllJobs = async () => {
             Parallelism: 1,
           },
           TaskTemplate: {
-            // Placement: {
-            //   MaxReplicas: 3,
-            // },
+            Placement: {
+              MaxReplicas: 3,
+            },
             ContainerSpec: {
-              Image: "coldbolt/skyscannerplus-checker-worker:0.1.1",
+              Image: "coldbolt/skyscannerplus-checker-worker:0.2.0",
             },
             Resources: {
               Reservations: { NanoCPUs: 1000000000 },
