@@ -253,9 +253,6 @@ const fireAllJobs = async () => {
     const areThereDeadJobs = await checkIfScanDead();
     // Check for tasks which have died
     try {
-      // var replicateCount = await axios(
-      //   "http://35.179.15.157:2375/v1.41/services/worker"
-      // );
       var replicateCount = await axios(
         "http://localhost:2375/v1.41/services/worker"
       );
@@ -297,14 +294,14 @@ const fireAllJobs = async () => {
         console.log(
           (task.Status.State === "completed" ||
             task.Status.State === "failed" ||
-            task.Status.State === "shutdown") &&
-            new Date(task.UpdatedAt).getTime() < currentTime - 30000
+            task.Status.State === "shutdown") 
+            // && new Date(task.UpdatedAt).getTime() < currentTime - 30000
         );
         if (
           (task.Status.State === "completed" ||
             task.Status.State === "failed" ||
-            task.Status.State === "shutdown") &&
-          new Date(task.UpdatedAt).getTime() < currentTime - 30000
+            task.Status.State === "shutdown") 
+            // && new Date(task.UpdatedAt).getTime() < currentTime - 30000
         ) {
           switch (task.Status.State) {
             case "complete":
@@ -338,7 +335,7 @@ const fireAllJobs = async () => {
           Name: "worker",
           Mode: {
             Replicated: {
-              Replicas: endedTaskListAmount > 0 ?  taskList.data.length - endedTaskListAmount : tester,
+              Replicas: endedTaskListAmount > 0 ? taskList.data.length - endedTaskListAmount : tester,
             },
           },
           RollbackConfig: {
@@ -415,55 +412,55 @@ const fireAllJobs = async () => {
       await checkIfAllFlightTimeForScanAndIfScansHappening();
     console.log("###########");
     console.log(momentOfTruth);
-    try {
-      // const test = await axios.post(
-      //   `http://35.179.15.157:2375/v1.41/services/worker/update?version=${replicateCount.data.Version.Index}`,
-      //   {
-      const test = await axios.post(
-        `http://localhost:2375/v1.41/services/worker/update?version=${replicateCount.data.Version.Index}`,
-        {
-          Name: "worker",
-          Mode: {
-            Replicated: {
-              Replicas: 6 >= momentOfTruth ? momentOfTruth : 6,
-            },
-          },
-          RollbackConfig: {
-            Delay: 1000000000,
-            FailureAction: "pause",
-            MaxFailureRatio: 0.15,
-            Monitor: 15000000000,
-            Parallelism: 1,
-          },
-          TaskTemplate: {
-            Placement: {
-              MaxReplicas: 3,
-            },
-            ContainerSpec: {
-              Image: "coldbolt/skyscannerplus-checker-worker:0.2.0",
-            },
-            Resources: {
-              Reservations: { NanoCPUs: 1000000000 },
-            },
-            RestartPolicy: {
-              Condition: "none",
-              MaxAttempts: 0,
-            },
-          },
-          UpdateConfig: {
-            Delay: 1000000000,
-            FailureAction: "pause",
-            MaxFailureRatio: 0.15,
-            Monitor: 15000000000,
-            Parallelism: 2,
-          },
-        }
-      );
-      // console.log(test);
-    } catch (error) {
-      console.log("ERROR MATE");
-      console.log(error);
-    }
+    // try {
+    //   // const test = await axios.post(
+    //   //   `http://35.179.15.157:2375/v1.41/services/worker/update?version=${replicateCount.data.Version.Index}`,
+    //   //   {
+    //   const test = await axios.post(
+    //     `http://localhost:2375/v1.41/services/worker/update?version=${replicateCount.data.Version.Index}`,
+    //     {
+    //       Name: "worker",
+    //       Mode: {
+    //         Replicated: {
+    //           Replicas: 6 >= momentOfTruth ? momentOfTruth : 6,
+    //         },
+    //       },
+    //       RollbackConfig: {
+    //         Delay: 1000000000,
+    //         FailureAction: "pause",
+    //         MaxFailureRatio: 0.15,
+    //         Monitor: 15000000000,
+    //         Parallelism: 1,
+    //       },
+    //       TaskTemplate: {
+    //         Placement: {
+    //           MaxReplicas: 3,
+    //         },
+    //         ContainerSpec: {
+    //           Image: "coldbolt/skyscannerplus-checker-worker:0.2.0",
+    //         },
+    //         Resources: {
+    //           Reservations: { NanoCPUs: 1000000000 },
+    //         },
+    //         RestartPolicy: {
+    //           Condition: "none",
+    //           MaxAttempts: 0,
+    //         },
+    //       },
+    //       UpdateConfig: {
+    //         Delay: 1000000000,
+    //         FailureAction: "pause",
+    //         MaxFailureRatio: 0.15,
+    //         Monitor: 15000000000,
+    //         Parallelism: 2,
+    //       },
+    //     }
+    //   );
+    //   // console.log(test);
+    // } catch (error) {
+    //   console.log("ERROR MATE");
+    //   console.log(error);
+    // }
 
     // try {
     //   const response = await axios(

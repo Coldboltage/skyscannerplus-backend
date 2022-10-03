@@ -69,7 +69,7 @@ const checkIfAllFlightTimeForScan = async () => {
 
 const checkIfAllFlightTimeForScanAndIfScansHappening = async () => {
   console.log(`checkIfFlightTimeForScan Fired`);
-  const currentTime = new Date().getTime() - 80000;
+  const currentTime = new Date().getTime() - 30000;
   // Next Scan adds 43200000ms to the last scan. If the current time is over this, then we want to scan
   // return await userFlightDatabase.find({$or : [ {isBeingScanned: false},{nextScan: 0}, {nextScan: {$lt: new Date().getTime() }}]});
   const test = await userFlightDatabase.find({
