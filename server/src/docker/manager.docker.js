@@ -287,6 +287,8 @@ const fireAllJobs = async () => {
     const momentOfTruthNew =
       await checkIfAllFlightTimeForScanAndIfScansHappening();
 
+    let endedTaskListAmount
+
     try {
       const taskList = await axios("http://localhost:2375/v1.41/tasks");
       // console.log(taskList.data);
