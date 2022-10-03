@@ -369,7 +369,7 @@ const fireAllJobs = async () => {
           },
         }
       );
-      console.log(test);
+      // console.log(test);
     } catch (error) {
       console.log("ERROR MATE");
       console.log(error);
