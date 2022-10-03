@@ -321,7 +321,7 @@ const fireAllJobs = async () => {
       //   `http://35.179.15.157:2375/v1.41/services/worker/update?version=${replicateCount.data.Version.Index}`,
       //   {
       const makeSureBottomNumberZero = () => {
-        const test = 6 <= momentOfTruthNew ? momentOfTruthNew : 6;
+        const test = 6 >= momentOfTruthNew ? momentOfTruthNew : 6;
         return test <= -1 ? 0 : test;
       };
       const tester = makeSureBottomNumberZero();
