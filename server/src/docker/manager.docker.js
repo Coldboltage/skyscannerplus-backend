@@ -284,7 +284,7 @@ const fireAllJobs = async () => {
     const momentOfTruthNew =
       await checkIfAllFlightTimeForScanAndIfScansHappening();
 
-    let endedTaskListAmount
+    let endedTaskListAmount;
 
     try {
       const taskList = await axios("http://localhost:2375/v1.41/tasks");
@@ -292,16 +292,16 @@ const fireAllJobs = async () => {
       const currentTime = new Date().getTime();
       const endedTaskList = taskList.data.filter((task) => {
         console.log(
-          (task.Status.State === "completed" ||
+          task.Status.State === "completed" ||
             task.Status.State === "failed" ||
-            task.Status.State === "shutdown") 
-            // && new Date(task.UpdatedAt).getTime() < currentTime - 30000
+            task.Status.State === "shutdown"
+          // && new Date(task.UpdatedAt).getTime() < currentTime - 30000
         );
         if (
-          (task.Status.State === "completed" ||
-            task.Status.State === "failed" ||
-            task.Status.State === "shutdown") 
-            // && new Date(task.UpdatedAt).getTime() < currentTime - 30000
+          task.Status.State === "completed" ||
+          task.Status.State === "failed" ||
+          task.Status.State === "shutdown"
+          // && new Date(task.UpdatedAt).getTime() < currentTime - 30000
         ) {
           switch (task.Status.State) {
             case "complete":
@@ -311,19 +311,17 @@ const fireAllJobs = async () => {
           }
         }
       });
-      endedTaskListAmount = endedTaskList.length
-      console.log(`THIS IS THE NUMBER OF ENDED TASKS MATE: ${endedTaskListAmount}`);
-          // await new Promise((r) => setTimeout(r, 5000));
-
+      endedTaskListAmount = endedTaskList.length;
+      console.log(
+        `THIS IS THE NUMBER OF ENDED TASKS MATE: ${endedTaskListAmount}`
+      );
+      // await new Promise((r) => setTimeout(r, 5000));
 
       // const test = await axios.post(
       //   `http://35.179.15.157:2375/v1.41/services/worker/update?version=${replicateCount.data.Version.Index}`,
       //   {
       const makeSureBottomNumberZero = () => {
-        const test =
-          6 >= momentOfTruthNew
-            ? momentOfTruthNew 
-            : 6
+        const test = 6 <= momentOfTruthNew ? momentOfTruthNew : 6;
         return test <= -1 ? 0 : test;
       };
       const tester = makeSureBottomNumberZero();
@@ -335,7 +333,10 @@ const fireAllJobs = async () => {
           Name: "worker",
           Mode: {
             Replicated: {
-              Replicas: endedTaskListAmount > 0 ? taskList.data.length - endedTaskListAmount : tester,
+              Replicas:
+                endedTaskListAmount > 0
+                  ? taskList.data.length - endedTaskListAmount
+                  : tester,
             },
           },
           RollbackConfig: {
