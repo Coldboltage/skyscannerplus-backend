@@ -15,7 +15,7 @@ const getAllReferences = async () => {
 };
 
 const checkIfScanDead = async () => {
-  const time = new Date().getTime() - 110000;
+  const time = new Date().getTime() - 120000;
   const userFlight = await userFlightDatabase.find(
     {
       isBeingScanned: true,
@@ -31,7 +31,7 @@ const checkIfScanDead = async () => {
   for (let task of userFlight) {
     task.isBeingScanned = false;
     task.workerPID = 0;
-    task.nextScan = new Date().getTime() + 60000
+    task.nextScan = new Date().getTime() + 120000
     await task.save();
   }
 };
