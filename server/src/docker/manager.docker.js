@@ -293,12 +293,14 @@ const fireAllJobs = async () => {
       const endedTaskList = taskList.data.filter((task) => {
         console.log(
           task.Status.State === "completed" ||
+          task.Status.State === "pending" ||
             task.Status.State === "failed" ||
             task.Status.State === "shutdown"
           // && new Date(task.UpdatedAt).getTime() < currentTime - 30000
         );
         if (
           task.Status.State === "completed" ||
+          task.Status.State === "pending" ||
           task.Status.State === "failed" ||
           task.Status.State === "shutdown"
           // && new Date(task.UpdatedAt).getTime() < currentTime - 30000
