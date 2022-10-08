@@ -22,18 +22,18 @@ const ipExport = require("../../../services/proxies")
 
 console.log()
 
-puppeteer.use(
-  pluginProxy({
-    address: "p.webshare.io",
-    // port: 12323,
-    // address: ipExport[Math.floor(Math.random() * ipExport.length)],
-    port: 80,
-    credentials: {
-      username: `${process.env.PROXY_USERNAME}`,
-      password: `${process.env.PROXY_PASSWORD}`,
-    },
-  })
-);
+// puppeteer.use(
+//   pluginProxy({
+//     address: "p.webshare.io",
+//     // port: 12323,
+//     // address: ipExport[Math.floor(Math.random() * ipExport.length)],
+//     port: 80,
+//     credentials: {
+//       username: `${process.env.PROXY_USERNAME}`,
+//       password: `${process.env.PROXY_PASSWORD}`,
+//     },
+//   })
+// );
 
 // Database
 const FlightsDatabase = require("../../models/userFlight.mongo");
