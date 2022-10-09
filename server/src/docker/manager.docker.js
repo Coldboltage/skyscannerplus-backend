@@ -351,7 +351,7 @@ const fireAllJobs = async () => {
           },
           TaskTemplate: {
             Placement: {
-              MaxReplicas: 3,
+              MaxReplicas: 2,
             },
             ContainerSpec: {
               Image: "coldbolt/skyscannerplus-checker-worker:0.2.1",
@@ -373,7 +373,7 @@ const fireAllJobs = async () => {
           },
         }
       );
-      // console.log(test);
+      console.log(test);
     } catch (error) {
       console.log("ERROR MATE");
       console.log(error);
