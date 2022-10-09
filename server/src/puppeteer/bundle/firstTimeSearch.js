@@ -51,7 +51,7 @@ const main = async (reference = false) => {
     // slowMo: 20,
     headless: false,
     args: [
-      "--incognito",
+      // "--incognito",
       "--no-sandbox",
       "--disable-setuid-sandbox",
       "--disable-background-timer-throttling",
