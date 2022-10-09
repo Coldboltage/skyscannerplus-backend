@@ -351,7 +351,7 @@ const fireAllJobs = async () => {
           },
           TaskTemplate: {
             Placement: {
-              MaxReplicas: 2,
+              MaxReplicas: 3,
             },
             ContainerSpec: {
               Image: "coldbolt/skyscannerplus-checker-worker:0.2.2",
