@@ -41,7 +41,7 @@ const checkIfAllFlightTimeForScan = async () => {
   const currentTime = new Date().getUTCMilliseconds();
   // Next Scan adds 43200000ms to the last scan. If the current time is over this, then we want to scan
   // return await userFlightDatabase.find({$or : [ {isBeingScanned: false},{nextScan: 0}, {nextScan: {$lt: new Date().getTime() }}]});
-  return await userFlightDatabase.find({
+  const test = await userFlightDatabase.find({
     $or: [
       {
         $and: [
@@ -55,16 +55,23 @@ const checkIfAllFlightTimeForScan = async () => {
           { "dates.returnDate": { $gt: new Date().toISOString() } },
         ],
       },
-      {
-        $and: [
-          { isBeingScanned: false },
-          // { scannedLast: { $lt: new Date().getUTCMilliseconds() + 100000 } },
-          { nextScan: { $lt: new Date().getTime() } },
-          { "dates.returnDate": { $gt: new Date().toISOString() } },
-        ],
-      },
+      // {
+      //   $and: [
+      //     { isBeingScanned: false },
+      //     // { scannedLast: { $lt: new Date().getUTCMilliseconds() + 100000 } },
+      //     { nextScan: { $lt: new Date().getTime() } },
+      //     { "dates.returnDate": { $gt: new Date().toISOString() } },
+      //   ],
+      // },
     ],
   });
+  console.log("###### TEST SETUP ###### ")
+  console.log("###### TEST SETUP ###### ")
+  console.log(test)
+  console.log("###### TEST SETUP ###### ")
+  console.log("###### TEST SETUP ###### ")
+
+  return test
 };
 
 const checkIfAllFlightTimeForScanAndIfScansHappening = async () => {
