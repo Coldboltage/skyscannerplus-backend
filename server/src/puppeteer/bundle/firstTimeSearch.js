@@ -45,7 +45,7 @@ const datePage = require("../individual/datePage.puppeteer");
 // Test
 const todaysDate = new Date();
 
-const main = async (reference = false) => {
+const main = async (reference) => {
   console.log("Starting Main");
   let browser = await puppeteer.launch({
     // slowMo: 20,

@@ -1,16 +1,24 @@
+import { LessThan, LessThanOrEqual, MoreThan } from "typeorm";
+import { AppDataSource } from "../data-source";
+import { UserFlightTypeORM } from "../entity/user-flight.entity";
+
 const userFlightDatabase = require("./userFlight.mongo");
 const searchFlights = require("../puppeteer/bundle/firstTimeSearch");
 const testEmail = require("../../services/reference.email");
 const dayjs = require("dayjs");
+// TYPEORM
+
+const userFlightTypeORM = AppDataSource.getRepository(UserFlightTypeORM)
+
 
 // Get all documents
-const getAllDocuments = async () => {
+export const getAllDocuments = async () => {
   return await userFlightDatabase.find({});
 };
 
 const getAllReferences = async () => {
   const documents = await userFlightDatabase.find({});
-  const references = documents.map((doc) => doc.ref);
+  const references = documents.map((doc: any) => doc.ref);
   return references;
 };
 
@@ -36,7 +44,7 @@ const checkIfScanDead = async () => {
   }
 };
 
-const checkIfAllFlightTimeForScan = async () => {
+export const checkIfAllFlightTimeForScan = async () => {
   console.log(`checkIfFlightTimeForScan Fired`);
   const currentTime = new Date().getUTCMilliseconds();
   // Next Scan adds 43200000ms to the last scan. If the current time is over this, then we want to scan
@@ -146,7 +154,23 @@ const oneHundredSecondWait = async () => {
   return +test.length;
 };
 
-const checkIfFlightTimeForScan = async () => {
+export const checkIfFlightTimeForScan = async () => {
+  const testDate = new Date()
+  return await userFlightTypeORM.findOne({
+    where: [
+      {
+        isBeingScanned: false, nextScan: LessThanOrEqual(0), 
+        dates: {returnDate: MoreThan(new Date(testDate.toISOString()))}
+      },
+      // {
+      //   isBeingScanned: false, nextScan: LessThan(new Date().getTime()), 
+      //   dates: {returnDate: MoreThan(new Date())}
+      // }
+    ]
+  })
+}
+
+const _checkIfFlightTimeForScan_old = async () => {
   console.log(`checkIfFlightTimeForScan Fired`);
 
   // Next Scan adds 43200000ms to the last scan. If the current time is over this, then we want to scan
@@ -171,7 +195,7 @@ const checkIfFlightTimeForScan = async () => {
   });
 };
 
-const checkIfFlightTimeForScanAndUpdate = async () => {
+export const checkIfFlightTimeForScanAndUpdate = async () => {
   console.log(`checkIfFlightTimeForScan Fired`);
 
   // Next Scan adds 43200000ms to the last scan. If the current time is over this, then we want to scan
@@ -203,12 +227,12 @@ const checkIfFlightTimeForScanAndUpdate = async () => {
   return answer;
 };
 
-const checkFlightsBeingScanned = async () => {
+export const checkFlightsBeingScanned = async () => {
   const response = await userFlightDatabase.find({ isBeingScanned: true });
   return +response.length;
 };
 
-const createUser = async (userObject) => {
+const createUser = async (userObject: any) => {
   userObject.dates.departureDateString = dayjs(
     userObject.dates.departureDate
   ).format("dddd DD MMMM YYYY");
@@ -219,7 +243,7 @@ const createUser = async (userObject) => {
   return user._id ? true : false;
 };
 
-const updateUserByReference = async (reference) => {
+const updateUserByReference = async (reference: string) => {
   console.log("Fired updateUserByReference");
   console.log(`Reference is ${reference}`);
   const flightUser = await getUserFlightByReference(reference);
@@ -242,29 +266,29 @@ const userTest = () => {
   return { test: "This is a test" };
 };
 
-const getUserFlightByReference = async (reference) => {
+export const getUserFlightByReference = async (reference: string) => {
   console.log(`Fired getUserFlightByReference`);
   return await userFlightDatabase.findOne({ ref: reference });
 };
 
-const changeFlightScanStatusByReference = async (reference, status) => {
+export const changeFlightScanStatusByReference = async (reference: string, status: string) => {
   const UserFlight = await getUserFlightByReference(reference);
   UserFlight.isBeingScanned = status;
   await UserFlight.save();
 };
 
-const searchFlightByPID = async (workerPID) => {
+export const searchFlightByPID = async (workerPID: number) => {
   console.log(`searchFlightByPID fired`);
   return await userFlightDatabase.findOne({ workerPID: workerPID });
 };
 
-const changePIDByReference = async (reference, workerPID) => {
+export const changePIDByReference = async (reference: string, workerPID: number) => {
   const UserFlight = await getUserFlightByReference(reference);
   UserFlight.workerPID = workerPID;
   await UserFlight.save();
 };
 
-const changeFlightScanStatusByPID = async (workerPID, status) => {
+export const changeFlightScanStatusByPID = async (workerPID: number, status: string) => {
   console.log(`changeFlightScanStatusByPID fired`);
   const UserFlight = await searchFlightByPID(workerPID);
   console.log(UserFlight);
@@ -273,14 +297,14 @@ const changeFlightScanStatusByPID = async (workerPID, status) => {
   console.log(`Flight status changed to ${status}`);
 };
 
-const changePIDToZero = async (workerPID) => {
+export const changePIDToZero = async (workerPID: number) => {
   const UserFlight = await searchFlightByPID(workerPID);
   UserFlight.workerPID = 0;
   await UserFlight.save();
   console.log(`Worker PID changed to ${0}`);
 };
 
-const checkAmountOfProcessesInUse = async () => {
+export const checkAmountOfProcessesInUse = async () => {
   const array = await userFlightDatabase.find({ workerPID: { $gt: 0 } });
   const number = array.length;
   console.log(number);
@@ -288,7 +312,7 @@ const checkAmountOfProcessesInUse = async () => {
 };
 
 // All functions will fire cheapestFlightScannedToday. We can add other parameters in the future
-const cheapestFlightScannedToday = async (newUser) => {
+export const cheapestFlightScannedToday = async (newUser: any) => {
   console.log("Started cheapestFlightScannedToday");
   // console.log(newUser)
   const Flight = await userFlightDatabase.findOne({ ref: newUser.ref });
@@ -335,12 +359,12 @@ const cheapestFlightScannedToday = async (newUser) => {
 };
 
 // We know users will have a reference. We can use this to find flights
-const findUserFlight = async (reference) => {
+const findUserFlight = async (reference: string) => {
   console.log("Started findUserFlight");
   return await userFlightDatabase.findOne({ ref: reference });
 };
 
-const checkUserFlightStuff = async (reference) => {
+const checkUserFlightStuff = async (reference: string) => {
   console.log(`checkedUserFlightStuff passed reference = ${reference}`);
   const userFlight = await findUserFlight(reference);
   const {
@@ -351,9 +375,9 @@ const checkUserFlightStuff = async (reference) => {
 };
 
 // I'm expecting the flights to have been processed in cheapestFlightScannedToday.
-const maximumHoliday = async (flightArray, daysOfMaxHoliday) => {
+const maximumHoliday = async (flightArray: any, daysOfMaxHoliday: any) => {
   console.log(`Starting maximumHoliday`);
-  const sortedFlights = flightArray.filter((flight, index) => {
+  const sortedFlights = flightArray.filter((flight: any, index: number) => {
     // console.log(
     //   `flight.daysBetweenDepartureDateAndArrivalDate = ${
     //     flight.daysBetweenDepartureDateAndArrivalDate
@@ -363,10 +387,10 @@ const maximumHoliday = async (flightArray, daysOfMaxHoliday) => {
     // );
     return flight.daysBetweenDepartureDateAndArrivalDate <= daysOfMaxHoliday;
   });
-  return sortedFlights.filter((flights, index) => index <= 10);
+  return sortedFlights.filter((flights: any, index: number) => index <= 10);
 };
 
-const checkMaximumHoliday = async (reference) => {
+export const checkMaximumHoliday = async (reference: string) => {
   let { cheapestFlightsOrder, bestFlightsOrder, userFlight } =
     await checkUserFlightStuff(reference);
   console.log(`Cheapest Length ${cheapestFlightsOrder.length}`);
@@ -387,7 +411,7 @@ const checkMaximumHoliday = async (reference) => {
   return { cheapestFlightsOrderMax, bestFlightsOrderMax };
 };
 
-const fireEvents = async (reference) => {
+const fireEvents = async (reference: string) => {
   const userFlight = await searchFlights(reference);
   await cheapestFlightScannedToday(userFlight);
   await checkMaximumHoliday(userFlight.ref);
@@ -407,13 +431,13 @@ const resetFlightStatus = async () => {
   return { message: "reset successful" };
 };
 
-const statusChangeByReference = async (reference, status) => {
+export const statusChangeByReference = async (reference: string, status: string) => {
   const userFlight = await userFlightDatabase.findOne({ ref: reference });
   userFlight.status = status;
   await userFlight.save();
 };
 
-const consoleOutput = async (cheapestFlightsOrder, bestFlightsOrder) => {
+const consoleOutput = async (cheapestFlightsOrder: any, bestFlightsOrder: any) => {
   console.log("#################");
   console.log(">> Max Holiday Output: Cheapest <<");
   console.log(cheapestFlightsOrder);

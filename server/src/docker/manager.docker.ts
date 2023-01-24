@@ -4,8 +4,9 @@ console.log(path.join(__dirname, "..", "..", ".env"));
 const cron = require("node-cron");
 const cluster = require("node:cluster");
 const numCPUs = require("node:os").cpus().length;
-const process = require("node:process");
+// const process = require("node:process");
 const axios = require("axios").default;
+import "reflect-metadata"
 
 // UserFlights
 
@@ -63,7 +64,7 @@ const numberOfScansNeeded = async () => {
   return numberScans.length;
 };
 
-const fireEvents = async (reference) => {
+const fireEvents = async (reference: string) => {
   const { user: userFlight, verifyFlights } = await searchFlights(reference);
   console.log(`What is this ${verifyFlights}`);
   if (verifyFlights === false) {
@@ -231,7 +232,7 @@ const fireAllJobs = async () => {
   console.log(`How many CPUs in use? ${cpusCurrentlyBeingUsed}`);
 
   if (cluster.isPrimary) {
-    console.log(`Primary ${process.pid} is running`);
+    // console.log(`Primary ${process.pid} is running`);
     // Create new containers.
     // await new Promise((r) => setTimeout(r, 200000));
     // const cpuNeededAnswer = await cpusNeeded();
@@ -290,7 +291,7 @@ const fireAllJobs = async () => {
       const taskList = await axios("http://localhost:2375/v1.41/tasks");
       // console.log(taskList.data);
       const currentTime = new Date().getTime();
-      const endedTaskList = taskList.data.filter((task) => {
+      const endedTaskList = taskList.data.filter((task: any) => {
         console.log(
           task.Status.State === "completed" ||
             task.Status.State === "pending" ||
