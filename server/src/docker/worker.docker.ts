@@ -14,7 +14,7 @@ import "reflect-metadata"
 // Puppeteer Bundles / Individuals
 
 import searchFlights from "../puppeteer/bundle/firstTimeSearch";
-import { cheapestFlightScannedToday, checkMaximumHoliday, checkIfFlightTimeForScan, getAllDocuments, changeFlightScanStatusByReference, changePIDByReference, changeFlightScanStatusByPID, changePIDToZero, checkAmountOfProcessesInUse, getUserFlightByReference, checkIfAllFlightTimeForScan, searchFlightByPID, checkFlightsBeingScanned, checkIfFlightTimeForScanAndUpdate, statusChangeByReference } from "../models/userFlight.model";
+import { cheapestFlightScannedToday, checkMaximumHoliday, checkIfFlightTimeForScan, getAllDocuments, changeFlightScanStatusByReferenceId, changePIDByReference, changeFlightScanStatusByPID, changePIDToZero, checkAmountOfProcessesInUse, getUserFlightByReference, checkIfAllFlightTimeForScan, searchFlightByPID, checkFlightsBeingScanned, checkIfFlightTimeForScanAndUpdate, statusChangeByReference } from "../models/userFlight.model";
 
 // Database things
 import { mongoConnect } from "../../services/mongo";
@@ -28,17 +28,20 @@ import { UserFlightTypeORM } from "../entity/user-flight.entity";
 
 
 AppDataSource.initialize()
-    .then(async () => {
-        console.log("Database has been setup ✅")
-        const userRepository = AppDataSource.getRepository(User)
-        const test = await userRepository.find()
-        console.log(test)
-        const userFlightRepository = AppDataSource.getRepository(UserFlightTypeORM)
-        const nextTest = await userFlightRepository.find()
-        const date = new Date("2023-01-31T00:00:00.000Z")
-        console.log(nextTest[0].dates.returnDate)
+  .then(async () => {
+    console.log("Database has been setup ✅")
+    const userRepository = AppDataSource.getRepository(User)
+    const test = await userRepository.find()
+    console.log(test)
+    const userFlightRepository = AppDataSource.getRepository(UserFlightTypeORM)
+    const nextTest = await userFlightRepository.find({
+      // relations: {
+      //   dates: true
+      // }
     })
-    .catch((error) => console.log(`❌❌ Database broke ❌❌ - ${error}`))
+    console.log(nextTest[0].dates)
+  })
+  .catch((error) => console.log(`❌❌ Database broke ❌❌ - ${error}`))
 
 // ON_DEATH(function(SIGTERM, err) {
 //   try {
@@ -146,14 +149,19 @@ const numberOfScansNeeded = async () => {
 };
 
 const fireEvents = async (reference: string) => {
-  const { user: userFlight, verifyFlights } = await searchFlights(reference);
+  const flightsObject = await searchFlights(reference);
+  if (!flightsObject) return false
+  const { userFlight, verifyFlights } = flightsObject
   console.log(`What is this ${verifyFlights}`);
   if (verifyFlights === false) {
     console.log(`It's false`);
     return false;
   }
-  await cheapestFlightScannedToday(userFlight);
-  await checkMaximumHoliday(userFlight.ref);
+  if (userFlight) {
+    await cheapestFlightScannedToday(userFlight);
+    await checkMaximumHoliday(userFlight.ref);
+  }
+
 
 };
 
@@ -268,15 +276,13 @@ const fireAllJobs = async () => {
 
   // );
   // console.log(`What is this worker ID ${cluster.worker.id}`);
-  const test = await checkIfUserFlightAvailable()
-  console.log(test)
-  await new Promise(resolve => setTimeout(resolve, 20000000));
+  // let test = await checkIfUserFlightAvailable()
+  let test = await checkIfFlightTimeForScanAndUpdate();
+  while (test) {
+    // const flightToBeScanned = await checkIfFlightTimeForScanAndUpdate();
+    const flightToBeScanned = test;
 
-  while (await checkIfUserFlightAvailable()) {
-
-    const flightToBeScanned = await checkIfFlightTimeForScanAndUpdate();
-    // console.log(flightToBeScanned)
-    // await new Promise((r) => setTimeout(r, 20000000));
+    console.log(flightToBeScanned)
 
     if (flightToBeScanned) {
       console.log(flightToBeScanned);
@@ -286,15 +292,19 @@ const fireAllJobs = async () => {
       console.log(`#############################`);
       console.log(reference);
       console.log("setting flight status by reference");
-      await changeFlightScanStatusByReference(reference, "running");
+      await changeFlightScanStatusByReferenceId(reference, true);
       console.log("change pid by reference");
       flightToBeScanned.workerPID = process.pid
       await changePIDByReference(reference, process.pid);
       console.log(`${reference} - scan started`);
-      await statusChangeByReference(reference, "running")
+      // await new Promise((r) => setTimeout(r, 20000000));
+      // await statusChangeByReference(reference, "running")
       await fireEvents(reference);
       console.log(`Worker ${process.pid} ended`);
       console.log("Right time to do some cleanup");
+
+      // test = await checkIfUserFlightAvailable()
+      test = await checkIfFlightTimeForScanAndUpdate()
       // await new Promise((r) => setTimeout(r, Math.ceil(Math.random() * 4) * 1000));
     } else {
       console.log("worker should die here");

@@ -1,6 +1,7 @@
 import { LessThan, LessThanOrEqual, MoreThan } from "typeorm";
 import { AppDataSource } from "../data-source";
-import { UserFlightTypeORM } from "../entity/user-flight.entity";
+import { Dates, UserFlightTypeORM } from "../entity/user-flight.entity";
+import { where } from "./userFlight.mongo";
 
 const userFlightDatabase = require("./userFlight.mongo");
 const searchFlights = require("../puppeteer/bundle/firstTimeSearch");
@@ -9,6 +10,7 @@ const dayjs = require("dayjs");
 // TYPEORM
 
 const userFlightTypeORM = AppDataSource.getRepository(UserFlightTypeORM)
+const userFlightDateORM = AppDataSource.getRepository(Dates)
 
 
 // Get all documents
@@ -155,18 +157,15 @@ const oneHundredSecondWait = async () => {
 };
 
 export const checkIfFlightTimeForScan = async () => {
+  console.log('checkIfFlightTimeForScan fired')
   const testDate = new Date()
-  return await userFlightTypeORM.findOne({
-    where: [
-      {
-        isBeingScanned: false, nextScan: LessThanOrEqual(0), 
-        dates: {returnDate: MoreThan(new Date(testDate.toISOString()))}
-      },
-      // {
-      //   isBeingScanned: false, nextScan: LessThan(new Date().getTime()), 
-      //   dates: {returnDate: MoreThan(new Date())}
-      // }
-    ]
+  return await userFlightTypeORM.find({
+    where:
+    {
+      isBeingScanned: false, nextScan: MoreThan(new Date()),
+      dates: { returnDate: MoreThan(new Date()) }
+    }
+
   })
 }
 
@@ -195,7 +194,46 @@ const _checkIfFlightTimeForScan_old = async () => {
   });
 };
 
-export const checkIfFlightTimeForScanAndUpdate = async () => {
+export const checkIfFlightTimeForScanAndUpdate = async (): Promise<UserFlightTypeORM | false> => {
+  console.log("Testing checkIfFlightTimeForScanAndUpdate")
+  // const userFlight = await userFlightTypeORM.createQueryBuilder("userFlights")
+  //   .leftJoinAndSelect("userFlights.dates", "dates")
+  //   .where('"isBeingScanned" = :isBeingScanned', {isBeingScanned: false})
+  //   .andWhere('"nextScan" < :date', {date: new Date()})
+  //   .andWhere('dates.returnDate > :date', {date: new Date()})
+  //   .getOne()
+
+  const userFlight = await userFlightTypeORM.findOne({
+    where: {
+      isBeingScanned: false,
+      nextScan: LessThan(new Date()),
+      dates: {
+        returnDate: MoreThan(new Date())
+      }
+    }
+  })
+
+
+  console.log(userFlight)
+  if (!userFlight) return false
+  userFlight.isBeingScanned = true;
+  await userFlightTypeORM.save(userFlight);
+  return userFlight;
+  // return await AppDataSource.transaction(async (transactionalEntityManager) => {
+  //   const userFlight = await transactionalEntityManager
+  //     .createQueryBuilder(UserFlightTypeORM, "userFlights")
+  //     .leftJoinAndSelect("userFlights.dates", "dates")
+  //     .where('"isBeingScanned" = :isBeingScanned', {isBeingScanned: false})
+  //     .andWhere('"nextScan" < :date', {date: new Date()})
+  //     .andWhere('dates.returnDate > :date', {date: new Date()})
+  //     .getOne()
+
+
+  // })
+
+}
+
+export const checkIfFlightTimeForScanAndUpdateOld = async () => {
   console.log(`checkIfFlightTimeForScan Fired`);
 
   // Next Scan adds 43200000ms to the last scan. If the current time is over this, then we want to scan
@@ -248,18 +286,29 @@ const updateUserByReference = async (reference: string) => {
   console.log(`Reference is ${reference}`);
   const flightUser = await getUserFlightByReference(reference);
   console.log("Flight User found");
-  flightUser.dates.departureDateString = dayjs(
-    flightUser.dates.departureDate
-  ).format("dddd DD MMMM YYYY");
-  flightUser.dates.returnDateString = dayjs(flightUser.dates.returnDate).format(
-    "dddd DD MMMM YYYY"
-  );
-  console.log(flightUser.dates.returnDateString);
-  await flightUser.save();
-  return flightUser.dates.departureDateString &&
-    flightUser.dates.returnDateString
-    ? true
-    : false;
+  if (flightUser) {
+    console.log(flightUser.dates.id)
+    await userFlightDateORM.update({id: flightUser.dates.id}, {departureDateString: dayjs(
+      flightUser.dates.departureDate
+    ).format("dddd DD MMMM YYYY"), returnDateString: dayjs(flightUser.dates.returnDate).format(
+      "dddd DD MMMM YYYY"
+    )})
+
+    // flightUser.dates.departureDateString = dayjs(
+    //   flightUser.dates.departureDate
+    // ).format("dddd DD MMMM YYYY");
+    // flightUser.dates.returnDateString = dayjs(flightUser.dates.returnDate).format(
+    //   "dddd DD MMMM YYYY"
+    // );
+    // console.log(flightUser.dates.returnDateString);
+    // await flightUser.save();
+
+    return flightUser.dates.departureDateString &&
+      flightUser.dates.returnDateString
+      ? true
+      : false;
+  }
+
 };
 
 const userTest = () => {
@@ -268,14 +317,19 @@ const userTest = () => {
 
 export const getUserFlightByReference = async (reference: string) => {
   console.log(`Fired getUserFlightByReference`);
-  return await userFlightDatabase.findOne({ ref: reference });
+  return await userFlightTypeORM.findOneBy({ ref: reference });
 };
 
-export const changeFlightScanStatusByReference = async (reference: string, status: string) => {
+export const changeFlightScanStatusByReferenceId = async (reference: string, status: boolean) => {
   const UserFlight = await getUserFlightByReference(reference);
-  UserFlight.isBeingScanned = status;
-  await UserFlight.save();
+  if (UserFlight) return await userFlightTypeORM.update({ id: UserFlight.id }, { isBeingScanned: true })
 };
+
+// export const changeFlightScanStatusByReferenceOld = async (reference: string, status: string) => {
+//   const UserFlight = await getUserFlightByReference(reference);
+//   UserFlight.isBeingScanned = status;
+//   await UserFlight.save();
+// };
 
 export const searchFlightByPID = async (workerPID: number) => {
   console.log(`searchFlightByPID fired`);
@@ -284,8 +338,7 @@ export const searchFlightByPID = async (workerPID: number) => {
 
 export const changePIDByReference = async (reference: string, workerPID: number) => {
   const UserFlight = await getUserFlightByReference(reference);
-  UserFlight.workerPID = workerPID;
-  await UserFlight.save();
+  if (UserFlight) return await userFlightTypeORM.update({ id: UserFlight.id }, { workerPID })
 };
 
 export const changeFlightScanStatusByPID = async (workerPID: number, status: string) => {
@@ -454,7 +507,7 @@ module.exports = {
   checkIfAllFlightTimeForScan,
   checkIfFlightTimeForScan,
   getUserFlightByReference,
-  changeFlightScanStatusByReference,
+  changeFlightScanStatusByReferenceId,
   changePIDByReference,
   searchFlightByPID,
   changeFlightScanStatusByPID,

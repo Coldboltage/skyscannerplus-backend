@@ -1,6 +1,6 @@
 import "reflect-metadata"
 import { DataSource } from "typeorm"
-import { UserFlightTypeORM, ScanDateORM, DepartureDate, ReturnDatesORM } from "./entity/user-flight.entity"
+import { UserFlightTypeORM, ScanDateORM, DepartureDate, ReturnDatesORM, Dates } from "./entity/user-flight.entity"
 import { User } from "./entity/user.entity"
 
 export const AppDataSource = new DataSource({
@@ -12,7 +12,7 @@ export const AppDataSource = new DataSource({
     database: 'postgres',
     synchronize: true,
     logging: false,
-    entities: [UserFlightTypeORM, ScanDateORM, DepartureDate, ReturnDatesORM, User],
+    entities: [UserFlightTypeORM, ScanDateORM, DepartureDate, ReturnDatesORM, User, Dates],
     migrations: [],
     subscribers: [],
 })

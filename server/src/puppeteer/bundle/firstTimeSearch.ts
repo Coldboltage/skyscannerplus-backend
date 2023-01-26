@@ -3,22 +3,20 @@ var xvfb = new Xvfb({
   silent: true,
   xvfb_args: ["-screen", "0", '1920x1080x24', "-ac"],
 });
-xvfb.start((err)=>{if (err) console.error(err)})
+xvfb.start((err: any) => { if (err) console.error(err) })
 
 // puppeteer-extra is a drop-in replacement for puppeteer,
 // it augments the installed puppeteer with plugin functionality
-const puppeteer = require("puppeteer-extra");
+import puppeteer from "puppeteer-extra";
 
 // add stealth plugin and use defaults (all evasion techniques)
-const StealthPlugin = require("puppeteer-extra-plugin-stealth");
+import StealthPlugin from "puppeteer-extra-plugin-stealth";
 puppeteer.use(StealthPlugin());
 
 // const AdblockerPlugin = require("puppeteer-extra-plugin-adblocker");
 // puppeteer.use(AdblockerPlugin({ blockTrackers: true }));
 
 // const PuppeteerExtraPluginProxy = require("puppeteer-extra-plugin-proxy2");
-const pluginProxy = require("puppeteer-extra-plugin-proxy");
-const ipExport = require("../../../services/proxies")
 
 console.log()
 
@@ -36,16 +34,22 @@ console.log()
 // );
 
 // Database
-const FlightsDatabase = require("../../models/userFlight.mongo");
+import FlightsDatabase from "../../models/userFlight.mongo";
 
 // Puppeteer Modules
-const skyscannerHomePage = require("../individual/skyscannerHomepage.puppeteer");
-const datePage = require("../individual/datePage.puppeteer");
+import skyscannerHomePage from "../individual/skyscannerHomepage.puppeteer";
+import datePage from "../individual/datePage.puppeteer";
+
+// TypeORM
+import { UserFlightTypeORM } from "../../entity/user-flight.entity";
+import { AppDataSource } from "../../data-source";
+import { Page } from "puppeteer";
+const userFlightTypeORMDatabase = AppDataSource.getRepository(UserFlightTypeORM)
 
 // Test
 const todaysDate = new Date();
 
-const main = async (reference) => {
+const main = async (reference: string) => {
   console.log("Starting Main");
   let browser = await puppeteer.launch({
     // slowMo: 20,
@@ -88,37 +92,19 @@ const main = async (reference) => {
   const pages = await browser.pages();
   await pages[0].close();
   // If the reference exists, add the scan in scanDate
-  if (reference) {
-    user = await FlightsDatabase.findOne({ ref: reference });
-    console.log(user);
-  } else {
-    user = {
-      user: {
-        name: "Alan Reid",
-        email: "alandreid@hotmail.co.uk",
-      },
-      ref: "bangok-september",
-      flights: {
-        departure: "Dublin (DUB)",
-        arrival: "Bangkok (Any)",
-      },
-      dates: {
-        departureDate: "2022-09-01",
-        returnDate: "2022-09-28",
-        minimalHoliday: 14,
-        maximumHoliday: 28,
-      },
-      isBeingScanned: false,
-      workerPID: 0,
-    };
-    await FlightsDatabase.create(user);
-  }
+
+  const userFlight = await userFlightTypeORMDatabase.findOneBy({ ref: reference });
+  if (!userFlight) return false
+  console.log(userFlight);
+
   // Execute skyscannerHomePage
 
-  let { page: datePageData, url, verifyNames } = await skyscannerHomePage(page, user);
+  let results = await skyscannerHomePage(page, userFlight);
+  if (!results) return false
+  const { page: datePageData, url, verifyNames } = results
   console.log(url);
-  const verifyFlights = await datePage(datePageData, browser, user, puppeteer, url, verifyNames);
-  return {user, verifyFlights};
+  const verifyFlights = await datePage(datePageData, browser, userFlight, puppeteer, url, verifyNames);
+  return { userFlight, verifyFlights };
 };
 
-module.exports = main;
+export default main;

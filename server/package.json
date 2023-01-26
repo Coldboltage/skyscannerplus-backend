@@ -17,6 +17,7 @@
    "author": "",
    "license": "ISC",
    "dependencies": {
+      "@types/puppeteer": "^7.0.4",
       "class-validator": "^0.14.0",
       "pg": "^8.4.0",
       "reflect-metadata": "^0.1.13",
