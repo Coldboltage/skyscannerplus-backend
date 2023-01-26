@@ -91,8 +91,6 @@ export class UserFlightTypeORM {
   scannedLast: number;
   @Column()
   nextScan: Date;
-  @Column()
-  nextScanDate: Date;
   @Column({ nullable: true })
   screenshot?: string;
   @Column()

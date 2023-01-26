@@ -162,7 +162,7 @@ export const checkIfFlightTimeForScan = async () => {
   return await userFlightTypeORM.find({
     where:
     {
-      isBeingScanned: false, nextScan: MoreThan(new Date()),
+      isBeingScanned: false, nextScan: LessThan(new Date()),
       dates: { returnDate: MoreThan(new Date()) }
     }
 
@@ -202,7 +202,6 @@ export const checkIfFlightTimeForScanAndUpdate = async (): Promise<UserFlightTyp
   //   .andWhere('"nextScan" < :date', {date: new Date()})
   //   .andWhere('dates.returnDate > :date', {date: new Date()})
   //   .getOne()
-
   const userFlight = await userFlightTypeORM.findOne({
     where: {
       isBeingScanned: false,
@@ -212,7 +211,6 @@ export const checkIfFlightTimeForScanAndUpdate = async (): Promise<UserFlightTyp
       }
     }
   })
-
 
   console.log(userFlight)
   if (!userFlight) return false
