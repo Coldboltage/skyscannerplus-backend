@@ -157,10 +157,11 @@ const fireEvents = async (reference: string) => {
     console.log(`It's false`);
     return false;
   }
-  if (userFlight) {
-    await cheapestFlightScannedToday(userFlight);
-    await checkMaximumHoliday(userFlight.ref);
-  }
+  // Temp change 💥💥💥💥💥
+  // if (userFlight) {
+  //   await cheapestFlightScannedToday(userFlight);
+  //   await checkMaximumHoliday(userFlight.ref);
+  // }
 
 
 };
