@@ -124,7 +124,7 @@ export class UserFlightTypeORM {
 export class ScanDateORM {
   @PrimaryGeneratedColumn('uuid')
   id?: string;
-  @Column({ type: 'date' })
+  @Column({ type: 'timestamp' })
   dateOfScanLoop: Date;
   @ManyToOne(() => UserFlightTypeORM)
   userFlight: UserFlightTypeORM;
