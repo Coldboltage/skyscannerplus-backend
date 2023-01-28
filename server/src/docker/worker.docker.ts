@@ -15,7 +15,6 @@ import "reflect-metadata"
 
 import searchFlights from "../puppeteer/bundle/firstTimeSearch";
 import { cheapestFlightScannedToday, checkMaximumHoliday, checkIfFlightTimeForScan, getAllDocuments, changeFlightScanStatusByReferenceId, changePIDByReference, changeFlightScanStatusByPID, changePIDToZero, checkAmountOfProcessesInUse, getUserFlightByReference, checkIfAllFlightTimeForScan, searchFlightByPID, checkFlightsBeingScanned, checkIfFlightTimeForScanAndUpdate, statusChangeByReference } from "../models/userFlight.model";
-
 // Database things
 import { mongoConnect } from "../../services/mongo";
 import { AppDataSource } from "../data-source";
@@ -298,7 +297,6 @@ const fireAllJobs = async () => {
       flightToBeScanned.workerPID = process.pid
       await changePIDByReference(reference, process.pid);
       console.log(`${reference} - scan started`);
-      // await new Promise((r) => setTimeout(r, 20000000));
       // await statusChangeByReference(reference, "running")
       await fireEvents(reference);
       console.log(`Worker ${process.pid} ended`);

@@ -597,19 +597,20 @@ const datePage = async (
   console.log(flightScannerObject);
   // userFlight.scanDate.push(flightScannerObject);
   console.log("Applying Database Changed to isBeingScanned and workerPID");
-  userFlight.isBeingScanned = false;
-  userFlight.workerPID = 0;
-  userFlight.scannedLast = new Date().getTime();
-  userFlight.nextScan = nextScan;
-  userFlight.lastUpdated = new Date().getTime();
-  userFlight.status = "completed";
+  // userFlight.isBeingScanned = false;
+  // userFlight.workerPID = 0;
+  // userFlight.scannedLast = new Date().getTime();
+  // userFlight.nextScan = nextScan;
+  // userFlight.lastUpdated = new Date().getTime();
+  // userFlight.status = "completed";
   await UserFlightTypeORMDatabase.update({ id: userFlight.id }, {
     isBeingScanned: false,
     workerPID: 0,
     scannedLast: new Date().getTime(),
     nextScan: nextScan,
     lastUpdated: new Date().getTime(),
-    status: "completed"
+    status: "completed",
+    alertPriceFired: false,
   });
 
   console.log("Saved");
