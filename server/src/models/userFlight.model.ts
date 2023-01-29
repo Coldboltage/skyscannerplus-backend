@@ -5,7 +5,6 @@ import { where } from "./userFlight.mongo";
 
 const userFlightDatabase = require("./userFlight.mongo");
 const searchFlights = require("../puppeteer/bundle/firstTimeSearch");
-const testEmail = require("../../services/reference.email");
 const dayjs = require("dayjs");
 // TYPEORM
 
@@ -24,7 +23,7 @@ const getAllReferences = async () => {
   return references;
 };
 
-const checkIfScanDead = async () => {
+export const checkIfScanDead = async () => {
   const time = new Date().getTime() - 120000;
   const userFlight = await userFlightDatabase.find(
     {
@@ -84,59 +83,67 @@ export const checkIfAllFlightTimeForScan = async () => {
   return test
 };
 
-const checkIfAllFlightTimeForScanAndIfScansHappening = async () => {
+export const checkIfAllFlightTimeForScanAndIfScansHappening = async () => {
   console.log(`checkIfFlightTimeForScan Fired`);
   const currentTime = new Date().getTime() - 30000;
   // Next Scan adds 43200000ms to the last scan. If the current time is over this, then we want to scan
   // return await userFlightDatabase.find({$or : [ {isBeingScanned: false},{nextScan: 0}, {nextScan: {$lt: new Date().getTime() }}]});
-  const test = await userFlightDatabase.find({
-    $or: [
-      {
-        $and: [
-          { isBeingScanned: false },
-          { nextScan: 0 },
-          { "dates.returnDate": { $gt: new Date().toISOString() } },
-        ],
-      },
-      {
-        $and: [
-          { isBeingScanned: false },
-          { nextScan: { $lt: new Date().getTime() } },
-          { "dates.returnDate": { $gt: new Date().toISOString() } },
-        ],
-      },
-      {
-        $and: [
-          { isBeingScanned: true },
-          { "dates.returnDate": { $gt: new Date().toISOString() } },
-        ],
-      },
-      {
-        // Don't delete too early, give process time to quit
-        $and: [
-          { isBeingScanned: false },
-          { lastUpdated: { $gt: currentTime } },
-          { status: "completed" },
-          // Need a way to know if the job actually finished to cancel this then gg.
-          { "dates.returnDate": { $gt: new Date().toISOString() } },
-        ],
-      },
-      // {
-      //   // If it crashes, this will fix it.
-      //   $and: [
-      //     { isBeingScanned: true },
-      //     { lastUpdated: { $gt: currentTime - 80000 } },
-      //     { status: "running" },
-      //     // Need a way to know if the job actually finished to cancel this then gg.
-      //     { "dates.returnDate": { $gt: new Date().toISOString() } },
-      //   ],
-      // },
-    ],
-  });
-  return +test.length;
+  const testNew = await userFlightTypeORM.find({
+    where: [
+      // Max amount of replicas needed when needed = check the amount of scans needed
+      {isBeingScanned: false, nextScan: LessThan(new Date()), dates: {returnDate: MoreThan(new Date())}},
+      // When 0 scans but jobs still going on, keep replicas open = check for current scans
+      { isBeingScanned: true },
+    ]
+  })
+  // const test = await userFlightDatabase.find({
+  //   $or: [
+  //     // {
+  //     //   $and: [
+  //     //     { isBeingScanned: false },
+  //     //     { nextScan: 0 },
+  //     //     { "dates.returnDate": { $gt: new Date().toISOString() } },
+  //     //   ],
+  //     // },
+  //     // {
+  //     //   $and: [
+  //     //     { isBeingScanned: false },
+  //     //     { nextScan: { $lt: new Date().getTime() } },
+  //     //     { "dates.returnDate": { $gt: new Date().toISOString() } },
+  //     //   ],
+  //     // },
+  //     {
+  //       $and: [
+  //         { isBeingScanned: true },
+  //         { "dates.returnDate": { $gt: new Date().toISOString() } },
+  //       ],
+  //     },
+  //     {
+  //       // Don't delete too early, give process time to quit
+  //       $and: [
+  //         { isBeingScanned: false },
+  //         { lastUpdated: { $gt: currentTime } },
+  //         { status: "completed" },
+  //         // Need a way to know if the job actually finished to cancel this then gg.
+  //         { "dates.returnDate": { $gt: new Date().toISOString() } },
+  //       ],
+  //     },
+  //     // {
+  //     //   // If it crashes, this will fix it.
+  //     //   $and: [
+  //     //     { isBeingScanned: true },
+  //     //     { lastUpdated: { $gt: currentTime - 80000 } },
+  //     //     { status: "running" },
+  //     //     // Need a way to know if the job actually finished to cancel this then gg.
+  //     //     { "dates.returnDate": { $gt: new Date().toISOString() } },
+  //     //   ],
+  //     // },
+  //   ],
+  // });
+  return +testNew.length;
 };
 
-const oneHundredSecondWait = async () => {
+export const oneHundredSecondWait = async () => {
   console.log("Will this be worked on is this question");
   const numberTest = new Date().valueOf() - 100000;
   console.log(numberTest);
@@ -487,6 +494,13 @@ export const statusChangeByReference = async (reference: string, status: string)
   userFlight.status = status;
   await userFlight.save();
 };
+
+export const fiveMinuteUpdateCheck = async () => {
+  // Check if an active search hasn't been updated in the last five minutes.
+  await userFlightTypeORM.update({
+    lastUpdated: MoreThan(new Date().getTime() - 300000), isBeingScanned: true
+  }, {isBeingScanned: false, nextScan: new Date().getTime() + 6000000})
+}
 
 const consoleOutput = async (cheapestFlightsOrder: any, bestFlightsOrder: any) => {
   console.log("#################");

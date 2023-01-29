@@ -17,32 +17,34 @@ import searchFlights from "../puppeteer/bundle/firstTimeSearch";
 import { cheapestFlightScannedToday, checkMaximumHoliday, checkIfFlightTimeForScan, getAllDocuments, changeFlightScanStatusByReferenceId, changePIDByReference, changeFlightScanStatusByPID, changePIDToZero, checkAmountOfProcessesInUse, getUserFlightByReference, checkIfAllFlightTimeForScan, searchFlightByPID, checkFlightsBeingScanned, checkIfFlightTimeForScanAndUpdate, statusChangeByReference } from "../models/userFlight.model";
 
 // Database things
-import { mongoConnect } from "../../services/mongo";
+// import { mongoConnect } from "../../services/mongo";
 import { AppDataSource } from "../data-source";
 import { User } from "../entity/user.entity";
 import { UserFlightTypeORM } from "../entity/user-flight.entity";
 
-(async () => {
-  await mongoConnect();
-})();
+// (async () => {
+//   await mongoConnect();
+// })();
 
-
-AppDataSource.initialize()
-  .then(async () => {
-    console.log("Database has been setup ✅")
-    const userRepository = AppDataSource.getRepository(User)
-    const test = await userRepository.find()
-    console.log(test)
-    const userFlightRepository = AppDataSource.getRepository(UserFlightTypeORM)
-    const nextTest = await userFlightRepository.find({
-      // relations: {
-      //   dates: true
-      // }
+// (async () => {
+const startDatabase = async () => {
+  await AppDataSource.initialize()
+    .then(async () => {
+      console.log("Database has been setup ✅")
+      const userRepository = AppDataSource.getRepository(User)
+      const test = await userRepository.find()
+      console.log(test)
+      const userFlightRepository = AppDataSource.getRepository(UserFlightTypeORM)
+      const nextTest = await userFlightRepository.find({
+        // relations: {
+        //   dates: true
+        // }
+      })
+      console.log(nextTest[0].dates)
     })
-    console.log(nextTest[0].dates)
-  })
-  .catch((error) => console.log(`❌❌ Database broke ❌❌ - ${error}`))
-
+    .catch((error) => console.log(`❌❌ Database broke ❌❌ - ${error}`))
+}
+// })();
 // ON_DEATH(function(SIGTERM, err) {
 //   try {
 //     var replicateCount = await axios(
@@ -231,8 +233,8 @@ const fireAllJobs = async () => {
   //   const check = await checkIfJobAvailable();
   //   return check ? true : false;
   // };
-  const cpusCurrentlyBeingUsed = await checkAmountOfProcessesInUse();
-  console.log(`How many CPUs in use? ${cpusCurrentlyBeingUsed}`);
+  // const cpusCurrentlyBeingUsed = await checkAmountOfProcessesInUse();
+  // console.log(`How many CPUs in use? ${cpusCurrentlyBeingUsed}`);
 
   // if (cluster.isPrimary) {
   //   console.log(`Primary ${process.pid} is running`);
@@ -278,8 +280,11 @@ const fireAllJobs = async () => {
   // );
   // console.log(`What is this worker ID ${cluster.worker.id}`);
   // let test = await checkIfUserFlightAvailable()
+  console.log("AGHHHHH")
   let test = await checkIfFlightTimeForScanAndUpdate();
   while (test) {
+    console.log('✅✅✅');
+
     // const flightToBeScanned = await checkIfFlightTimeForScanAndUpdate();
     const flightToBeScanned = test;
 
@@ -439,7 +444,9 @@ const fireAllJobs = async () => {
 };
 
 const main = async () => {
-  await new Promise((r) => setTimeout(r, Math.ceil(Math.random() * 4) * 1000));
+  await startDatabase()
+  console.log("Alan what is this")
+  // await new Promise((r) => setTimeout(r, Math.ceil(Math.random() * 4) * 1000));
   await fireAllJobs();
   // cron.schedule("0 */12 * * *", async () => {
   // cron.schedule("*/1 * * * *", async () => {

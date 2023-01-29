@@ -1,8 +1,8 @@
-const path = require("path");
+import path from "path";
 require("dotenv").config(path.join(__dirname, "..", "..", "..", ".env"));
 console.log(path.join(__dirname, "..", "..", ".env"));
 const cron = require("node-cron");
-const cluster = require("node:cluster");
+import cluster from "node:cluster";
 const numCPUs = require("node:os").cpus().length;
 // const process = require("node:process");
 const axios = require("axios").default;
@@ -12,32 +12,35 @@ import "reflect-metadata"
 
 // Puppeteer Bundles / Individuals
 
-const searchFlights = require("../puppeteer/bundle/firstTimeSearch");
-const {
-  cheapestFlightScannedToday,
-  checkMaximumHoliday,
-  checkIfFlightTimeForScan,
-  getAllDocuments,
-  changeFlightScanStatusByReference,
-  changePIDByReference,
-  changeFlightScanStatusByPID,
-  changePIDToZero,
-  checkAmountOfProcessesInUse,
-  getUserFlightByReference,
-  checkIfAllFlightTimeForScan,
-  searchFlightByPID,
-  checkFlightsBeingScanned,
-  oneHundredSecondWait,
-  checkIfAllFlightTimeForScanAndIfScansHappening,
-  checkIfScanDead,
-} = require("../models/userFlight.model");
+import searchFlights from "../puppeteer/bundle/firstTimeSearch";
+import { cheapestFlightScannedToday, checkMaximumHoliday, checkIfFlightTimeForScan, getAllDocuments, changePIDByReference, changeFlightScanStatusByPID, changePIDToZero, checkAmountOfProcessesInUse, getUserFlightByReference, checkIfAllFlightTimeForScan, searchFlightByPID, checkFlightsBeingScanned, oneHundredSecondWait, checkIfAllFlightTimeForScanAndIfScansHappening, checkIfScanDead, fiveMinuteUpdateCheck } from "../models/userFlight.model";
 
 // Database things
-const { mongoConnect } = require("../../services/mongo");
+import { mongoConnect } from "../../services/mongo";
+import { AppDataSource } from "../data-source";
+import { UserFlightTypeORM } from "../entity/user-flight.entity";
+import { User } from "../entity/user.entity";
 
-(async () => {
-  await mongoConnect();
-})();
+const startDatabase = async () => {
+  AppDataSource.initialize()
+    .then(async () => {
+      console.log("Database has been setup ✅")
+      const userRepository = AppDataSource.getRepository(User)
+      // const test = await userRepository.find()
+      // console.log(test)
+      const userFlightRepository = AppDataSource.getRepository(UserFlightTypeORM)
+      // const nextTest = await userFlightRepository.find({
+      // relations: {
+      //   dates: true
+      // }
+      // })
+      // console.log(nextTest[0].dates)
+    })
+    .catch((error) => console.log(`❌❌ Database broke ❌❌ - ${error}`))
+}
+// (async () => {
+//   await mongoConnect();
+// })();
 
 // const server = http.createServer(app);
 
@@ -64,16 +67,16 @@ const numberOfScansNeeded = async () => {
   return numberScans.length;
 };
 
-const fireEvents = async (reference: string) => {
-  const { user: userFlight, verifyFlights } = await searchFlights(reference);
-  console.log(`What is this ${verifyFlights}`);
-  if (verifyFlights === false) {
-    console.log(`It's false`);
-    return false;
-  }
-  await cheapestFlightScannedToday(userFlight);
-  await checkMaximumHoliday(userFlight.ref);
-};
+// const fireEvents = async (reference: string) => {
+//   const { user: userFlight, verifyFlights } = await searchFlights(reference);
+//   console.log(`What is this ${verifyFlights}`);
+//   if (verifyFlights === false) {
+//     console.log(`It's false`);
+//     return false;
+//   }
+//   await cheapestFlightScannedToday(userFlight);
+//   await checkMaximumHoliday(userFlight.ref);
+// };
 
 const initSwarm = async () => {
   await oneHundredSecondWait();
@@ -161,7 +164,7 @@ const initSwarm = async () => {
             MaxReplicas: 3,
           },
           ContainerSpec: {
-            Image: "coldbolt/skyscannerplus-checker-worker:0.2.2",
+            Image: "coldbolt/skyscannerplus-checker-worker:0.2.4",
           },
           Resources: {
             Reservations: { NanoCPUs: 1000000000 },
@@ -211,27 +214,26 @@ const fireAllJobs = async () => {
     }
   };
 
-  const checkIfUserFlightAvailable = async () => {
-    // Check to see if any flights should be scanned now
-    console.log("Fired checkIfUserFlightAvailable");
-    return await checkIfFlightTimeForScan();
-    // Verification if we're good to go with that user incase something is wrong
-    // const checkForUserFlightOutcome = await shouldThisFlightBeScanned(checkForUserFlight);
-  };
-  const checkIfJobAvailable = async () => {
-    console.log("I have fired checkIfJobAvailable");
-    return await checkIfUserFlightAvailable();
-  };
-  const checkIfJobAvailableQuestion = async () => {
-    const check = await checkIfJobAvailable();
-    return check ? true : false;
-  };
+  // const checkIfUserFlightAvailable = async () => {
+  //   // Check to see if any flights should be scanned now
+  //   return await checkIfFlightTimeForScan();
+  //   // Verification if we're good to go with that user incase something is wrong
+  //   // const checkForUserFlightOutcome = await shouldThisFlightBeScanned(checkForUserFlight);
+  // };
+  // const checkIfJobAvailable = async () => {
+  //   console.log("I have fired checkIfJobAvailable");
+  //   return await checkIfUserFlightAvailable();
+  // };
+  // const checkIfJobAvailableQuestion = async () => {
+  //   const check = await checkIfJobAvailable();
+  //   return check ? true : false;
+  // };
 
   // Checks the amount of processes being used via looking at PID over 0.
-  const cpusCurrentlyBeingUsed = await checkAmountOfProcessesInUse();
-  console.log(`How many CPUs in use? ${cpusCurrentlyBeingUsed}`);
-
+  // const cpusCurrentlyBeingUsed = await checkAmountOfProcessesInUse();
+  // console.log(`How many CPUs in use? ${cpusCurrentlyBeingUsed}`);
   if (cluster.isPrimary) {
+    await fiveMinuteUpdateCheck()
     // console.log(`Primary ${process.pid} is running`);
     // Create new containers.
     // await new Promise((r) => setTimeout(r, 200000));
@@ -239,19 +241,19 @@ const fireAllJobs = async () => {
     // cpusCurrentlyBeingUsed previously checked the amount of jobs being performed. We don't need this anymore
     // Docker will create new machines based upon the work which we currently have.
     // An upper limit of jobs can be undertaken
-    // if (cpusCurrentlyBeingUsed < 3 && await checkIfJobAvailable()) {
-    console.log("The for loop for cluster.isPrimary has been fired");
-    console.log("cpuInUse is currently: " + cpusCurrentlyBeingUsed);
-    console.log(
-      `What is checkIfJobAvailable: ${await checkIfJobAvailableQuestion()}`
-    );
+    // // if (cpusCurrentlyBeingUsed < 3 && await checkIfJobAvailable()) {
+    // console.log("The for loop for cluster.isPrimary has been fired");
+    // console.log("cpuInUse is currently: " + cpusCurrentlyBeingUsed);
+    // console.log(
+    //   `What is checkIfJobAvailable: ${await checkIfJobAvailableQuestion()}`
+    // );
     // It checks if any job is available which will return true
     // if (await checkIfJobAvailableQuestion()) {
     // if (1>2) {
     // const response = await axios("http://35.179.15.157:2375/v1.41/version");
     const response = await axios("http://localhost:2375/v1.41/version");
     // console.log(response.data);
-    const areThereDeadJobs = await checkIfScanDead();
+    // const areThereDeadJobs = await checkIfScanDead();
     // Check for tasks which have died
     try {
       var replicateCount = await axios(
@@ -265,16 +267,16 @@ const fireAllJobs = async () => {
       );
       // Find amount of scans currently
 
-      var checkFlightsBeingScannedNow = await checkFlightsBeingScanned();
-      console.log(
-        `Amount of flights being scanned ${checkFlightsBeingScannedNow}`
-      );
+      // var checkFlightsBeingScannedNow = await checkFlightsBeingScanned();
+      // console.log(
+      //   `Amount of flights being scanned ${checkFlightsBeingScannedNow}`
+      // );
       // Versus out the number of scans needed
-      var numberOfScansNeededNow = await numberOfScansNeeded();
-      var oneHundredSecondWaitResult = await oneHundredSecondWait();
-      console.log(`Number of scans needed: ${numberOfScansNeededNow}`);
+      // var numberOfScansNeededNow = await numberOfScansNeeded();
+      // var oneHundredSecondWaitResult = await oneHundredSecondWait();
+      // console.log(`Number of scans needed: ${numberOfScansNeededNow}`);
       console.log("####################");
-      console.log(oneHundredSecondWaitResult);
+      // console.log(oneHundredSecondWaitResult);
       // await new Promise((r) => setTimeout(r, 10000));
 
       // await new Promise((r) => setTimeout(r, 2000));
@@ -284,24 +286,26 @@ const fireAllJobs = async () => {
     }
     const momentOfTruthNew =
       await checkIfAllFlightTimeForScanAndIfScansHappening();
-
+    console.log(momentOfTruthNew)
     let endedTaskListAmount;
 
     try {
+      console.log("try block fired");
+
       const taskList = await axios("http://localhost:2375/v1.41/tasks");
       // console.log(taskList.data);
-      const currentTime = new Date().getTime();
+      // const currentTime = new Date().getTime();
       const endedTaskList = taskList.data.filter((task: any) => {
         console.log(
           task.Status.State === "completed" ||
-            task.Status.State === "pending" ||
-            task.Status.State === "failed" ||
-            task.Status.State === "shutdown"
+          // task.Status.State === "pending" ||
+          task.Status.State === "failed" ||
+          task.Status.State === "shutdown"
           // && new Date(task.UpdatedAt).getTime() < currentTime - 30000
         );
         if (
           task.Status.State === "completed" ||
-          task.Status.State === "pending" ||
+          // task.Status.State === "pending" ||
           task.Status.State === "failed" ||
           task.Status.State === "shutdown"
           // && new Date(task.UpdatedAt).getTime() < currentTime - 30000
@@ -324,24 +328,87 @@ const fireAllJobs = async () => {
       // const test = await axios.post(
       //   `http://35.179.15.157:2375/v1.41/services/worker/update?version=${replicateCount.data.Version.Index}`,
       //   {
-      const makeSureBottomNumberZero = () => {
-        const test = 6 >= momentOfTruthNew ? momentOfTruthNew : 6;
-        return test <= -1 ? 0 : test;
-      };
-      const tester = makeSureBottomNumberZero();
-      console.log(makeSureBottomNumberZero());
+      // const makeSureBottomNumberZero = () => {
+      //   const test = 6 >= momentOfTruthNew ? momentOfTruthNew : 6;
+      //   return test <= -1 ? 0 : test;
+      // };
+      // const tester = makeSureBottomNumberZero();
+      // console.log(makeSureBottomNumberZero());
       await new Promise((r) => setTimeout(r, 1000));
+      // End game play. We want to know the amount of Replicas we need to fire at any one time. Break that down
+      // Max amount of replicas needed when needed = check the amount of scans needed
+      // When 0 scans but jobs still going on, keep replicas open = check for current scans
+      // If all scans done and no more scans needed, there should be no more scans
+      // await axios.post(
+      //   `http://localhost:2375/v1.41/services/worker/update?version=${replicateCount.data.Version.Index}`,
+      //   {
+      //     Name: "worker",
+      //     Mode: {
+      //       Replicated: {
+      //       //   Replicas:
+      //       //     endedTaskListAmount > 0
+      //       //       ? taskList.data.length - endedTaskListAmount
+      //       //       : tester,
+      //       // },
+      //       Replicas: await checkIfAllFlightTimeForScanAndIfScansHappening() 
+      //       }
+      //     },
+      //     RollbackConfig: {
+      //       Delay: 1000000000,
+      //       FailureAction: "pause",
+      //       MaxFailureRatio: 0.15,
+      //       Monitor: 15000000000,
+      //       Parallelism: 1,
+      //     },
+      //     TaskTemplate: {
+      //       Placement: {
+      //         MaxReplicas: 3,
+      //       },
+      //       ContainerSpec: {
+      //         Image: "coldbolt/skyscannerplus-checker-worker:0.2.2",
+      //       },
+      //       Resources: {
+      //         Reservations: { NanoCPUs: 1000000000 },
+      //       },
+      //       RestartPolicy: {
+      //         Condition: "none",
+      //         MaxAttempts: 0,
+      //       },
+      //     },
+      //     UpdateConfig: {
+      //       Delay: 1000000000,
+      //       FailureAction: "pause",
+      //       MaxFailureRatio: 0.15,
+      //       Monitor: 15000000000,
+      //       Parallelism: 2,
+      //     },
+      //   }
+      // );
+
+      // Add scans that are needed if needed
+      console.log("############################### Big test ###############################")
+      console.log(await checkIfAllFlightTimeForScanAndIfScansHappening() - (endedTaskList.length))
+      console.log(`List of running tasks+needed: ${await checkIfAllFlightTimeForScanAndIfScansHappening()}`)
+      console.log(`List of tasks: ${taskList.data.length}`)
+      console.log(`List of ended tasks: ${endedTaskList.length}`)
+
+
+      await new Promise((r) => setTimeout(r, 10000));
       const test = await axios.post(
         `http://localhost:2375/v1.41/services/worker/update?version=${replicateCount.data.Version.Index}`,
         {
           Name: "worker",
           Mode: {
             Replicated: {
-              Replicas:
-                endedTaskListAmount > 0
-                  ? taskList.data.length - endedTaskListAmount
-                  : tester,
-            },
+              //   Replicas:
+              //     endedTaskListAmount > 0
+              //       ? taskList.data.length - endedTaskListAmount
+              //       : tester,
+              // },
+              // Replicas: ((await checkIfAllFlightTimeForScanAndIfScansHappening()) - (endedTaskList.length))
+              Replicas: await checkIfAllFlightTimeForScanAndIfScansHappening(),
+
+            }
           },
           RollbackConfig: {
             Delay: 1000000000,
@@ -355,7 +422,7 @@ const fireAllJobs = async () => {
               MaxReplicas: 3,
             },
             ContainerSpec: {
-              Image: "coldbolt/skyscannerplus-checker-worker:0.2.2",
+              Image: "coldbolt/skyscannerplus-checker-worker:0.2.4", 
             },
             Resources: {
               Reservations: { NanoCPUs: 1000000000 },
@@ -396,16 +463,16 @@ const fireAllJobs = async () => {
       );
       // Find amount of scans currently
 
-      var checkFlightsBeingScannedNow = await checkFlightsBeingScanned();
-      console.log(
-        `Amount of flights being scanned ${checkFlightsBeingScannedNow}`
-      );
+      // var checkFlightsBeingScannedNow = await checkFlightsBeingScanned();
+      // console.log(
+      //   `Amount of flights being scanned ${checkFlightsBeingScannedNow}`
+      // );
       // Versus out the number of scans needed
-      var numberOfScansNeededNow = await numberOfScansNeeded();
-      var oneHundredSecondWaitResult = await oneHundredSecondWait();
-      console.log(`Number of scans needed: ${numberOfScansNeededNow}`);
+      // var numberOfScansNeededNow = await numberOfScansNeeded();
+      // var oneHundredSecondWaitResult = await oneHundredSecondWait();
+      // console.log(`Number of scans needed: ${numberOfScansNeededNow}`);
       console.log("####################");
-      console.log(oneHundredSecondWaitResult);
+      // console.log(oneHundredSecondWaitResult);
       // await new Promise((r) => setTimeout(r, 10000));
 
       // await new Promise((r) => setTimeout(r, 2000));
@@ -500,6 +567,7 @@ const fireAllJobs = async () => {
 // };
 
 const main = async () => {
+  await startDatabase()
   // await initSwarm();
   await fireAllJobs();
   // cron.schedule("0 */12 * * *", async () => {

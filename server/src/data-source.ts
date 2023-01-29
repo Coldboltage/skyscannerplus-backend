@@ -5,7 +5,7 @@ import { User } from "./entity/user.entity"
 
 export const AppDataSource = new DataSource({
     type: 'postgres',
-    host: 'localhost',
+    host: 'host.docker.internal',
     port: 5432,
     username: 'postgres',
     password: process.env.POSTGRES_PASSWORD,

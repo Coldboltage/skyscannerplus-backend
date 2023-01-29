@@ -102,6 +102,8 @@ export class UserFlightTypeORM {
   };
   @Column({ nullable: true })
   alertPrice?: number;
+  @Column({ nullable: true })
+  alertPriceFired: boolean;
   @Column('simple-json')
   flights: {
     departure: string;
