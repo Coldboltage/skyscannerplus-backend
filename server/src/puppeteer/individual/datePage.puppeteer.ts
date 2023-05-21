@@ -124,8 +124,8 @@ const datePage = async (
   let departDateIndexBegin = null;
   // let returnDateIndexBegin = null;
   // let resumeScanOrNot = null
-  let resumeScanOrNot =
-    userFlight.lastUpdated >= new Date().getTime() - 3600000;
+  // let resumeScanOrNot =
+  //   userFlight.lastUpdated >= new Date().getTime() - 3600000;
 
   // Push an empty array at the bottom of scanDate which will be empty
   // const newScan = {
@@ -135,7 +135,7 @@ const datePage = async (
   // console.log(newScan);
 
 
-  if (resumeScanOrNot) {
+  // if (resumeScanOrNot) {
 
     // 1) Check departDay and index number
     // const resumeScan = await FlightsDatabase.findOne({
@@ -198,7 +198,7 @@ const datePage = async (
     //   `What is departureDateActualIndexResume: ${departureDateActualIndexResume}`
     // );
 
-  }
+  // }
   const scanDate = await UserFlightScanDateDatabase.save({
     dateOfScanLoop: new Date(),
     userFlight
@@ -322,7 +322,7 @@ const datePage = async (
       await page.waitForTimeout(200);
       // Test
       console.log("Firing second loop");
-      await UserFlightTypeORMDatabase.update({ id: userFlight.id }, { lastUpdated: new Date().getTime() })
+      await UserFlightTypeORMDatabase.update({ id: userFlight.id }, { lastUpdated: new Date() })
       // Test Calculation
       const daysToAdd =
         userFlight.dates.minimalHoliday + addDepartDay + addReturnDay;
@@ -599,16 +599,16 @@ const datePage = async (
   console.log("Applying Database Changed to isBeingScanned and workerPID");
   userFlight.isBeingScanned = false;
   userFlight.workerPID = 0;
-  userFlight.scannedLast = new Date().getTime();
+  userFlight.scannedLast = new Date()
   userFlight.nextScan = nextScan;
-  userFlight.lastUpdated = new Date().getTime();
+  userFlight.lastUpdated = new Date();
   userFlight.status = "completed";
   await UserFlightTypeORMDatabase.update({ id: userFlight.id }, {
     isBeingScanned: false,
     workerPID: 0,
-    scannedLast: new Date().getTime(),
+    scannedLast: new Date(),
     nextScan: nextScan,
-    lastUpdated: new Date().getTime(),
+    lastUpdated: new Date(),
     status: "completed"
   });
 

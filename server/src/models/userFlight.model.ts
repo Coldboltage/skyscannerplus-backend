@@ -202,7 +202,6 @@ const _checkIfFlightTimeForScan_old = async () => {
 };
 
 export const checkIfFlightTimeForScanAndUpdate = async (): Promise<UserFlightTypeORM | false> => {
-  console.log("Testing checkIfFlightTimeForScanAndUpdate")
   // const userFlight = await userFlightTypeORM.createQueryBuilder("userFlights")
   //   .leftJoinAndSelect("userFlights.dates", "dates")
   //   .where('"isBeingScanned" = :isBeingScanned', {isBeingScanned: false})
@@ -220,6 +219,9 @@ export const checkIfFlightTimeForScanAndUpdate = async (): Promise<UserFlightTyp
   })
 
   console.log(userFlight)
+  console.log("Test")
+  // await new Promise(r => setTimeout(r, 2000000))
+  
   if (!userFlight) return false
   userFlight.isBeingScanned = true;
   await userFlightTypeORM.save(userFlight);
@@ -320,6 +322,14 @@ const userTest = () => {
   return { test: "This is a test" };
 };
 
+export const fiveMinuteUpdateCheck = async () => {
+
+  // Check if an active search hasn't been updated in the last five minutes.
+  const test = await userFlightTypeORM.update({
+    lastUpdated: MoreThan(new Date(new Date().getTime() - 300000))
+  }, {isBeingScanned: false, nextScan: new Date(new Date().getTime() + 600000)})
+}
+
 export const getUserFlightByReference = async (reference: string) => {
   console.log(`Fired getUserFlightByReference`);
   return await userFlightTypeORM.findOneBy({ ref: reference });
@@ -416,6 +426,8 @@ export const cheapestFlightScannedToday = async (newUser: any) => {
   return { cheapestFlightsOrderTopTen, bestFlightsOrderTopTen };
 };
 
+
+
 // We know users will have a reference. We can use this to find flights
 const findUserFlight = async (reference: string) => {
   console.log("Started findUserFlight");
@@ -495,13 +507,6 @@ export const statusChangeByReference = async (reference: string, status: string)
   await userFlight.save();
 };
 
-export const fiveMinuteUpdateCheck = async () => {
-  // Check if an active search hasn't been updated in the last five minutes.
-  await userFlightTypeORM.update({
-    lastUpdated: MoreThan(new Date().getTime() - 300000), isBeingScanned: true
-  }, {isBeingScanned: false, nextScan: new Date().getTime() + 6000000})
-}
-
 const consoleOutput = async (cheapestFlightsOrder: any, bestFlightsOrder: any) => {
   console.log("#################");
   console.log(">> Max Holiday Output: Cheapest <<");
@@ -540,4 +545,7 @@ module.exports = {
   checkIfAllFlightTimeForScanAndIfScansHappening,
   checkIfScanDead,
   statusChangeByReference,
+  fiveMinuteUpdateCheck
 };
+
+export default {}

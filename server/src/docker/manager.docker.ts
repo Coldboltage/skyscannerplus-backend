@@ -13,7 +13,7 @@ import "reflect-metadata"
 // Puppeteer Bundles / Individuals
 
 import searchFlights from "../puppeteer/bundle/firstTimeSearch";
-import { cheapestFlightScannedToday, checkMaximumHoliday, checkIfFlightTimeForScan, getAllDocuments, changePIDByReference, changeFlightScanStatusByPID, changePIDToZero, checkAmountOfProcessesInUse, getUserFlightByReference, checkIfAllFlightTimeForScan, searchFlightByPID, checkFlightsBeingScanned, oneHundredSecondWait, checkIfAllFlightTimeForScanAndIfScansHappening, checkIfScanDead, fiveMinuteUpdateCheck } from "../models/userFlight.model";
+import { fiveMinuteUpdateCheck, cheapestFlightScannedToday, checkMaximumHoliday, checkIfFlightTimeForScan, getAllDocuments, changePIDByReference, changeFlightScanStatusByPID, changePIDToZero, checkAmountOfProcessesInUse, getUserFlightByReference, checkIfAllFlightTimeForScan, searchFlightByPID, checkFlightsBeingScanned, oneHundredSecondWait, checkIfAllFlightTimeForScanAndIfScansHappening, checkIfScanDead } from "../models/userFlight.model";
 
 // Database things
 import { mongoConnect } from "../../services/mongo";
@@ -233,7 +233,7 @@ const fireAllJobs = async () => {
   // const cpusCurrentlyBeingUsed = await checkAmountOfProcessesInUse();
   // console.log(`How many CPUs in use? ${cpusCurrentlyBeingUsed}`);
   if (cluster.isPrimary) {
-    await fiveMinuteUpdateCheck()
+    // await fiveMinuteUpdateCheck()
     // console.log(`Primary ${process.pid} is running`);
     // Create new containers.
     // await new Promise((r) => setTimeout(r, 200000));
@@ -256,6 +256,7 @@ const fireAllJobs = async () => {
     // const areThereDeadJobs = await checkIfScanDead();
     // Check for tasks which have died
     try {
+
       var replicateCount = await axios(
         "http://localhost:2375/v1.41/services/worker"
       );
@@ -568,6 +569,7 @@ const fireAllJobs = async () => {
 
 const main = async () => {
   await startDatabase()
+  await new Promise(r => setTimeout(r, 2000))
   // await initSwarm();
   await fireAllJobs();
   // cron.schedule("0 */12 * * *", async () => {

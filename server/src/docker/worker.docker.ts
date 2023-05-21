@@ -1,11 +1,9 @@
 import path from "path";
 require("dotenv").config(path.join(__dirname, "..", "..", "..", ".env"));
 console.log(path.join(__dirname, "..", "..", ".env"));
-import cluster from "node:cluster";
 const numCPUs = require("node:os").cpus().length;
 import process from "node:process";
 const axios = require("axios").default;
-import si from 'systeminformation';
 import "reflect-metadata"
 
 
@@ -19,8 +17,6 @@ import { cheapestFlightScannedToday, checkMaximumHoliday, checkIfFlightTimeForSc
 // Database things
 // import { mongoConnect } from "../../services/mongo";
 import { AppDataSource } from "../data-source";
-import { User } from "../entity/user.entity";
-import { UserFlightTypeORM } from "../entity/user-flight.entity";
 
 // (async () => {
 //   await mongoConnect();
@@ -31,18 +27,10 @@ const startDatabase = async () => {
   await AppDataSource.initialize()
     .then(async () => {
       console.log("Database has been setup ✅")
-      const userRepository = AppDataSource.getRepository(User)
-      const test = await userRepository.find()
-      console.log(test)
-      const userFlightRepository = AppDataSource.getRepository(UserFlightTypeORM)
-      const nextTest = await userFlightRepository.find({
-        // relations: {
-        //   dates: true
-        // }
-      })
-      console.log(nextTest[0].dates)
     })
-    .catch((error) => console.log(`❌❌ Database broke ❌❌ - ${error}`))
+    .catch((error) => { 
+      console.log(`❌❌ Database broke ❌❌ - ${error}`) 
+     })
 }
 // })();
 // ON_DEATH(function(SIGTERM, err) {
@@ -445,8 +433,7 @@ const fireAllJobs = async () => {
 
 const main = async () => {
   await startDatabase()
-  console.log("Alan what is this")
-  // await new Promise((r) => setTimeout(r, Math.ceil(Math.random() * 4) * 1000));
+  await new Promise((r) => setTimeout(r, Math.ceil(Math.random() * 4) * 1000));
   await fireAllJobs();
   // cron.schedule("0 */12 * * *", async () => {
   // cron.schedule("*/1 * * * *", async () => {
