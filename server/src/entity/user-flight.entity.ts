@@ -92,6 +92,8 @@ export class UserFlightTypeORM {
   screenshot?: string;
   @Column()
   status: string;
+  @Column({nullable: true})
+  cheapest?: number;
   @Column('simple-json')
   currency: {
     fullCurrency: string;

@@ -5,7 +5,7 @@ import cheerio from "cheerio";
 
 // Puppeteer Package
 import processPage from "./processPage.puppeteer";
-import { DepartureDate, ScanDateORM, UserFlightTypeORM } from "../../entity/user-flight.entity";
+import { DepartureDate, ReturnDatesORM, ScanDateORM, UserFlightTypeORM } from "../../entity/user-flight.entity";
 import { AppDataSource } from "../../data-source";
 const UserFlightTypeORMDatabase = AppDataSource.getRepository(UserFlightTypeORM)
 const UserFlightScanDateDatabase = AppDataSource.getRepository(ScanDateORM)
@@ -34,6 +34,8 @@ const datePage = async (
   pageURL: string,
   verifyNames: any
 ) => {
+  let currentCheapestPrice: ReturnDatesORM | null = null
+  console.log(currentCheapestPrice)
   console.log("Entered Date page");
 
   await page.waitForTimeout(1000);
@@ -137,66 +139,66 @@ const datePage = async (
 
   // if (resumeScanOrNot) {
 
-    // 1) Check departDay and index number
-    // const resumeScan = await FlightsDatabase.findOne({
-    //   ref: newUser.ref,
-    // });
-    // const scanDateIndexResume = resumeScan.scanDate.length - 1;
-    // const departureDateIndexResume =
-    //   resumeScan.scanDate[0 >= scanDateIndexResume ? 0 : scanDateIndexResume].departureDate
-    //     .length - 1;
+  // 1) Check departDay and index number
+  // const resumeScan = await FlightsDatabase.findOne({
+  //   ref: newUser.ref,
+  // });
+  // const scanDateIndexResume = resumeScan.scanDate.length - 1;
+  // const departureDateIndexResume =
+  //   resumeScan.scanDate[0 >= scanDateIndexResume ? 0 : scanDateIndexResume].departureDate
+  //     .length - 1;
 
-    // const departureDatePush = await UserFlightTypeORMDatabase.findOneBy({
-    //   ref: userFlight.ref,
-    // });
-    // if (!departureDatePush) return false
-    // if (!departureDatePush.scanDate) return false
-    // const scanDateIndexResume =
-    //   departureDatePush.scanDate.length - 1 <= 0
-    //     ? 0
-    //     : departureDatePush.scanDate.length - 1;
+  // const departureDatePush = await UserFlightTypeORMDatabase.findOneBy({
+  //   ref: userFlight.ref,
+  // });
+  // if (!departureDatePush) return false
+  // if (!departureDatePush.scanDate) return false
+  // const scanDateIndexResume =
+  //   departureDatePush.scanDate.length - 1 <= 0
+  //     ? 0
+  //     : departureDatePush.scanDate.length - 1;
 
-    // if (!departureDatePush.scanDate[scanDateIndexResume].departureDate) return false
-    // if (!scanDate.departureDate) return false
-    // console.log(scanDate.departureDate.length)
-    // const departureDateIndexResume =
-    //   departureDatePush.scanDate[scanDateIndexResume].departureDate.length <=
-    //     0
-    //     ? 0
-    //     : departureDatePush.scanDate[scanDateIndexResume].departureDate.length;
+  // if (!departureDatePush.scanDate[scanDateIndexResume].departureDate) return false
+  // if (!scanDate.departureDate) return false
+  // console.log(scanDate.departureDate.length)
+  // const departureDateIndexResume =
+  //   departureDatePush.scanDate[scanDateIndexResume].departureDate.length <=
+  //     0
+  //     ? 0
+  //     : departureDatePush.scanDate[scanDateIndexResume].departureDate.length;
 
-    // // const returnDateIndexResume =
-    // //   departureDatePush.scanDate[scanDateIndexResume].departureDate[
-    // //     departureDateIndexResume
-    // //   ].returnDates.length -
-    // //     1 <=
-    // //   0
-    // //     ? 0
-    // //     : departureDatePush.scanDate[scanDateIndexResume].departureDate[
-    // //         departureDateIndexResume
-    // //       ].returnDates.length - 1;
+  // // const returnDateIndexResume =
+  // //   departureDatePush.scanDate[scanDateIndexResume].departureDate[
+  // //     departureDateIndexResume
+  // //   ].returnDates.length -
+  // //     1 <=
+  // //   0
+  // //     ? 0
+  // //     : departureDatePush.scanDate[scanDateIndexResume].departureDate[
+  // //         departureDateIndexResume
+  // //       ].returnDates.length - 1;
 
-    // // Actual Index
-    // var scanDateActualIndexResume = departureDatePush.scanDate.length;
-    // var departureDateActualIndexResume =
-    //   departureDatePush.scanDate[scanDateIndexResume].departureDate.length;
+  // // Actual Index
+  // var scanDateActualIndexResume = departureDatePush.scanDate.length;
+  // var departureDateActualIndexResume =
+  //   departureDatePush.scanDate[scanDateIndexResume].departureDate.length;
 
-    // console.log(
-    //   `What is departureDateActualIndexResume: ${departureDateActualIndexResume}`
-    // );
-    // console.log(
-    //   `What is what is this: ${departureDatePush.scanDate[scanDateIndexResume].departureDate[departureDateIndexResume]}`
-    // );
+  // console.log(
+  //   `What is departureDateActualIndexResume: ${departureDateActualIndexResume}`
+  // );
+  // console.log(
+  //   `What is what is this: ${departureDatePush.scanDate[scanDateIndexResume].departureDate[departureDateIndexResume]}`
+  // );
 
-    // scanDateIndexBegin = scanDateIndexResume;
-    // departDateIndexBegin = departureDateIndexResume;
-    // // returnDateIndexBegin = returnDateIndexResume;
+  // scanDateIndexBegin = scanDateIndexResume;
+  // departDateIndexBegin = departureDateIndexResume;
+  // // returnDateIndexBegin = returnDateIndexResume;
 
-    // console.log(`What is departDateIndexBegin: ${departDateIndexBegin}`);
-    // // console.log(`What is returnDateIndexBegin: ${returnDateIndexBegin}`);
-    // console.log(
-    //   `What is departureDateActualIndexResume: ${departureDateActualIndexResume}`
-    // );
+  // console.log(`What is departDateIndexBegin: ${departDateIndexBegin}`);
+  // // console.log(`What is returnDateIndexBegin: ${returnDateIndexBegin}`);
+  // console.log(
+  //   `What is departureDateActualIndexResume: ${departureDateActualIndexResume}`
+  // );
 
   // }
   const scanDate = await UserFlightScanDateDatabase.save({
@@ -559,6 +561,31 @@ const datePage = async (
       });
       console.log("Info here");
       console.log(returnInformationObject);
+
+      if (returnInformationObject.cheapest.cost) {
+
+        if (currentCheapestPrice === null) {
+          currentCheapestPrice = returnInformationObject
+          console.log('It was null, updating for the first time')
+        } else if (
+          returnInformationObject.cheapest.cost !== 0 &&
+          returnInformationObject.cheapest.cost < currentCheapestPrice.cheapest.cost
+        ) {
+          currentCheapestPrice = returnInformationObject
+          console.log('else if fired. currentCheapest updated updated to new returnedCheapest ♻️♻️')
+          console.log(`Returned cheapest cost:${returnInformationObject.cheapest.cost}`)
+          console.log(`current cheapest cheapest cost:${currentCheapestPrice.cheapest.cost}`)
+
+        } else {
+          console.log('else fired. It must mean currentCheapestPrice.cheapest.cost was cheaper ✅✅')
+        }
+      }
+
+      console.log('Cheapest Price Check')
+
+      console.log(currentCheapestPrice?.cheapest.cost)
+      console.log(returnInformationObject.cheapest.cost)
+
       // Create return date Object
       // const returnInformation = {
       //   date: new Date(returnDateInMili),
@@ -567,7 +594,7 @@ const datePage = async (
       //   cheapest: { cost: 13.37, time: "14:00", arrival: "19:00" },
       // };
 
-      if (returnInformationObject === false) {
+      if (!returnInformationObject) {
         continue;
       }
 
@@ -609,7 +636,8 @@ const datePage = async (
     scannedLast: new Date(),
     nextScan: nextScan,
     lastUpdated: new Date(),
-    status: "completed"
+    status: "completed",
+    cheapest: currentCheapestPrice?.cheapest.cost
   });
 
   console.log("Saved");
