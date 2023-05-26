@@ -14,7 +14,7 @@ const processPage = async (
   userFlight: any,
   newUser: any,
   departureDateORM: DepartureDate
-) => {
+): Promise<ReturnDatesORM> => {
   // try {
   //   console.log("We have fired the cleanup script")
   //   console.log("Tet to see if this will come up after cleanup to confirm changes")
@@ -32,7 +32,7 @@ const processPage = async (
   let $ = cheerio.load(isPageBroken);
 
   if ($("body").html().includes("wrong") === true) {
-    return false;
+    throw new Error('Page did not load');
   } else {
     console.log("Page loaded without error");
   }
