@@ -1,13 +1,12 @@
 import { LessThan, LessThanOrEqual, MoreThan } from "typeorm";
 import { AppDataSource } from "../data-source";
 import { Dates, UserFlightTypeORM } from "../entity/user-flight.entity";
-import { where } from "./userFlight.mongo";
 
 const userFlightDatabase = require("./userFlight.mongo");
 const searchFlights = require("../puppeteer/bundle/firstTimeSearch");
 const dayjs = require("dayjs");
-// TYPEORM
 
+// TYPEORM
 const userFlightTypeORM = AppDataSource.getRepository(UserFlightTypeORM)
 const userFlightDateORM = AppDataSource.getRepository(Dates)
 

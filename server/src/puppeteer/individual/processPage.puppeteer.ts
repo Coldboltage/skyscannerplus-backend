@@ -37,17 +37,22 @@ const processPage = async (
     console.log("Page loaded without error");
   }
 
-  const acceptButton = "button.BpkButtonBase_bpk-button__NThiZ";
+  const acceptButton = "#cookieBannerContent > div > div.CookieBanner_cookie-banner__buttons__ZjAzY > button";
 
   // await page.screenshot({path: "./screenshot.jpg"})
-  await page.waitForSelector('.SummaryInfo_itineraryCountContainer__NWFkN', { timeout: 300000 });
+  try {
+    await page.waitForSelector('.SummaryInfo_itineraryCountContainer__NWFkN', { timeout: 300000 });
+  } catch (error) {
+    userFlight.screenshot = await page.screenshot({fullPage: true, encoding: "base64" })
+    await userFlight.save();
+  }
 
   if (($(acceptButton).html() === "OK") === true) {
     console.log("Locating cookie button");
     await page.click(acceptButton);
   }
 
-  await page.waitForTimeout(200);
+  await page.waitForTimeout(1000);
   await page.keyboard.press("Enter");
   await page.keyboard.press("Enter");
   await page.waitForTimeout(1000);

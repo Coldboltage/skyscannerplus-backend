@@ -7,6 +7,10 @@ import cheerio from "cheerio";
 import processPage from "./processPage.puppeteer";
 import { DepartureDate, ReturnDatesORM, ScanDateORM, UserFlightTypeORM } from "../../entity/user-flight.entity";
 import { AppDataSource } from "../../data-source";
+import { attachNewIP, detachIP } from "./utilityFunctions";
+import axios from "axios";
+import { getProxy } from "../../models/proxy.model";
+
 const UserFlightTypeORMDatabase = AppDataSource.getRepository(UserFlightTypeORM)
 const UserFlightScanDateDatabase = AppDataSource.getRepository(ScanDateORM)
 const UserFlightDepartureDateDatabase = AppDataSource.getRepository(DepartureDate)
@@ -514,7 +518,61 @@ const datePage = async (
       console.log("###### ✅✅✅✅✅✅✅✅ ######")
       // await page.waitForTimeout(2000000);
       // await new Promise((r) => setTimeout(r, 20000000));
-      await page.goto(url, { waitUntil: "domcontentloaded", timeout: 100000 });
+      while (true) {
+        try {
+          await page.goto(url, { waitUntil: "domcontentloaded", timeout: 100000 });
+          break
+        } catch (error) {
+          if (process.env.DEVELOPMENT) {
+            await detachIP(browser)
+          }
+          await browser.close()
+          // const assignedIp = (await axios.get('http://localhost:4000/ips/random-ip')).data
+          const assignedIp = await getProxy()
+
+          browser = await puppeteer.launch({
+            headless: false,
+            args: [
+              "--no-sandbox",
+              "--disable-setuid-sandbox",
+              "--disable-background-timer-throttling",
+              "--disable-backgrounding-occluded-windows",
+              "--disable-renderer-backgrounding",
+              // '--disable-dev-shm-usage',
+              process.env.DEVELOPMENT ?? `--proxy-server=${assignedIp.ip}:${assignedIp.port}`,
+            ],
+          });
+          page = await browser.newPage();
+
+          if (process.env.DEVELOPMENT) {
+            await attachNewIP(browser, page, assignedIp.ip)
+          }
+          await page.setRequestInterception(true);
+
+          const rejectRequestPattern = [
+            "googlesyndication.com",
+            "/*.doubleclick.net",
+            "/*.amazon-adsystem.com",
+            "/*.adnxs.com",
+            "/*.nr-data.net",
+          ];
+          const blockList = [];
+
+          page.on("request", (request) => {
+            if (
+              rejectRequestPattern.find((pattern) => request.url().match(pattern))
+            ) {
+              blockList.push(request.url());
+              request.abort();
+            } else if (request.resourceType() == 'font' || request.resourceType() == 'image') {
+              request.abort();
+            } else {
+              request.continue();
+            }
+          });
+        }
+      }
+
       const returnInformationObject = await processPage(
         page,
         returnDateInMili,
@@ -524,7 +582,13 @@ const datePage = async (
         departureDateORM
       );
 
+      if (process.env.DEVELOPMENT) {
+        await detachIP(browser)
+      } 
+      
       await browser.close();
+
+      const assignedIp = await getProxy()
       browser = await puppeteer.launch({
         headless: false,
         args: [
@@ -533,32 +597,40 @@ const datePage = async (
           "--disable-background-timer-throttling",
           "--disable-backgrounding-occluded-windows",
           "--disable-renderer-backgrounding",
+          // '--disable-dev-shm-usage',
+          process.env.DEVELOPMENT ?? `--proxy-server=${assignedIp.ip}:${assignedIp.port}`,
         ],
       });
       page = await browser.newPage();
+
+      if (process.env.DEVELOPMENT) {
+        await attachNewIP(browser, page, assignedIp.ip)
+      }
       await page.setRequestInterception(true);
 
-      const rejectRequestPattern = [
-        "googlesyndication.com",
-        "/*.doubleclick.net",
-        "/*.amazon-adsystem.com",
-        "/*.adnxs.com",
-        "/*.nr-data.net",
-      ];
-      const blockList = [];
+      // const rejectRequestPattern = [
+      //   "googlesyndication.com",
+      //   "/*.doubleclick.net",
+      //   "/*.amazon-adsystem.com",
+      //   "/*.adnxs.com",
+      //   "/*.nr-data.net",
+      // ];
+      // const blockList = [];
 
-      page.on("request", (request) => {
-        if (
-          rejectRequestPattern.find((pattern) => request.url().match(pattern))
-        ) {
-          blockList.push(request.url());
-          request.abort();
-        } else if (request.resourceType() === "image") {
-          request.abort();
-        } else {
-          request.continue();
-        }
-      });
+      // page.on("request", (request) => {
+      //   if (
+      //     rejectRequestPattern.find((pattern) => request.url().match(pattern))
+      //   ) {
+      //     blockList.push(request.url());
+      //     console.log("Blocked")
+      //     request.abort();
+      //   } else if (request.resourceType() == 'font' || request.resourceType() == 'image') {
+      //     console.log("Blocked")
+      //     request.abort();
+      //   } else {
+      //     request.continue();
+      //   }
+      // });
       console.log("Info here");
       console.log(returnInformationObject);
 
@@ -641,6 +713,10 @@ const datePage = async (
   });
 
   console.log("Saved");
+
+  if (process.env.DEVELOPMENT) {
+    await detachIP(browser)
+  }
   await browser.close();
   return true;
 };
