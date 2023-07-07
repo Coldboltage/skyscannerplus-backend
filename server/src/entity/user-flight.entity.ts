@@ -70,9 +70,6 @@ export class Dates {
 
 @Entity()
 export class UserFlightTypeORM {
-  save() {
-    throw new Error("Method not implemented.");
-  }
   @PrimaryGeneratedColumn('uuid')
   id?: string;
   @Column()
@@ -85,16 +82,18 @@ export class UserFlightTypeORM {
   isBeingScanned: boolean;
   @Column()
   workerPID: number;
-  @Column({ type: 'bigint', default: 0 })
-  lastUpdated: number;
-  @Column({ type: 'bigint', default: 0 })
-  scannedLast: number;
+  @Column({nullable: true})
+  lastUpdated: Date;
+  @Column({nullable: true})
+  scannedLast: Date;
   @Column()
   nextScan: Date;
   @Column({ nullable: true })
   screenshot?: string;
   @Column()
   status: string;
+  @Column({nullable: true})
+  cheapest?: number;
   @Column('simple-json')
   currency: {
     fullCurrency: string;
@@ -111,7 +110,7 @@ export class UserFlightTypeORM {
     returnFlight: boolean;
     passengers?: number;
   };
-  @OneToOne(() => Dates, {eager: true})
+  @OneToOne(() => Dates, { eager: true })
   @JoinColumn()
   dates: Dates;
   @OneToMany(() => ScanDateORM, (scanDate) => scanDate.userFlight, {

@@ -5,8 +5,12 @@ import cheerio from "cheerio";
 
 // Puppeteer Package
 import processPage from "./processPage.puppeteer";
-import { DepartureDate, ScanDateORM, UserFlightTypeORM } from "../../entity/user-flight.entity";
+import { DepartureDate, ReturnDatesORM, ScanDateORM, UserFlightTypeORM } from "../../entity/user-flight.entity";
 import { AppDataSource } from "../../data-source";
+import { attachNewIP, detachIP } from "./utilityFunctions";
+import axios from "axios";
+import { getProxy } from "../../models/proxy.model";
+
 const UserFlightTypeORMDatabase = AppDataSource.getRepository(UserFlightTypeORM)
 const UserFlightScanDateDatabase = AppDataSource.getRepository(ScanDateORM)
 const UserFlightDepartureDateDatabase = AppDataSource.getRepository(DepartureDate)
@@ -34,6 +38,8 @@ const datePage = async (
   pageURL: string,
   verifyNames: any
 ) => {
+  let currentCheapestPrice: ReturnDatesORM | null = null
+  console.log(currentCheapestPrice)
   console.log("Entered Date page");
 
   await page.waitForTimeout(1000);
@@ -124,8 +130,8 @@ const datePage = async (
   let departDateIndexBegin = null;
   // let returnDateIndexBegin = null;
   // let resumeScanOrNot = null
-  let resumeScanOrNot =
-    userFlight.lastUpdated >= new Date().getTime() - 3600000;
+  // let resumeScanOrNot =
+  //   userFlight.lastUpdated >= new Date().getTime() - 3600000;
 
   // Push an empty array at the bottom of scanDate which will be empty
   // const newScan = {
@@ -135,70 +141,70 @@ const datePage = async (
   // console.log(newScan);
 
 
-  if (resumeScanOrNot) {
+  // if (resumeScanOrNot) {
 
-    // 1) Check departDay and index number
-    // const resumeScan = await FlightsDatabase.findOne({
-    //   ref: newUser.ref,
-    // });
-    // const scanDateIndexResume = resumeScan.scanDate.length - 1;
-    // const departureDateIndexResume =
-    //   resumeScan.scanDate[0 >= scanDateIndexResume ? 0 : scanDateIndexResume].departureDate
-    //     .length - 1;
+  // 1) Check departDay and index number
+  // const resumeScan = await FlightsDatabase.findOne({
+  //   ref: newUser.ref,
+  // });
+  // const scanDateIndexResume = resumeScan.scanDate.length - 1;
+  // const departureDateIndexResume =
+  //   resumeScan.scanDate[0 >= scanDateIndexResume ? 0 : scanDateIndexResume].departureDate
+  //     .length - 1;
 
-    // const departureDatePush = await UserFlightTypeORMDatabase.findOneBy({
-    //   ref: userFlight.ref,
-    // });
-    // if (!departureDatePush) return false
-    // if (!departureDatePush.scanDate) return false
-    // const scanDateIndexResume =
-    //   departureDatePush.scanDate.length - 1 <= 0
-    //     ? 0
-    //     : departureDatePush.scanDate.length - 1;
+  // const departureDatePush = await UserFlightTypeORMDatabase.findOneBy({
+  //   ref: userFlight.ref,
+  // });
+  // if (!departureDatePush) return false
+  // if (!departureDatePush.scanDate) return false
+  // const scanDateIndexResume =
+  //   departureDatePush.scanDate.length - 1 <= 0
+  //     ? 0
+  //     : departureDatePush.scanDate.length - 1;
 
-    // if (!departureDatePush.scanDate[scanDateIndexResume].departureDate) return false
-    // if (!scanDate.departureDate) return false
-    // console.log(scanDate.departureDate.length)
-    // const departureDateIndexResume =
-    //   departureDatePush.scanDate[scanDateIndexResume].departureDate.length <=
-    //     0
-    //     ? 0
-    //     : departureDatePush.scanDate[scanDateIndexResume].departureDate.length;
+  // if (!departureDatePush.scanDate[scanDateIndexResume].departureDate) return false
+  // if (!scanDate.departureDate) return false
+  // console.log(scanDate.departureDate.length)
+  // const departureDateIndexResume =
+  //   departureDatePush.scanDate[scanDateIndexResume].departureDate.length <=
+  //     0
+  //     ? 0
+  //     : departureDatePush.scanDate[scanDateIndexResume].departureDate.length;
 
-    // // const returnDateIndexResume =
-    // //   departureDatePush.scanDate[scanDateIndexResume].departureDate[
-    // //     departureDateIndexResume
-    // //   ].returnDates.length -
-    // //     1 <=
-    // //   0
-    // //     ? 0
-    // //     : departureDatePush.scanDate[scanDateIndexResume].departureDate[
-    // //         departureDateIndexResume
-    // //       ].returnDates.length - 1;
+  // // const returnDateIndexResume =
+  // //   departureDatePush.scanDate[scanDateIndexResume].departureDate[
+  // //     departureDateIndexResume
+  // //   ].returnDates.length -
+  // //     1 <=
+  // //   0
+  // //     ? 0
+  // //     : departureDatePush.scanDate[scanDateIndexResume].departureDate[
+  // //         departureDateIndexResume
+  // //       ].returnDates.length - 1;
 
-    // // Actual Index
-    // var scanDateActualIndexResume = departureDatePush.scanDate.length;
-    // var departureDateActualIndexResume =
-    //   departureDatePush.scanDate[scanDateIndexResume].departureDate.length;
+  // // Actual Index
+  // var scanDateActualIndexResume = departureDatePush.scanDate.length;
+  // var departureDateActualIndexResume =
+  //   departureDatePush.scanDate[scanDateIndexResume].departureDate.length;
 
-    // console.log(
-    //   `What is departureDateActualIndexResume: ${departureDateActualIndexResume}`
-    // );
-    // console.log(
-    //   `What is what is this: ${departureDatePush.scanDate[scanDateIndexResume].departureDate[departureDateIndexResume]}`
-    // );
+  // console.log(
+  //   `What is departureDateActualIndexResume: ${departureDateActualIndexResume}`
+  // );
+  // console.log(
+  //   `What is what is this: ${departureDatePush.scanDate[scanDateIndexResume].departureDate[departureDateIndexResume]}`
+  // );
 
-    // scanDateIndexBegin = scanDateIndexResume;
-    // departDateIndexBegin = departureDateIndexResume;
-    // // returnDateIndexBegin = returnDateIndexResume;
+  // scanDateIndexBegin = scanDateIndexResume;
+  // departDateIndexBegin = departureDateIndexResume;
+  // // returnDateIndexBegin = returnDateIndexResume;
 
-    // console.log(`What is departDateIndexBegin: ${departDateIndexBegin}`);
-    // // console.log(`What is returnDateIndexBegin: ${returnDateIndexBegin}`);
-    // console.log(
-    //   `What is departureDateActualIndexResume: ${departureDateActualIndexResume}`
-    // );
+  // console.log(`What is departDateIndexBegin: ${departDateIndexBegin}`);
+  // // console.log(`What is returnDateIndexBegin: ${returnDateIndexBegin}`);
+  // console.log(
+  //   `What is departureDateActualIndexResume: ${departureDateActualIndexResume}`
+  // );
 
-  }
+  // }
   const scanDate = await UserFlightScanDateDatabase.save({
     dateOfScanLoop: new Date(),
     userFlight
@@ -322,7 +328,7 @@ const datePage = async (
       await page.waitForTimeout(200);
       // Test
       console.log("Firing second loop");
-      await UserFlightTypeORMDatabase.update({ id: userFlight.id }, { lastUpdated: new Date().getTime() })
+      await UserFlightTypeORMDatabase.update({ id: userFlight.id }, { lastUpdated: new Date() })
       // Test Calculation
       const daysToAdd =
         userFlight.dates.minimalHoliday + addDepartDay + addReturnDay;
@@ -512,7 +518,61 @@ const datePage = async (
       console.log("###### ✅✅✅✅✅✅✅✅ ######")
       // await page.waitForTimeout(2000000);
       // await new Promise((r) => setTimeout(r, 20000000));
-      await page.goto(url, { waitUntil: "domcontentloaded", timeout: 100000 });
+      while (true) {
+        try {
+          await page.goto(url, { waitUntil: "domcontentloaded", timeout: 100000 });
+          break
+        } catch (error) {
+          if (process.env.DEVELOPMENT) {
+            await detachIP(browser)
+          }
+          await browser.close()
+          // const assignedIp = (await axios.get('http://localhost:4000/ips/random-ip')).data
+          const assignedIp = await getProxy()
+
+          browser = await puppeteer.launch({
+            headless: false,
+            args: [
+              "--no-sandbox",
+              "--disable-setuid-sandbox",
+              "--disable-background-timer-throttling",
+              "--disable-backgrounding-occluded-windows",
+              "--disable-renderer-backgrounding",
+              // '--disable-dev-shm-usage',
+              process.env.DEVELOPMENT ?? `--proxy-server=${assignedIp.ip}:${assignedIp.port}`,
+            ],
+          });
+          page = await browser.newPage();
+
+          if (process.env.DEVELOPMENT) {
+            await attachNewIP(browser, page, assignedIp.ip)
+          }
+          await page.setRequestInterception(true);
+
+          const rejectRequestPattern = [
+            "googlesyndication.com",
+            "/*.doubleclick.net",
+            "/*.amazon-adsystem.com",
+            "/*.adnxs.com",
+            "/*.nr-data.net",
+          ];
+          const blockList = [];
+
+          page.on("request", (request) => {
+            if (
+              rejectRequestPattern.find((pattern) => request.url().match(pattern))
+            ) {
+              blockList.push(request.url());
+              request.abort();
+            } else if (request.resourceType() == 'font' || request.resourceType() == 'image') {
+              request.abort();
+            } else {
+              request.continue();
+            }
+          });
+        }
+      }
+
       const returnInformationObject = await processPage(
         page,
         returnDateInMili,
@@ -522,7 +582,13 @@ const datePage = async (
         departureDateORM
       );
 
+      if (process.env.DEVELOPMENT) {
+        await detachIP(browser)
+      } 
+      
       await browser.close();
+
+      const assignedIp = await getProxy()
       browser = await puppeteer.launch({
         headless: false,
         args: [
@@ -531,34 +597,67 @@ const datePage = async (
           "--disable-background-timer-throttling",
           "--disable-backgrounding-occluded-windows",
           "--disable-renderer-backgrounding",
+          // '--disable-dev-shm-usage',
+          process.env.DEVELOPMENT ?? `--proxy-server=${assignedIp.ip}:${assignedIp.port}`,
         ],
       });
       page = await browser.newPage();
+
+      if (process.env.DEVELOPMENT) {
+        await attachNewIP(browser, page, assignedIp.ip)
+      }
       await page.setRequestInterception(true);
 
-      const rejectRequestPattern = [
-        "googlesyndication.com",
-        "/*.doubleclick.net",
-        "/*.amazon-adsystem.com",
-        "/*.adnxs.com",
-        "/*.nr-data.net",
-      ];
-      const blockList = [];
+      // const rejectRequestPattern = [
+      //   "googlesyndication.com",
+      //   "/*.doubleclick.net",
+      //   "/*.amazon-adsystem.com",
+      //   "/*.adnxs.com",
+      //   "/*.nr-data.net",
+      // ];
+      // const blockList = [];
 
-      page.on("request", (request) => {
-        if (
-          rejectRequestPattern.find((pattern) => request.url().match(pattern))
-        ) {
-          blockList.push(request.url());
-          request.abort();
-        } else if (request.resourceType() === "image") {
-          request.abort();
-        } else {
-          request.continue();
-        }
-      });
+      // page.on("request", (request) => {
+      //   if (
+      //     rejectRequestPattern.find((pattern) => request.url().match(pattern))
+      //   ) {
+      //     blockList.push(request.url());
+      //     console.log("Blocked")
+      //     request.abort();
+      //   } else if (request.resourceType() == 'font' || request.resourceType() == 'image') {
+      //     console.log("Blocked")
+      //     request.abort();
+      //   } else {
+      //     request.continue();
+      //   }
+      // });
       console.log("Info here");
       console.log(returnInformationObject);
+
+      if (returnInformationObject.cheapest.cost) {
+
+        if (currentCheapestPrice === null) {
+          currentCheapestPrice = returnInformationObject
+          console.log('It was null, updating for the first time')
+        } else if (
+          returnInformationObject.cheapest.cost !== 0 &&
+          returnInformationObject.cheapest.cost < currentCheapestPrice.cheapest.cost
+        ) {
+          currentCheapestPrice = returnInformationObject
+          console.log('else if fired. currentCheapest updated updated to new returnedCheapest ♻️♻️')
+          console.log(`Returned cheapest cost:${returnInformationObject.cheapest.cost}`)
+          console.log(`current cheapest cheapest cost:${currentCheapestPrice.cheapest.cost}`)
+
+        } else {
+          console.log('else fired. It must mean currentCheapestPrice.cheapest.cost was cheaper ✅✅')
+        }
+      }
+
+      console.log('Cheapest Price Check')
+
+      console.log(currentCheapestPrice?.cheapest.cost)
+      console.log(returnInformationObject.cheapest.cost)
+
       // Create return date Object
       // const returnInformation = {
       //   date: new Date(returnDateInMili),
@@ -567,7 +666,7 @@ const datePage = async (
       //   cheapest: { cost: 13.37, time: "14:00", arrival: "19:00" },
       // };
 
-      if (returnInformationObject === false) {
+      if (!returnInformationObject) {
         continue;
       }
 
@@ -597,23 +696,28 @@ const datePage = async (
   console.log(flightScannerObject);
   // userFlight.scanDate.push(flightScannerObject);
   console.log("Applying Database Changed to isBeingScanned and workerPID");
-  // userFlight.isBeingScanned = false;
-  // userFlight.workerPID = 0;
-  // userFlight.scannedLast = new Date().getTime();
-  // userFlight.nextScan = nextScan;
-  // userFlight.lastUpdated = new Date().getTime();
-  // userFlight.status = "completed";
+
+  userFlight.isBeingScanned = false;
+  userFlight.workerPID = 0;
+  userFlight.scannedLast = new Date()
+  userFlight.nextScan = nextScan;
+  userFlight.lastUpdated = new Date();
+  userFlight.status = "completed";
   await UserFlightTypeORMDatabase.update({ id: userFlight.id }, {
     isBeingScanned: false,
     workerPID: 0,
-    scannedLast: new Date().getTime(),
+    scannedLast: new Date(),
     nextScan: nextScan,
-    lastUpdated: new Date().getTime(),
+    lastUpdated: new Date(),
     status: "completed",
-    alertPriceFired: false,
+    cheapest: currentCheapestPrice?.cheapest.cost
   });
 
   console.log("Saved");
+
+  if (process.env.DEVELOPMENT) {
+    await detachIP(browser)
+  }
   await browser.close();
   return true;
 };
