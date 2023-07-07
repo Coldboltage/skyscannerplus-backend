@@ -9,8 +9,6 @@ const testEmail = async (
   bestFlightsOrderMax,
   userFlight
 ) => {
-  
-
   const { requestId } = await courier.send({
     message: {
       to: {

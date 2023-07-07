@@ -696,6 +696,7 @@ const datePage = async (
   console.log(flightScannerObject);
   // userFlight.scanDate.push(flightScannerObject);
   console.log("Applying Database Changed to isBeingScanned and workerPID");
+
   userFlight.isBeingScanned = false;
   userFlight.workerPID = 0;
   userFlight.scannedLast = new Date()

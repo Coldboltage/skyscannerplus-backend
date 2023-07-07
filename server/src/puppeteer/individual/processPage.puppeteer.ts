@@ -1,10 +1,12 @@
-import { DepartureDate, ReturnDatesORM } from "../../entity/user-flight.entity";
+import priceAlert from "../../courier/priceAlert";
+import { DepartureDate, ReturnDatesORM, UserFlightTypeORM } from "../../entity/user-flight.entity";
 
 const cheerio = require("cheerio");
 const dayjs = require("dayjs");
 const axios = require("axios");
 const FlightsDatabase = require("../../models/userFlight.mongo");
 const { AppDataSource } = require("../../data-source");
+const userFlightTypeORMDatabase = AppDataSource.getRepository(UserFlightTypeORM)
 const returnDateORMDatabase = AppDataSource.getRepository(ReturnDatesORM)
 
 const processPage = async (
@@ -253,6 +255,18 @@ const processPage = async (
   const fullResult = await returnDateORMDatabase.save({
     ...result,
   })
+  console.log("👌 Price alert TEST 👌")
+  console.log(userFlight.alertPrice >= result.cheapest.cost)
+  console.log(userFlight.alertPrice, result.cheapest.cost)
+
+  if (userFlight.alertPrice >= result.cheapest.cost && !userFlight.alertPriceFired) {
+    await priceAlert(userFlight)
+    userFlight.alertPriceFired = true
+    await userFlightTypeORMDatabase.update({ id: userFlight.id }, {
+      alertPriceFired: true,
+    });
+    console.log("👌 Price alert fired 👌")
+  }
 
   // console.log(fullResult)
   // await page.waitForTimeout(200000000);
