@@ -21,7 +21,7 @@ import { ProxyIP } from "./entity/proxy.entity"
 
 export const AppDataSource = new DataSource({
     type: 'postgres',
-    host: process.env.DEVELOPMENT === "true" ? 'localhost' : 'host.docker.internal',
+    host: 'host.docker.internal',
     // host: 'localhost',
     port: 5432,
     username: 'postgres',
