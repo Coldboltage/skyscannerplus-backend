@@ -25,9 +25,9 @@ const skyscannerHomePage = async (page: any, userFlight: UserFlightTypeORM) => {
   const originInput = "#app-root > div.Routes_container__ODc5Z > div > main > div.Homepage_searchControlsContainer__ZWI2N > div > div > div > div.DateSearchControlsGroup_desktopDatesContainer__ZWZkZ.DateSearchControlsGroup_flexibilDateContainer__ODI1M > div:nth-child(1)";
   const originInputWholeMonth = 'button.BpkSelectableChip_bpk-chip__MjMxO:nth-child(2) > span:nth-child(1) > span:nth-child(1)'
   const originInputCheapestMonth =
-    '#app-root > div.Routes_container__ODc5Z > div > main > div.Homepage_searchControlsContainer__ZWI2N > div > div > div > div.DateSearchControlsGroup_desktopDatesContainer__ZWZkZ.DateSearchControlsGroup_flexibilDateContainer__ODI1M > div.SearchControlSelectorPopOver_container__ZTFjM.DateSearchControlsGroup_newDatesSelectorPopover__Y2YyN.DateSearchControlsGroup_datesSelectorPopover__NGVhM > div > div.DatePickerDesktop_form__NmY5M > section > div > div > div:nth-child(1) > button'
-  const arrivalInput = '#app-root > div.Routes_container__ODc5Z > div > main > div.Homepage_searchControlsContainer__ZWI2N > div > div > div > div.DateSearchControlsGroup_desktopDatesContainer__ZWZkZ.DateSearchControlsGroup_flexibilDateContainer__ODI1M > div:nth-child(2) > div > button';
-  const arrivalInputCheapestMonth = '#app-root > div.Routes_container__ODc5Z > div > main > div.Homepage_searchControlsContainer__ZWI2N > div > div > div > div.DateSearchControlsGroup_desktopDatesContainer__ZWZkZ.DateSearchControlsGroup_flexibilDateContainer__ODI1M > div.SearchControlSelectorPopOver_container__ZTFjM.DateSearchControlsGroup_newDatesSelectorPopover__Y2YyN.DateSearchControlsGroup_datesSelectorPopover__NGVhM > div > div.DatePickerDesktop_form__NmY5M > section > div > div > div:nth-child(1) > button'
+    '#app-root > div.Routes_container__ODc5Z > div > main > div.Homepage_searchControlsContainer__ZWI2N > div > div > div > div.DateSearchControlsGroup_desktopDatesContainer__ZWZkZ.DateSearchControlsGroup_flexibilDateContainer__ODI1M > div.SearchControlSelectorPopOver_container__ZTFjM.DateSearchControlsGroup_newDatesSelectorPopover__Y2YyN.DateSearchControlsGroup_datesSelectorPopover__NGVhM > div > div.DatePickerDesktop_form__NmY5M > section > div > div > div > div:nth-child(1) > button'
+  const arrivalInput = '#app-root > div.Routes_container__ODc5Z > div > main > div.Homepage_searchControlsContainer__ZWI2N > div > div > div > div.DateSearchControlsGroup_desktopDatesContainer__ZWZkZ.DateSearchControlsGroup_flexibilDateContainer__ODI1M > div:nth-child(2) > div > button > span.BpkText_bpk-text__OTg0N.BpkText_bpk-text--body-default__N2U4M.SearchControlButton_label__Y2RjZ';
+  const arrivalInputCheapestMonth = '#app-root > div.Routes_container__ODc5Z > div > main > div.Homepage_searchControlsContainer__ZWI2N > div > div > div > div.DateSearchControlsGroup_desktopDatesContainer__ZWZkZ.DateSearchControlsGroup_flexibilDateContainer__ODI1M > div.SearchControlSelectorPopOver_container__ZTFjM.DateSearchControlsGroup_newDatesSelectorPopover__Y2YyN.DateSearchControlsGroup_datesSelectorPopover__NGVhM > div > div.DatePickerDesktop_form__NmY5M > section > div > div > div > div:nth-child(1) > button'
   // await page.waitForTimeout(1000000)
 
   // Setting up from and away
@@ -92,7 +92,6 @@ const skyscannerHomePage = async (page: any, userFlight: UserFlightTypeORM) => {
   await page.click(
     "#app-root > div.Routes_container__ODc5Z > div > main > div.Homepage_searchControlsContainer__ZWI2N > div > div > div > button"
   );
-  // console.log(page)
 
   await page.waitForTimeout(2000);
   let url = await page.url()
