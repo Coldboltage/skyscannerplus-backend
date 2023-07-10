@@ -77,13 +77,13 @@ const todaysDate = new Date();
 const main = async (reference: string) => {
   console.log("Starting Main");
   // const assignedIp = (await axios.get('http://localhost:4000/ips/random-ip')).data
-  const assignedIp = await getProxy()
+  // const assignedIp = await getProxy()
 
   let browser = await puppeteer.launch({
     // slowMo: 20,
     headless: false,
     args: [
-      process.env.DEVELOPMENT ?? `--proxy-server=${assignedIp.ip}:${assignedIp.port}`,
+      // process.env.DEVELOPMENT ?? `--proxy-server=${assignedIp.ip}:${assignedIp.port}`,
       "--no-sandbox",
       "--disable-setuid-sandbox",
       "--disable-background-timer-throttling",
@@ -95,9 +95,9 @@ const main = async (reference: string) => {
 
   let page = await browser.newPage();
 
-  if (process.env.DEVELOPMENT) {
-    await attachNewIP(browser, page, assignedIp.ip)
-  }
+  // if (process.env.DEVELOPMENT) {
+  //   await attachNewIP(browser, page, assignedIp.ip)
+  // }
   
 
   // await page.authenticate(usernameDetails);

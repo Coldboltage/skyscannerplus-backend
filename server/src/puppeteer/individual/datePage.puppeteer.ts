@@ -523,12 +523,12 @@ const datePage = async (
           await page.goto(url, { waitUntil: "domcontentloaded", timeout: 100000 });
           break
         } catch (error) {
-          if (process.env.DEVELOPMENT) {
-            await detachIP(browser)
-          }
+          // if (process.env.DEVELOPMENT) {
+          //   await detachIP(browser)
+          // }
           await browser.close()
           // const assignedIp = (await axios.get('http://localhost:4000/ips/random-ip')).data
-          const assignedIp = await getProxy()
+          // const assignedIp = await getProxy()
 
           browser = await puppeteer.launch({
             headless: false,
@@ -539,14 +539,14 @@ const datePage = async (
               "--disable-backgrounding-occluded-windows",
               "--disable-renderer-backgrounding",
               // '--disable-dev-shm-usage',
-              process.env.DEVELOPMENT ?? `--proxy-server=${assignedIp.ip}:${assignedIp.port}`,
+              // process.env.DEVELOPMENT ?? `--proxy-server=${assignedIp.ip}:${assignedIp.port}`,
             ],
           });
           page = await browser.newPage();
 
-          if (process.env.DEVELOPMENT) {
-            await attachNewIP(browser, page, assignedIp.ip)
-          }
+          // if (process.env.DEVELOPMENT) {
+          //   await attachNewIP(browser, page, assignedIp.ip)
+          // }
           await page.setRequestInterception(true);
 
           const rejectRequestPattern = [
@@ -582,13 +582,13 @@ const datePage = async (
         departureDateORM
       );
 
-      if (process.env.DEVELOPMENT) {
-        await detachIP(browser)
-      } 
+      // if (process.env.DEVELOPMENT) {
+      //   await detachIP(browser)
+      // } 
       
       await browser.close();
 
-      const assignedIp = await getProxy()
+      // const assignedIp = await getProxy()
       browser = await puppeteer.launch({
         headless: false,
         args: [
@@ -598,14 +598,14 @@ const datePage = async (
           "--disable-backgrounding-occluded-windows",
           "--disable-renderer-backgrounding",
           // '--disable-dev-shm-usage',
-          process.env.DEVELOPMENT ?? `--proxy-server=${assignedIp.ip}:${assignedIp.port}`,
+          // process.env.DEVELOPMENT ?? `--proxy-server=${assignedIp.ip}:${assignedIp.port}`,
         ],
       });
       page = await browser.newPage();
 
-      if (process.env.DEVELOPMENT) {
-        await attachNewIP(browser, page, assignedIp.ip)
-      }
+      // if (process.env.DEVELOPMENT) {
+      //   await attachNewIP(browser, page, assignedIp.ip)
+      // }
       await page.setRequestInterception(true);
 
       // const rejectRequestPattern = [
@@ -715,9 +715,9 @@ const datePage = async (
 
   console.log("Saved");
 
-  if (process.env.DEVELOPMENT) {
-    await detachIP(browser)
-  }
+  // if (process.env.DEVELOPMENT) {
+  //   await detachIP(browser)
+  // }
   await browser.close();
   return true;
 };
